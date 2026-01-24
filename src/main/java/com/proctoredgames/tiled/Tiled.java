@@ -1,5 +1,7 @@
 package com.proctoredgames.tiled;
 
+import com.proctoredgames.tiled.block.ModBlocks;
+import com.proctoredgames.tiled.item.ModItemGroups;
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
@@ -11,6 +13,8 @@ public class Tiled implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-
+		ModItemGroups.registerItemGroups();
+//		ModItems.registerModItems();
+		ModBlocks.registerModBlocks();
 	}
 }

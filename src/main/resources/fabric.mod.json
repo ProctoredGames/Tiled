@@ -3,7 +3,7 @@
 	"id": "tiled",
 	"version": "${version}",
 	"name": "Tiled",
-	"description": "Adds completely customizable tile blocks!",
+	"description": "Adds completely customizable and craftable tile blocks",
 	"authors": [
 		"Me!"
 	],
