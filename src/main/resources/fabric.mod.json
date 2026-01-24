@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "tiled",
+	"version": "${version}",
+	"name": "Tiled",
+	"description": "Adds completely customizable tile blocks!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/tiled/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.proctoredgames.tiled.Tiled"
+		],
+		"fabric-datagen": [
+			"com.proctoredgames.tiled.TiledDataGenerator"
+		],
+		"client": [
+			"com.proctoredgames.tiled.TiledClient"
+		]
+	},
+	"mixins": [
+		"tiled.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
