@@ -1,17 +1,21 @@
 package com.proctoredgames.tiled.block.custom;
 
 import com.mojang.serialization.MapCodec;
+import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockEntity;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockEntity;
-import net.minecraft.block.*;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockRenderType;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
-public class TileBlock extends BlockWithEntity implements BlockEntityProvider {
+public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvider {
 
-    public static final MapCodec<TileBlock> CODEC = TileBlock.createCodec(TileBlock::new);
+    public static final MapCodec<SmallTileBlock> CODEC = SmallTileBlock.createCodec(SmallTileBlock::new);
 
-    public TileBlock(Settings settings) {
+    public SmallTileBlock(Settings settings) {
         super(settings);
     }
 
@@ -23,7 +27,7 @@ public class TileBlock extends BlockWithEntity implements BlockEntityProvider {
     @Nullable
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new TileBlockEntity(pos, state);
+        return new SmallTileBlockEntity(pos, state);
     }
 
     @Override

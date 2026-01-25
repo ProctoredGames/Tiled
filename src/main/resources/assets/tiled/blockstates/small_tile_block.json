@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "tiled:block/small_tile_block"
+    }
+  }
+}

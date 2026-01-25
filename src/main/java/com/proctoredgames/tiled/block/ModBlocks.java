@@ -1,7 +1,9 @@
 package com.proctoredgames.tiled.block;
 
 import com.proctoredgames.tiled.Tiled;
+import com.proctoredgames.tiled.block.custom.SmallTileBlock;
 import com.proctoredgames.tiled.block.custom.TileBlock;
+import com.proctoredgames.tiled.block.custom.TilingTableBlock;
 import net.minecraft.block.*;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -11,8 +13,14 @@ import net.minecraft.util.Identifier;
 
 public class ModBlocks {
 
+    public static final Block SMALL_TILE_BLOCK = registerBlock("small_tile_block",
+            new SmallTileBlock(AbstractBlock.Settings.copy(Blocks.PURPUR_BLOCK)));
+
     public static final Block TILE_BLOCK = registerBlock("tile_block",
             new TileBlock(AbstractBlock.Settings.copy(Blocks.PURPUR_BLOCK)));
+
+    public static final Block TILING_TABLE = registerBlock("tiling_table",
+            new TilingTableBlock(AbstractBlock.Settings.copy(Blocks.PURPUR_BLOCK)));
 
     private static Block registerBlock(String name, Block block) {
         registerBlockItem(name, block);

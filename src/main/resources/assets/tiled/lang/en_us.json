@@ -1,5 +1,7 @@
 {
+  "block.tiled.small_tile_block": "Small Tile Block",
   "block.tiled.tile_block": "Tile Block",
+  "block.tiled.tiling_table": "Tiling Table",
 
   "itemgroup.tiled.tiled": "Tiled"
 }
