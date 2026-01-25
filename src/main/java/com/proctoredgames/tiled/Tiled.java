@@ -1,6 +1,7 @@
 package com.proctoredgames.tiled;
 
 import com.proctoredgames.tiled.block.ModBlocks;
+import com.proctoredgames.tiled.block.entity.ModBlockEntities;
 import com.proctoredgames.tiled.item.ModItemGroups;
 import net.fabricmc.api.ModInitializer;
 
@@ -16,5 +17,6 @@ public class Tiled implements ModInitializer {
 		ModItemGroups.registerItemGroups();
 //		ModItems.registerModItems();
 		ModBlocks.registerModBlocks();
+		ModBlockEntities.registerBlockEntities();
 	}
 }
