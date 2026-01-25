@@ -2,17 +2,17 @@ package com.proctoredgames.tiled.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import com.proctoredgames.tiled.block.entity.custom.TilingTableBlockEntity;
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class TilingTableBlock extends BlockWithEntity implements BlockEntityProvider {
+
+    public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
 
     public static final MapCodec<TilingTableBlock> CODEC = TilingTableBlock.createCodec(TilingTableBlock::new);
 
