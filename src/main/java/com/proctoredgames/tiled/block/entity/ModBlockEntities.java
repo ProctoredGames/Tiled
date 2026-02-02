@@ -4,7 +4,6 @@ import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.block.ModBlocks;
 import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockEntity;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockEntity;
-import com.proctoredgames.tiled.block.entity.custom.TilingTableBlockEntity;
 
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
@@ -20,10 +19,6 @@ public class ModBlockEntities {
     public static final BlockEntityType<TileBlockEntity> TILE_BLOCK_BE =
             Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(Tiled.MOD_ID, "tile_block_be"),
                     BlockEntityType.Builder.create(TileBlockEntity::new, ModBlocks.TILE_BLOCK).build(null));
-
-    public static final BlockEntityType<TilingTableBlockEntity> TILING_TABLE_BE =
-            Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(Tiled.MOD_ID, "tiling_table_be"),
-                    BlockEntityType.Builder.create(TilingTableBlockEntity::new, ModBlocks.TILING_TABLE).build(null));
 
     public static void registerBlockEntities() {
         Tiled.LOGGER.info("Registering Block Entities for " + Tiled.MOD_ID);

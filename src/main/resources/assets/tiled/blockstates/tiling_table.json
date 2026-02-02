@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "facing=east": {
+      "model": "tiled:block/tiling_table",
+      "y": 90
+    },
+    "facing=north": {
       "model": "tiled:block/tiling_table"
+    },
+    "facing=south": {
+      "model": "tiled:block/tiling_table",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "tiled:block/tiling_table",
+      "y": 270
     }
   }
 }

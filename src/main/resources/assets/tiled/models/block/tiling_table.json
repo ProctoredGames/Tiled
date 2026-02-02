@@ -1,12 +1,9 @@
 {
-  "parent": "minecraft:block/cube",
+  "parent": "minecraft:block/orientable_with_bottom",
   "textures": {
-    "down": "minecraft:block/polished_andesite",
-    "east": "tiled:block/tiling_table_side",
-    "north": "tiled:block/tiling_table_front",
-    "particle": "tiled:block/tiling_table_front",
-    "south": "tiled:block/tiling_table_side",
-    "up": "tiled:block/tiling_table_top",
-    "west": "tiled:block/tiling_table_front"
+    "bottom": "tiled:block/tiling_table_bottom",
+    "front": "tiled:block/tiling_table_front",
+    "side": "tiled:block/tiling_table_side",
+    "top": "tiled:block/tiling_table_top"
   }
 }
