@@ -1,4 +1,26 @@
 {
-  "type": "tiled:crafting_tile_block",
-  "category": "misc"
+  "type": "tiled:tile_block_crafting",
+  "category": "building",
+  "key": {
+    "A": {
+      "tag": "minecraft:terracotta"
+    },
+    "B": {
+      "tag": "minecraft:terracotta"
+    },
+    "C": {
+      "tag": "minecraft:terracotta"
+    },
+    "D": {
+      "tag": "minecraft:terracotta"
+    }
+  },
+  "pattern": [
+    "AB",
+    "CD"
+  ],
+  "result": {
+    "count": 1,
+    "id": "tiled:tile_block"
+  }
 }
