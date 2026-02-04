@@ -6,7 +6,7 @@
       "item": "minecraft:polished_andesite"
     },
     "@": {
-      "tag": "minecraft:concrete"
+      "tag": "tiled:concrete"
     },
     "&": {
       "item": "minecraft:iron_ingot"

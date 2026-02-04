@@ -1,6 +1,8 @@
 package com.proctoredgames.tiled.block.entity.renderer;
 
 import com.proctoredgames.tiled.Tiled;
+import com.proctoredgames.tiled.block.entity.Tiles;
+import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
@@ -82,17 +84,30 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
         MeshBuilder builder = renderer.meshBuilder();
         QuadEmitter emitter = builder.getEmitter();
 
+        Sprite topLeft = sprites[1];
+        Sprite topRight = sprites[5];
+        Sprite bottomLeft = sprites[10];
+        Sprite bottomRight = sprites[8];
+
         for(Direction direction : Direction.values()) {
-            // UP and DOWN share the Y axis
-            int spriteIdx = direction == Direction.UP || direction == Direction.DOWN ? SPRITE_TOP : SPRITE_SIDE;
-            // Add a new face to the mesh
-            emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-            // Set the sprite of the face, must be called after .square()
-            // We haven't specified any UV coordinates, so we want to use the whole texture. BAKE_LOCK_UV does exactly that.
-            emitter.spriteBake(sprites[spriteIdx], MutableQuadView.BAKE_LOCK_UV);
-            // Enable texture usage
+            emitter.square(direction, 0f, 0f, 0.5f, 0.5f, 0.0f);
+            emitter.spriteBake(topLeft, MutableQuadView.BAKE_LOCK_UV);
             emitter.color(-1, -1, -1, -1);
-            // Add the quad to the mesh
+            emitter.emit();
+
+            emitter.square(direction, 0.5f, 0f, 1f, 0.5f, 0.0f);
+            emitter.spriteBake(topRight, MutableQuadView.BAKE_LOCK_UV);
+            emitter.color(-1, -1, -1, -1);
+            emitter.emit();
+
+            emitter.square(direction, 0f, 0.5f, 0.5f, 1f, 0.0f);
+            emitter.spriteBake(bottomLeft, MutableQuadView.BAKE_LOCK_UV);
+            emitter.color(-1, -1, -1, -1);
+            emitter.emit();
+
+            emitter.square(direction, 0.5f, 0.5f, 1f, 1f, 0.0f);
+            emitter.spriteBake(bottomRight, MutableQuadView.BAKE_LOCK_UV);
+            emitter.color(-1, -1, -1, -1);
             emitter.emit();
         }
         mesh = builder.build();
@@ -134,7 +149,8 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
     @Override
     public void emitBlockQuads(BlockRenderView blockRenderView, BlockState blockState, BlockPos blockPos, Supplier<Random> supplier, RenderContext renderContext) {
         // Render function
-
+        TileBlockBE be = (TileBlockBE) blockRenderView.getBlockEntity(blockPos);
+        Tiles tiles = be != null ? be.getTiles() : Tiles.DEFAULT;
         // We just render the mesh
         mesh.outputTo(renderContext.getEmitter());
     }
