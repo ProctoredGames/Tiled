@@ -36,7 +36,7 @@ public record Tiles(Optional<Item> top_left, Optional<Item> top_right, Optional<
             return Optional.empty();
         } else {
             Item item = (Item)tiles.get(index);
-            return item == Items.BRICK ? Optional.empty() : Optional.of(item);
+            return Optional.of(item);
         }
     }
 
