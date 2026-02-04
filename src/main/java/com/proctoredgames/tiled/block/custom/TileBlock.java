@@ -1,7 +1,7 @@
 package com.proctoredgames.tiled.block.custom;
 
 import com.mojang.serialization.MapCodec;
-import com.proctoredgames.tiled.block.entity.custom.TileBlockEntity;
+import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
@@ -23,7 +23,7 @@ public class TileBlock extends BlockWithEntity implements BlockEntityProvider {
     @Nullable
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new TileBlockEntity(pos, state);
+        return new TileBlockBE(pos, state);
     }
 
     @Override

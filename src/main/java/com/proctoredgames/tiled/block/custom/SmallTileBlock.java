@@ -1,8 +1,7 @@
 package com.proctoredgames.tiled.block.custom;
 
 import com.mojang.serialization.MapCodec;
-import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockEntity;
-import com.proctoredgames.tiled.block.entity.custom.TileBlockEntity;
+import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -27,7 +26,7 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
     @Nullable
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new SmallTileBlockEntity(pos, state);
+        return new SmallTileBlockBE(pos, state);
     }
 
     @Override

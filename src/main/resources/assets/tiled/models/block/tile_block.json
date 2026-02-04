@@ -1,10 +1,5 @@
 {
-  "[arent": "minecraft:block/block",
   "textures": {
     "particle": "minecraft:block/terracotta"
-  },
-  "loader": "fabric:mesh",
-  "model": {
-    "type": "tiled:tile_block"
   }
 }

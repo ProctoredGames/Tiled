@@ -16,7 +16,7 @@ public class ModBlocks {
     public static final Block SMALL_TILE_BLOCK = registerBlock("small_tile_block",
             new SmallTileBlock(AbstractBlock.Settings.copy(Blocks.PURPUR_BLOCK)));
 
-    public static final Block TILE_BLOCK = registerBlock("tile_block.json",
+    public static final Block TILE_BLOCK = registerBlock("tile_block",
             new TileBlock(AbstractBlock.Settings.copy(Blocks.PURPUR_BLOCK)));
 
     public static final Block TILING_TABLE = registerBlock("tiling_table",
