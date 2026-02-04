@@ -1,5 +1,6 @@
 package com.proctoredgames.tiled.block.entity.custom;
 
+import com.proctoredgames.tiled.block.ModBlocks;
 import com.proctoredgames.tiled.block.entity.ModBlockEntities;
 import com.proctoredgames.tiled.block.entity.Tiles;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
@@ -58,13 +59,13 @@ public class TileBlockBE extends BlockEntity {
     }
 
     public ItemStack asStack() {
-        ItemStack itemStack = Items.DECORATED_POT.getDefaultStack();
+        ItemStack itemStack = ModBlocks.TILE_BLOCK.asItem().getDefaultStack();
         itemStack.applyComponentsFrom(this.createComponentMap());
         return itemStack;
     }
 
     public static ItemStack getStackWith(Tiles tiles) {
-        ItemStack itemStack = Items.DECORATED_POT.getDefaultStack();
+        ItemStack itemStack = ModBlocks.TILE_BLOCK.asItem().getDefaultStack();
         itemStack.set(ModDataComponentTypes.TILE_BLOCK_TILES, tiles);
         return itemStack;
     }
