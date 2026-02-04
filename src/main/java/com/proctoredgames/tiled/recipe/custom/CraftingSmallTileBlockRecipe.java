@@ -1,4 +1,4 @@
-package com.proctoredgames.tiled.block.entity.custom;
+package com.proctoredgames.tiled.recipe.custom;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
@@ -8,9 +8,9 @@ import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.world.World;
 
-public class CraftingTileBlockRecipe extends SpecialCraftingRecipe {
+public class CraftingSmallTileBlockRecipe extends SpecialCraftingRecipe {
 
-    public CraftingTileBlockRecipe(CraftingRecipeCategory category) {
+    public CraftingSmallTileBlockRecipe(CraftingRecipeCategory category) {
         super(category);
     }
 
