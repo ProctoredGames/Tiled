@@ -2,27 +2,17 @@ package com.proctoredgames.tiled.block.entity.custom;
 
 import com.proctoredgames.tiled.block.entity.ModBlockEntities;
 import com.proctoredgames.tiled.block.entity.Tiles;
+import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.DecoratedPotBlockEntity;
-import net.minecraft.block.entity.Sherds;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ContainerComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.loot.LootTable;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public class TileBlockBE extends BlockEntity {
 
@@ -75,7 +65,7 @@ public class TileBlockBE extends BlockEntity {
 
     public static ItemStack getStackWith(Tiles tiles) {
         ItemStack itemStack = Items.DECORATED_POT.getDefaultStack();
-        itemStack.set(DataComponentTypes.POT_DECORATIONS, tiles);
+        itemStack.set(ModDataComponentTypes.TILE_BLOCK_TILES, tiles);
         return itemStack;
     }
 

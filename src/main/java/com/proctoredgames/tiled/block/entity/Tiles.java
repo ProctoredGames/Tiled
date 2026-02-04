@@ -23,19 +23,19 @@ public record Tiles(Optional<Item> top_left, Optional<Item> top_right, Optional<
             .collect(PacketCodecs.toList(4))
             .xmap(Tiles::new, Tiles::stream);
 
-    private Tiles(List<Item> Tiles) {
-        this(getTile(Tiles, 0), getTile(Tiles, 1), getTile(Tiles, 2), getTile(Tiles, 3));
+    private Tiles(List<Item> tiles) {
+        this(getTile(tiles, 0), getTile(tiles, 1), getTile(tiles, 2), getTile(tiles, 3));
     }
 
-    public Tiles(Item back, Item left, Item right, Item front) {
-        this(List.of(back, left, right, front));
+    public Tiles(Item top_left, Item top_right, Item bottom_left, Item bottom_right) {
+        this(List.of(top_left, top_right, bottom_left, bottom_right));
     }
 
-    private static Optional<Item> getTile(List<Item> Tiles, int index) {
-        if (index >= Tiles.size()) {
+    private static Optional<Item> getTile(List<Item> tiles, int index) {
+        if (index >= tiles.size()) {
             return Optional.empty();
         } else {
-            Item item = (Item)Tiles.get(index);
+            Item item = (Item)tiles.get(index);
             return item == Items.BRICK ? Optional.empty() : Optional.of(item);
         }
     }
@@ -44,7 +44,7 @@ public record Tiles(Optional<Item> top_left, Optional<Item> top_right, Optional<
         if (this.equals(DEFAULT)) {
             return nbt;
         } else {
-            nbt.put("Tiles", CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow());
+            nbt.put("tiles", CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow());
             return nbt;
         }
     }

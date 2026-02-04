@@ -2,6 +2,7 @@ package com.proctoredgames.tiled.recipe.custom;
 
 import com.proctoredgames.tiled.block.entity.Tiles;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
+import com.proctoredgames.tiled.recipe.ModRecipeSerializers;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.RecipeSerializer;
@@ -63,6 +64,6 @@ public class CraftingTileBlockRecipe extends SpecialCraftingRecipe {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return RecipeSerializer.CRAFTING_DECORATED_POT;
+        return ModRecipeSerializers.CRAFTING_TILE_BLOCK;
     }
 }

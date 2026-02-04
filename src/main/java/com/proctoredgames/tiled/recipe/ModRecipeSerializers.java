@@ -10,14 +10,14 @@ import net.minecraft.util.Identifier;
 
 public class ModRecipeSerializers {
 
-    public static final RecipeSerializer<CraftingTileBlockRecipe> MY_SPECIAL_RECIPE =
+    public static final RecipeSerializer<CraftingTileBlockRecipe> CRAFTING_TILE_BLOCK =
             new SpecialRecipeSerializer<>(CraftingTileBlockRecipe::new);
 
     public static void register() {
         Registry.register(
                 Registries.RECIPE_SERIALIZER,
                 Identifier.of(Tiled.MOD_ID, "crafting_tile_block"),
-                MY_SPECIAL_RECIPE
+                CRAFTING_TILE_BLOCK
         );
         Tiled.LOGGER.info("Registering recipe serializers for " + Tiled.MOD_ID);
     }
