@@ -3,6 +3,7 @@ package com.proctoredgames.tiled.recipe.custom;
 import com.proctoredgames.tiled.block.entity.Tiles;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import com.proctoredgames.tiled.recipe.ModRecipeSerializers;
+import com.proctoredgames.tiled.util.ModTags;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.RecipeSerializer;
@@ -25,7 +26,7 @@ public class CraftingTileBlockRecipe extends SpecialCraftingRecipe {
     }
 
     private boolean isValidIngredient(ItemStack stack) {
-        return stack.isIn(ItemTags.TERRACOTTA);
+        return stack.isIn(ModTags.Items.CONCRETE);
     }
 
     @Override
