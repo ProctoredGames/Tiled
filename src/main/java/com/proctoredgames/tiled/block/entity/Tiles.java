@@ -54,6 +54,6 @@ public record Tiles(Optional<Item> top_left, Optional<Item> top_right, Optional<
     }
 
     public static Tiles fromNbt(@Nullable NbtCompound nbt) {
-        return nbt != null && nbt.contains("Tiles") ? (Tiles)CODEC.parse(NbtOps.INSTANCE, nbt.get("Tiles")).result().orElse(DEFAULT) : DEFAULT;
+        return nbt != null && nbt.contains("tiles") ? (Tiles)CODEC.parse(NbtOps.INSTANCE, nbt.get("tiles")).result().orElse(DEFAULT) : DEFAULT;
     }
 }

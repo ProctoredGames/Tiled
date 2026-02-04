@@ -12,8 +12,8 @@ import java.util.function.UnaryOperator;
 
 public class ModDataComponentTypes {
 
-    public static final ComponentType<Tiles> TILE_BLOCK_TILES = register(
-            "tile_block_tiles", builder -> builder.codec(Tiles.CODEC).packetCodec(Tiles.PACKET_CODEC).cache()
+    public static final ComponentType<Tiles> TILE_BLOCK_TILES =
+            register("tile_block_tiles", builder -> builder.codec(Tiles.CODEC)
     );
 
     private static <T>ComponentType<T> register(String name, UnaryOperator<ComponentType.Builder<T>> builderOperator){

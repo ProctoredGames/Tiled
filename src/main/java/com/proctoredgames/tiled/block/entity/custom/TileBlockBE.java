@@ -23,6 +23,7 @@ public class TileBlockBE extends BlockEntity {
 
     public TileBlockBE(BlockPos pos, BlockState state) {
         super(ModBlockEntities.TILE_BLOCK_BE, pos, state);
+        this.tiles = Tiles.DEFAULT;
     }
 
     @Override
@@ -46,10 +47,6 @@ public class TileBlockBE extends BlockEntity {
         return this.createComponentlessNbt(registryLookup);
     }
 
-    public Direction getHorizontalFacing() {
-        return this.getCachedState().get(Properties.HORIZONTAL_FACING);
-    }
-
     public Tiles getTiles() {
         return this.tiles;
     }
@@ -69,40 +66,6 @@ public class TileBlockBE extends BlockEntity {
         itemStack.set(ModDataComponentTypes.TILE_BLOCK_TILES, tiles);
         return itemStack;
     }
-
-//    @Nullable
-//    @Override
-//    public RegistryKey<LootTable> getLootTable() {
-//        return this.lootTableId;
-//    }
-//
-//    @Override
-//    public void setLootTable(@Nullable RegistryKey<LootTable> lootTable) {
-//        this.lootTableId = lootTable;
-//    }
-//
-//    @Override
-//    public long getLootTableSeed() {
-//        return this.lootTableSeed;
-//    }
-//
-//    @Override
-//    public void setLootTableSeed(long lootTableSeed) {
-//        this.lootTableSeed = lootTableSeed;
-//    }
-
-//    @Override
-//    protected void addComponents(ComponentMap.Builder componentMapBuilder) {
-//        super.addComponents(componentMapBuilder);
-//        componentMapBuilder.add(DataComponentTypes.POT_DECORATIONS, this.sherds);
-//        componentMapBuilder.add(DataComponentTypes.CONTAINER, ContainerComponent.fromStacks(List.of(this.stack)));
-//    }
-
-//    @Override
-//    protected void readComponents(BlockEntity.ComponentsAccess components) {
-//        super.readComponents(components);
-//        this.tiles = components.getOrDefault(DataComponentTypes.POT_DECORATIONS, Tiles.DEFAULT);
-//    }
 
     @Override
     public void removeFromCopiedStackNbt(NbtCompound nbt) {

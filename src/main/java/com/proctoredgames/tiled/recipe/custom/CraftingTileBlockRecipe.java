@@ -15,53 +15,13 @@ import net.minecraft.world.World;
 
 public class CraftingTileBlockRecipe extends SpecialCraftingRecipe {
 
-    // Stores where the valid 2x2 square starts
-    private int topLeftSlot = -1;
-
     public CraftingTileBlockRecipe(CraftingRecipeCategory category) {
         super(category);
     }
 
     @Override
     public boolean matches(CraftingRecipeInput input, World world) {
-
-        if (!this.fits(input.getWidth(), input.getHeight())) {
-            return false;
-        }
-
-        int width = input.getWidth();
-        int height = input.getHeight();
-
-        // Try every possible 2x2 position
-        for (int y = 0; y <= height - 2; y++) {
-            for (int x = 0; x <= width - 2; x++) {
-
-                int i0 = x + y * width;
-                int i1 = (x + 1) + y * width;
-                int i2 = x + (y + 1) * width;
-                int i3 = (x + 1) + (y + 1) * width;
-
-                if (isValidIngredient(input.getStackInSlot(i0)) &&
-                        isValidIngredient(input.getStackInSlot(i1)) &&
-                        isValidIngredient(input.getStackInSlot(i2)) &&
-                        isValidIngredient(input.getStackInSlot(i3))) {
-
-                    // Ensure everything else is empty
-                    for (int i = 0; i < input.getSize(); i++) {
-                        if (i != i0 && i != i1 && i != i2 && i != i3) {
-                            if (!input.getStackInSlot(i).isEmpty()) {
-                                return false;
-                            }
-                        }
-                    }
-
-                    topLeftSlot = i0;
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return findTopLeft(input) != -1;
     }
 
     private boolean isValidIngredient(ItemStack stack) {
@@ -71,24 +31,56 @@ public class CraftingTileBlockRecipe extends SpecialCraftingRecipe {
     @Override
     public ItemStack craft(CraftingRecipeInput input, RegistryWrapper.WrapperLookup lookup) {
 
-        if (topLeftSlot == -1) {
+        int topLeft = findTopLeft(input);
+        if (topLeft == -1) {
             return ItemStack.EMPTY;
         }
 
         int w = input.getWidth();
-        int i0 = topLeftSlot;
-        int i1 = topLeftSlot + 1;
-        int i2 = topLeftSlot + w;
-        int i3 = topLeftSlot + w + 1;
 
         Tiles tiles = new Tiles(
-                input.getStackInSlot(i0).getItem(),
-                input.getStackInSlot(i1).getItem(),
-                input.getStackInSlot(i2).getItem(),
-                input.getStackInSlot(i3).getItem()
+                input.getStackInSlot(topLeft).getItem(),
+                input.getStackInSlot(topLeft + 1).getItem(),
+                input.getStackInSlot(topLeft + w).getItem(),
+                input.getStackInSlot(topLeft + w + 1).getItem()
         );
 
         return TileBlockBE.getStackWith(tiles);
+    }
+
+    private int findTopLeft(CraftingRecipeInput input) {
+
+        int width = input.getWidth();
+        int height = input.getHeight();
+
+        for (int y = 0; y < height - 1; y++) {
+            for (int x = 0; x < width - 1; x++) {
+
+                int i0 = x + y * width;
+                int i1 = i0 + 1;
+                int i2 = i0 + width;
+                int i3 = i2 + 1;
+
+                if (isValidIngredient(input.getStackInSlot(i0)) &&
+                        isValidIngredient(input.getStackInSlot(i1)) &&
+                        isValidIngredient(input.getStackInSlot(i2)) &&
+                        isValidIngredient(input.getStackInSlot(i3))) {
+
+                    // ensure others empty
+                    for (int i = 0; i < input.getSize(); i++) {
+                        if (i != i0 && i != i1 && i != i2 && i != i3) {
+                            if (!input.getStackInSlot(i).isEmpty()) {
+                                return -1;
+                            }
+                        }
+                    }
+
+                    return i0;
+                }
+            }
+        }
+
+        return -1;
     }
 
     @Override
