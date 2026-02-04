@@ -34,8 +34,22 @@ import java.util.function.Supplier;
 @Environment(EnvType.CLIENT)
 public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedModel {
     private static final SpriteIdentifier[] SPRITE_IDS = new SpriteIdentifier[]{
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/furnace_front_on")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/furnace_top"))
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.of(Tiled.MOD_ID, "block/black_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.of(Tiled.MOD_ID, "block/blue_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.of(Tiled.MOD_ID, "block/brown_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.of(Tiled.MOD_ID, "block/cyan_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.of(Tiled.MOD_ID, "block/gray_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.of(Tiled.MOD_ID, "block/green_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.of(Tiled.MOD_ID, "block/light_blue_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.of(Tiled.MOD_ID, "block/light_gray_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.of(Tiled.MOD_ID, "block/lime_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.of(Tiled.MOD_ID, "block/magenta_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.of(Tiled.MOD_ID, "block/orange_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.of(Tiled.MOD_ID, "block/pink_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.of(Tiled.MOD_ID, "block/purple_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.of(Tiled.MOD_ID, "block/red_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.of(Tiled.MOD_ID, "block/white_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.of(Tiled.MOD_ID, "block/yellow_tiles")),
     };
 
     private final Sprite[] sprites = new Sprite[SPRITE_IDS.length];
