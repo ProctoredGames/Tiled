@@ -7,7 +7,9 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
+import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MeshBuilder;
+import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper;
@@ -28,9 +30,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -58,6 +58,10 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
 
     private final Sprite[] sprites = new Sprite[SPRITE_IDS.length];
 
+    private final Map<Tiles, Mesh> meshCache = new HashMap<>();
+    private Sprite defaultParticleSprite; // For getParticleSprite()
+
+
     @Override
     public Collection<Identifier> getModelDependencies() {
         return List.of(); // No other models
@@ -69,53 +73,76 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
     }
 
     @Override
-    public BakedModel bake(Baker baker, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer) {
-        // Load sprites once
-        for (int i = 0; i < SPRITE_IDS.length; i++) {
+    public BakedModel bake(Baker baker, Function<SpriteIdentifier, Sprite> textureGetter,
+                           ModelBakeSettings rotationContainer) {
+        // Load all sprites
+        for(int i = 0; i < SPRITE_IDS.length; ++i) {
             sprites[i] = textureGetter.apply(SPRITE_IDS[i]);
         }
+        defaultParticleSprite = sprites[0]; // Store for particle sprite
+
+        // DON'T build mesh here - build on demand in emitBlockQuads
         return this;
     }
 
     @Override
-    public void emitBlockQuads(BlockRenderView world, BlockState state, BlockPos pos,
-                               Supplier<Random> randomSupplier, RenderContext context) {
-        TileBlockBE be = (TileBlockBE) world.getBlockEntity(pos);
+    public void emitBlockQuads(BlockRenderView blockRenderView, BlockState blockState,
+                               BlockPos blockPos, Supplier<Random> supplier, RenderContext renderContext) {
+        // Get tile data from block entity
+        TileBlockBE be = (TileBlockBE) blockRenderView.getBlockEntity(blockPos);
         Tiles tiles = be != null ? be.getTiles() : Tiles.DEFAULT;
 
-        Renderer renderer = RendererAccess.INSTANCE.getRenderer();
-        MeshBuilder builder = renderer.meshBuilder();
-        QuadEmitter emitter = builder.getEmitter();
+        // Get or create mesh for THIS specific tile configuration
+        Mesh mesh = getOrCreateMesh(tiles);
+        if (mesh != null) {
+            mesh.outputTo(renderContext.getEmitter());
+        }
+    }
 
+    private Mesh getOrCreateMesh(Tiles tiles) {
+        return meshCache.computeIfAbsent(tiles, this::createMeshForTiles);
+    }
+
+    private Mesh createMeshForTiles(Tiles tiles) {
+        Renderer renderer = RendererAccess.INSTANCE.getRenderer();
+        if (renderer == null) return null;
+
+        // Get the 4 sprites for this tile configuration
+        // ASSUMING: Tiles has methods to get the 4 indices (0-15)
         Sprite topLeft = sprites[getTextureIdFromTile(tiles.top_left())];
         Sprite topRight = sprites[getTextureIdFromTile(tiles.top_right())];
         Sprite bottomLeft = sprites[getTextureIdFromTile(tiles.bottom_left())];
         Sprite bottomRight = sprites[getTextureIdFromTile(tiles.bottom_right())];
 
-        for (Direction dir : Direction.values()) {
-            emitter.square(dir, 0f, 0f, 0.5f, 0.5f, 0f);
-            emitter.spriteBake(topLeft, QuadEmitter.BAKE_LOCK_UV);
+        MeshBuilder builder = renderer.meshBuilder();
+        QuadEmitter emitter = builder.getEmitter();
+
+        for(Direction direction : Direction.values()) {
+            // Top-left quadrant
+            emitter.square(direction, 0f, 0.5f, 0.5f, 1.0f, 0.0f); // Fixed: y ranges from bottom to top
+            emitter.spriteBake(topLeft, MutableQuadView.BAKE_LOCK_UV);
             emitter.color(-1, -1, -1, -1);
             emitter.emit();
 
-            emitter.square(dir, 0.5f, 0f, 1f, 0.5f, 0f);
-            emitter.spriteBake(topRight, QuadEmitter.BAKE_LOCK_UV);
+            // Top-right quadrant
+            emitter.square(direction, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f);
+            emitter.spriteBake(topRight, MutableQuadView.BAKE_LOCK_UV);
             emitter.color(-1, -1, -1, -1);
             emitter.emit();
 
-            emitter.square(dir, 0f, 0.5f, 0.5f, 1f, 0f);
-            emitter.spriteBake(bottomLeft, QuadEmitter.BAKE_LOCK_UV);
+            // Bottom-left quadrant
+            emitter.square(direction, 0f, 0f, 0.5f, 0.5f, 0.0f);
+            emitter.spriteBake(bottomLeft, MutableQuadView.BAKE_LOCK_UV);
             emitter.color(-1, -1, -1, -1);
             emitter.emit();
 
-            emitter.square(dir, 0.5f, 0.5f, 1f, 1f, 0f);
-            emitter.spriteBake(bottomRight, QuadEmitter.BAKE_LOCK_UV);
+            // Bottom-right quadrant
+            emitter.square(direction, 0.5f, 0f, 1.0f, 0.5f, 0.0f);
+            emitter.spriteBake(bottomRight, MutableQuadView.BAKE_LOCK_UV);
             emitter.color(-1, -1, -1, -1);
             emitter.emit();
         }
-
-        // Output dynamically generated mesh
-        builder.build().outputTo(context.getEmitter());
+        return builder.build();
     }
 
     private int getTextureIdFromTile(Optional<Item> tile) {
@@ -163,7 +190,7 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
 
     @Override
     public Sprite getParticleSprite() {
-        return sprites[0]; // fallback black
+        return defaultParticleSprite; // Use the stored sprite
     }
 
     @Override
@@ -188,6 +215,11 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
 
     @Override
     public void emitItemQuads(ItemStack itemStack, Supplier<Random> supplier, RenderContext renderContext) {
-        mesh.outputTo(renderContext.getEmitter());
+        // Use default tiles for items
+        Mesh mesh = getOrCreateMesh(Tiles.DEFAULT);
+        if (mesh != null) {
+            mesh.outputTo(renderContext.getEmitter());
+        }
     }
+
 }
