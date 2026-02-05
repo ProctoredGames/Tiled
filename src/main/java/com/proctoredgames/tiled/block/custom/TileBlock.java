@@ -1,12 +1,11 @@
 package com.proctoredgames.tiled.block.custom;
 
 import com.mojang.serialization.MapCodec;
-import com.proctoredgames.tiled.block.entity.Tiles;
+import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;

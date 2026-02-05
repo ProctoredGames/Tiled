@@ -1,17 +1,15 @@
 package com.proctoredgames.tiled.recipe.custom;
 
-import com.proctoredgames.tiled.block.entity.Tiles;
+import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import com.proctoredgames.tiled.recipe.ModRecipeSerializers;
 import com.proctoredgames.tiled.util.ModTags;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.world.World;
 
 public class CraftingTileBlockRecipe extends SpecialCraftingRecipe {

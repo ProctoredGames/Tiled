@@ -1,8 +1,8 @@
 package com.proctoredgames.tiled.component;
 
 import com.proctoredgames.tiled.Tiled;
-import com.proctoredgames.tiled.block.entity.Tiles;
-import net.minecraft.block.entity.Sherds;
+import com.proctoredgames.tiled.block.entity.records.SmallTiles;
+import com.proctoredgames.tiled.block.entity.records.Tiles;
 import net.minecraft.component.ComponentType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -11,6 +11,10 @@ import net.minecraft.util.Identifier;
 import java.util.function.UnaryOperator;
 
 public class ModDataComponentTypes {
+
+    public static final ComponentType<SmallTiles> SMALL_TILE_BLOCK_TILES =
+            register("small_tile_block_tiles", builder -> builder.codec(SmallTiles.CODEC)
+    );
 
     public static final ComponentType<Tiles> TILE_BLOCK_TILES =
             register("tile_block_tiles", builder -> builder.codec(Tiles.CODEC)

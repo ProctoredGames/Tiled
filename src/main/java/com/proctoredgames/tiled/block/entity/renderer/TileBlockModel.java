@@ -2,7 +2,7 @@ package com.proctoredgames.tiled.block.entity.renderer;
 
 import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
-import com.proctoredgames.tiled.block.entity.Tiles;
+import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -111,6 +111,29 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
 
     }
 
+    @Override
+    public void emitItemQuads(
+            ItemStack stack,
+            Supplier<Random> random,
+            RenderContext context
+    ) {
+        Tiles tiles = stack.getOrDefault(ModDataComponentTypes.TILE_BLOCK_TILES, Tiles.DEFAULT);
+
+        QuadEmitter emitter = context.getEmitter();
+
+        Sprite tl = sprites[getTextureIdFromTile(tiles.top_left())];
+        Sprite tr = sprites[getTextureIdFromTile(tiles.top_right())];
+        Sprite bl = sprites[getTextureIdFromTile(tiles.bottom_left())];
+        Sprite br = sprites[getTextureIdFromTile(tiles.bottom_right())];
+
+        for (Direction dir : Direction.values()) {
+            emit(emitter, dir, 0f,   0.5f,   0.5f, 1.0f, tl);
+            emit(emitter, dir, 0.5f, 0.5f,   1.0f,   1.0f, tr);
+            emit(emitter, dir, 0.0f,   0.0f, 0.5f, 0.5f,   bl);
+            emit(emitter, dir, 0.5f, 0.0f, 1.0f,   0.5f,   br);
+        }
+    }
+
     private static void emit(
             QuadEmitter emitter,
             Direction dir,
@@ -144,29 +167,6 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
         if (item == Items.WHITE_CONCRETE) return 14;
         if (item == Items.YELLOW_CONCRETE) return 15;
         return 0; // fallback
-    }
-
-    @Override
-    public void emitItemQuads(
-            ItemStack stack,
-            Supplier<Random> random,
-            RenderContext context
-    ) {
-        Tiles tiles = stack.getOrDefault(ModDataComponentTypes.TILE_BLOCK_TILES, Tiles.DEFAULT);
-
-        QuadEmitter emitter = context.getEmitter();
-
-        Sprite tl = sprites[getTextureIdFromTile(tiles.top_left())];
-        Sprite tr = sprites[getTextureIdFromTile(tiles.top_right())];
-        Sprite bl = sprites[getTextureIdFromTile(tiles.bottom_left())];
-        Sprite br = sprites[getTextureIdFromTile(tiles.bottom_right())];
-
-        for (Direction dir : Direction.values()) {
-            emit(emitter, dir, 0f,   0.5f,   0.5f, 1.0f, tl);
-            emit(emitter, dir, 0.5f, 0.5f,   1.0f,   1.0f, tr);
-            emit(emitter, dir, 0.0f,   0.0f, 0.5f, 0.5f,   bl);
-            emit(emitter, dir, 0.5f, 0.0f, 1.0f,   0.5f,   br);
-        }
     }
 
     @Override public Sprite getParticleSprite() {
