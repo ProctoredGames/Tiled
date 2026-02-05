@@ -103,11 +103,12 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
         Sprite br = sprites[getTextureIdFromTile(tiles.bottom_right())];
 
         for (Direction dir : Direction.values()) {
-            emit(emitter, dir, 0f,   0f,   0.5f, 0.5f, tl);
-            emit(emitter, dir, 0.5f, 0f,   1f,   0.5f, tr);
-            emit(emitter, dir, 0f,   0.5f, 0.5f, 1f,   bl);
-            emit(emitter, dir, 0.5f, 0.5f, 1f,   1f,   br);
+            emit(emitter, dir, 0f,   0.5f,   0.5f, 1.0f, tl);
+            emit(emitter, dir, 0.5f, 0.5f,   1.0f,   1.0f, tr);
+            emit(emitter, dir, 0.0f,   0.0f, 0.5f, 0.5f,   bl);
+            emit(emitter, dir, 0.5f, 0.0f, 1.0f,   0.5f,   br);
         }
+
     }
 
     private static void emit(
@@ -161,10 +162,10 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
         Sprite br = sprites[getTextureIdFromTile(tiles.bottom_right())];
 
         for (Direction dir : Direction.values()) {
-            emit(emitter, dir, 0f,   0f,   0.5f, 0.5f, tl);
-            emit(emitter, dir, 0.5f, 0f,   1f,   0.5f, tr);
-            emit(emitter, dir, 0f,   0.5f, 0.5f, 1f,   bl);
-            emit(emitter, dir, 0.5f, 0.5f, 1f,   1f,   br);
+            emit(emitter, dir, 0f,   0.5f,   0.5f, 1.0f, tl);
+            emit(emitter, dir, 0.5f, 0.5f,   1.0f,   1.0f, tr);
+            emit(emitter, dir, 0.0f,   0.0f, 0.5f, 0.5f,   bl);
+            emit(emitter, dir, 0.5f, 0.0f, 1.0f,   0.5f,   br);
         }
     }
 
