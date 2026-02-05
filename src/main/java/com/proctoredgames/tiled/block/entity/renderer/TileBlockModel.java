@@ -168,12 +168,16 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
         }
     }
 
+    @Override public Sprite getParticleSprite() {
+        //we have no way to get the tile data, so just use white (the inside of the tile block)
+        return sprites[14];
+    }
+
     @Override public List<BakedQuad> getQuads(BlockState s, Direction d, Random r) { return List.of(); }
     @Override public boolean useAmbientOcclusion() { return true; }
     @Override public boolean isBuiltin() { return false; }
     @Override public boolean hasDepth() { return false; }
     @Override public boolean isSideLit() { return true; }
-    @Override public Sprite getParticleSprite() { return sprites[0]; }
     @Override public boolean isVanillaAdapter() { return false; }
     @Override public ModelTransformation getTransformation() { return ModelHelper.MODEL_TRANSFORM_BLOCK; }
     @Override public ModelOverrideList getOverrides() { return ModelOverrideList.EMPTY; }
