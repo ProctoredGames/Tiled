@@ -7,6 +7,7 @@ import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
@@ -16,6 +17,7 @@ import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -55,4 +57,21 @@ public class TileBlock extends BlockWithEntity implements BlockEntityProvider {
                     .forEach(tile -> tooltip.add(new ItemStack((ItemConvertible)tile.orElse(Items.BRICK), 1).getName().copyContentOnly().formatted(Formatting.GRAY)));
         }
     }
+
+
+    @Override
+    public void onPlaced(
+            World world,
+            BlockPos pos,
+            BlockState state,
+            LivingEntity placer,
+            ItemStack stack
+    ) {
+        if (world.getBlockEntity(pos) instanceof TileBlockBE be) {
+            Tiles tiles = stack.getOrDefault(ModDataComponentTypes.TILE_BLOCK_TILES, Tiles.DEFAULT);
+            be.setTiles(tiles);
+        }
+    }
+
+
 }

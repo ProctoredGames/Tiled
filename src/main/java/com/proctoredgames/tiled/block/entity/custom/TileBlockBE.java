@@ -51,6 +51,23 @@ public class TileBlockBE extends BlockEntity {
         return this.tiles;
     }
 
+    public void setTiles(Tiles tiles) {
+        if (tiles == null) {
+            tiles = Tiles.DEFAULT;
+        }
+
+        this.tiles = tiles;
+
+        // Mark for saving
+        markDirty();
+
+        // Sync + rerender on client
+        if (world != null && !world.isClient) {
+            world.updateListeners(pos, getCachedState(), getCachedState(), 3);
+        }
+    }
+
+
     public void readFrom(ItemStack stack) {
         this.readComponents(stack);
     }
