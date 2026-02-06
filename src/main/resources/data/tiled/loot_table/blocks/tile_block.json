@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1.0,
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "tiled:tile_block",
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "include": [
+                "tiled:tile_block_tiles"
+              ],
+              "source": "block_entity"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

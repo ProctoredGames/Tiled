@@ -1,7 +1,9 @@
 package com.proctoredgames.tiled.block.custom;
 
 import com.mojang.serialization.MapCodec;
+import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
+import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.minecraft.block.BlockEntityProvider;
@@ -16,9 +18,12 @@ import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.loot.context.LootContextParameterSet;
+import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
@@ -30,6 +35,7 @@ import java.util.stream.Stream;
 public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvider {
 
     public static final MapCodec<SmallTileBlock> CODEC = createCodec(SmallTileBlock::new);
+    public static final Identifier SMALL_TILE_BLOCK_DYNAMIC_DROP_ID = Identifier.of(Tiled.MOD_ID, "small_tile_block");
 
     @Override
     protected MapCodec<SmallTileBlock> getCodec() { return CODEC; }
@@ -68,6 +74,17 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
         return world.getBlockEntity(pos) instanceof SmallTileBlockBE blockEntity
                 ? blockEntity.asStack()
                 : super.getPickStack(world, pos, state);
+    }
+
+    @Override
+    protected List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
+        BlockEntity blockEntity = builder.getOptional(LootContextParameters.BLOCK_ENTITY);
+        if (blockEntity instanceof SmallTileBlockBE smallTileBlockBE) {
+            builder.addDynamicDrop(SMALL_TILE_BLOCK_DYNAMIC_DROP_ID, lootConsumer -> {
+                lootConsumer.accept(smallTileBlockBE.asStack());
+            });
+        }
+        return super.getDroppedStacks(state, builder);
     }
 }
 

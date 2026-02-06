@@ -197,7 +197,7 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
     }
 
     private int getTextureIdFromTile(Optional<Item> tile) {
-        if (tile.isEmpty()) return 1;
+        if (tile.isEmpty()) return 0;
 
         Item item = tile.get();
         if (item == Items.BLACK_CONCRETE) return 0;
