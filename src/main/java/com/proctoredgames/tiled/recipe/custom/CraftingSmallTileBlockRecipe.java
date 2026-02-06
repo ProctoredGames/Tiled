@@ -24,39 +24,40 @@ public class CraftingSmallTileBlockRecipe extends SpecialCraftingRecipe {
     }
 
     private boolean isValidIngredient(ItemStack stack) {
-        return stack.isIn(ModTags.Items.CONCRETE);
+        return false;
     }
 
     @Override
     public ItemStack craft(CraftingRecipeInput input, RegistryWrapper.WrapperLookup lookup) {
-
-        int topLeft = findTopLeft(input);
-        if (topLeft == -1) {
-            return ItemStack.EMPTY;
-        }
-
-        int w = input.getWidth();
-
-        SmallTiles tiles = new SmallTiles(
-                input.getStackInSlot(topLeft).getItem(),
-                input.getStackInSlot(topLeft + 1).getItem(),
-                input.getStackInSlot(topLeft + w).getItem(),
-                input.getStackInSlot(topLeft + w + 1).getItem(),
-                input.getStackInSlot(topLeft).getItem(),
-                input.getStackInSlot(topLeft + 1).getItem(),
-                input.getStackInSlot(topLeft + w).getItem(),
-                input.getStackInSlot(topLeft + w + 1).getItem(),
-                input.getStackInSlot(topLeft).getItem(),
-                input.getStackInSlot(topLeft + 1).getItem(),
-                input.getStackInSlot(topLeft + w).getItem(),
-                input.getStackInSlot(topLeft + w + 1).getItem(),
-                input.getStackInSlot(topLeft).getItem(),
-                input.getStackInSlot(topLeft + 1).getItem(),
-                input.getStackInSlot(topLeft + w).getItem(),
-                input.getStackInSlot(topLeft + w + 1).getItem()
-        );
-
-        return SmallTileBlockBE.getStackWith(tiles);
+//
+//        int topLeft = findTopLeft(input);
+//        if (topLeft == -1) {
+//            return ItemStack.EMPTY;
+//        }
+//
+//        int w = input.getWidth();
+//
+//        SmallTiles tiles = new SmallTiles(
+//                input.getStackInSlot(topLeft).getItem(),
+//                input.getStackInSlot(topLeft + 1).getItem(),
+//                input.getStackInSlot(topLeft + 2).getItem(),
+//                input.getStackInSlot(topLeft + 3).getItem(),
+//                input.getStackInSlot(topLeft + w).getItem(),
+//                input.getStackInSlot(topLeft + w + 1).getItem(),
+//                input.getStackInSlot(topLeft + w + 2).getItem(),
+//                input.getStackInSlot(topLeft + w + 3).getItem(),
+//                input.getStackInSlot(topLeft + 2*w).getItem(),
+//                input.getStackInSlot(topLeft + 2*w + 1).getItem(),
+//                input.getStackInSlot(topLeft + 2*w + 2).getItem(),
+//                input.getStackInSlot(topLeft + 2*w + 3).getItem(),
+//                input.getStackInSlot(topLeft + 3*w).getItem(),
+//                input.getStackInSlot(topLeft + 3*w + 1).getItem(),
+//                input.getStackInSlot(topLeft + 3*w + 2).getItem(),
+//                input.getStackInSlot(topLeft + 3*w + 3).getItem()
+//        );
+//
+//        return SmallTileBlockBE.getStackWith(tiles);
+        return null;
     }
 
     private int findTopLeft(CraftingRecipeInput input) {
@@ -69,8 +70,20 @@ public class CraftingSmallTileBlockRecipe extends SpecialCraftingRecipe {
 
                 int i0 = x + y * width;
                 int i1 = i0 + 1;
-                int i2 = i0 + width;
-                int i3 = i2 + 1;
+                int i2 = i0 + 2;
+                int i3 = i2 + 3;
+                int i4 = x + y * width;
+                int i5 = i0 + 1;
+                int i6 = i0 + width;
+                int i7 = i2 + 1;
+                int i8 = x + y * width;
+                int i9 = i0 + 1;
+                int i10 = i0 + width;
+                int i11 = i2 + 1;
+                int i12 = x + y * width;
+                int i13 = i0 + 1;
+                int i14 = i0 + width;
+                int i15 = i2 + 1;
 
                 if (isValidIngredient(input.getStackInSlot(i0)) &&
                         isValidIngredient(input.getStackInSlot(i1)) &&
