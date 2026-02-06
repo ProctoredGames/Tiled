@@ -9,6 +9,7 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.DecoratedPotBlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
@@ -20,6 +21,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -27,15 +29,13 @@ import java.util.stream.Stream;
 
 public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvider {
 
-    public static final MapCodec<SmallTileBlock> CODEC = SmallTileBlock.createCodec(SmallTileBlock::new);
+    public static final MapCodec<SmallTileBlock> CODEC = createCodec(SmallTileBlock::new);
+
+    @Override
+    protected MapCodec<SmallTileBlock> getCodec() { return CODEC; }
 
     public SmallTileBlock(Settings settings) {
         super(settings);
-    }
-
-    @Override
-    protected MapCodec<? extends BlockWithEntity> getCodec() {
-        return CODEC;
     }
 
     @Nullable
@@ -59,24 +59,15 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
                             tiles.slot4(), tiles.slot5(), tiles.slot6(), tiles.slot7(),
                             tiles.slot8(), tiles.slot9(), tiles.slot10(), tiles.slot11(),
                             tiles.slot12(), tiles.slot13(), tiles.slot14(), tiles.slot15())
-                    .forEach(tile -> tooltip.add(new ItemStack((ItemConvertible)tile.orElse(Items.BRICK), 1).getName().copyContentOnly().formatted(Formatting.GRAY)));
+                    .forEach(tile -> tooltip.add(new ItemStack((ItemConvertible) tile.orElse(Items.BRICK), 1).getName().copyContentOnly().formatted(Formatting.GRAY)));
         }
     }
-
 
     @Override
-    public void onPlaced(
-            World world,
-            BlockPos pos,
-            BlockState state,
-            LivingEntity placer,
-            ItemStack stack
-    ) {
-        if (world.getBlockEntity(pos) instanceof SmallTileBlockBE be) {
-            SmallTiles tiles = stack.getOrDefault(ModDataComponentTypes.SMALL_TILE_BLOCK_TILES, SmallTiles.DEFAULT);
-            be.setTiles(tiles);
-        }
+    public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
+        return world.getBlockEntity(pos) instanceof SmallTileBlockBE blockEntity
+                ? blockEntity.asStack()
+                : super.getPickStack(world, pos, state);
     }
-
-
 }
+

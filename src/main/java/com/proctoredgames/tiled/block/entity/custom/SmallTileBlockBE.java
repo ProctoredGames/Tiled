@@ -6,6 +6,7 @@ import com.proctoredgames.tiled.block.entity.records.SmallTiles;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.component.ComponentMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
@@ -48,23 +49,6 @@ public class SmallTileBlockBE extends BlockEntity {
         return this.tiles;
     }
 
-    public void setTiles(SmallTiles tiles) {
-        if (tiles == null) {
-            tiles = SmallTiles.DEFAULT;
-        }
-
-        this.tiles = tiles;
-
-        // Mark for saving
-        markDirty();
-
-        // Sync + rerender on client
-        if (world != null && !world.isClient) {
-            world.updateListeners(pos, getCachedState(), getCachedState(), 3);
-        }
-    }
-
-
     public void readFrom(ItemStack stack) {
         this.readComponents(stack);
     }
@@ -82,9 +66,22 @@ public class SmallTileBlockBE extends BlockEntity {
     }
 
     @Override
+    protected void addComponents(ComponentMap.Builder componentMapBuilder) {
+        super.addComponents(componentMapBuilder);
+        componentMapBuilder.add(ModDataComponentTypes.SMALL_TILE_BLOCK_TILES, this.tiles);
+    }
+
+    @Override
+    protected void readComponents(BlockEntity.ComponentsAccess components) {
+        super.readComponents(components);
+        this.tiles = components.getOrDefault(ModDataComponentTypes.SMALL_TILE_BLOCK_TILES, SmallTiles.DEFAULT);
+    }
+
+    @Override
     public void removeFromCopiedStackNbt(NbtCompound nbt) {
         super.removeFromCopiedStackNbt(nbt);
         nbt.remove("tiles");
     }
+
 }
 
