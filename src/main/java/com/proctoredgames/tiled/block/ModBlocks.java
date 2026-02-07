@@ -20,7 +20,7 @@ public class ModBlocks {
             new TileBlock(AbstractBlock.Settings.copy(Blocks.PURPUR_BLOCK)));
 
     public static final Block TILING_TABLE = registerBlock("tiling_table",
-            new TilingTableBlock(AbstractBlock.Settings.copy(Blocks.PURPUR_BLOCK)));
+            new TilingTableBlock(AbstractBlock.Settings.copy(Blocks.POLISHED_ANDESITE)));
 
     private static Block registerBlock(String name, Block block) {
         registerBlockItem(name, block);

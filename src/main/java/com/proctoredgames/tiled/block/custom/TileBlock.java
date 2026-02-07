@@ -1,23 +1,28 @@
 package com.proctoredgames.tiled.block.custom;
 
 import com.mojang.serialization.MapCodec;
-import com.proctoredgames.tiled.block.entity.Tiles;
+import com.proctoredgames.tiled.Tiled;
+import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.component.DataComponentTypes;
+import net.minecraft.block.entity.DecoratedPotBlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.loot.context.LootContextParameterSet;
+import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -25,15 +30,15 @@ import java.util.stream.Stream;
 
 public class TileBlock extends BlockWithEntity implements BlockEntityProvider {
 
-    public static final MapCodec<TileBlock> CODEC = TileBlock.createCodec(TileBlock::new);
+    public static final MapCodec<TileBlock> CODEC = createCodec(TileBlock::new);
+    public static final Identifier TILE_BLOCK_DYNAMIC_DROP_ID = Identifier.of(Tiled.MOD_ID, "tile_block");
+
+
+    @Override
+    protected MapCodec<TileBlock> getCodec() { return CODEC; }
 
     public TileBlock(Settings settings) {
         super(settings);
-    }
-
-    @Override
-    protected MapCodec<? extends BlockWithEntity> getCodec() {
-        return CODEC;
     }
 
     @Nullable
@@ -54,24 +59,25 @@ public class TileBlock extends BlockWithEntity implements BlockEntityProvider {
         if (!tiles.equals(Tiles.DEFAULT)) {
             tooltip.add(ScreenTexts.EMPTY);
             Stream.of(tiles.top_left(), tiles.top_right(), tiles.bottom_left(), tiles.bottom_right())
-                    .forEach(tile -> tooltip.add(new ItemStack((ItemConvertible)tile.orElse(Items.BRICK), 1).getName().copyContentOnly().formatted(Formatting.GRAY)));
+                    .forEach(tile -> tooltip.add(new ItemStack((ItemConvertible) tile.orElse(Items.BRICK), 1).getName().copyContentOnly().formatted(Formatting.GRAY)));
         }
     }
-
 
     @Override
-    public void onPlaced(
-            World world,
-            BlockPos pos,
-            BlockState state,
-            LivingEntity placer,
-            ItemStack stack
-    ) {
-        if (world.getBlockEntity(pos) instanceof TileBlockBE be) {
-            Tiles tiles = stack.getOrDefault(ModDataComponentTypes.TILE_BLOCK_TILES, Tiles.DEFAULT);
-            be.setTiles(tiles);
-        }
+    public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
+        return world.getBlockEntity(pos) instanceof TileBlockBE blockEntity
+                ? blockEntity.asStack()
+                : super.getPickStack(world, pos, state);
     }
 
-
+    @Override
+    protected List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
+        BlockEntity blockEntity = builder.getOptional(LootContextParameters.BLOCK_ENTITY);
+        if (blockEntity instanceof TileBlockBE tileBlockBE) {
+            builder.addDynamicDrop(TILE_BLOCK_DYNAMIC_DROP_ID, lootConsumer -> {
+                lootConsumer.accept(tileBlockBE.asStack());
+            });
+        }
+        return super.getDroppedStacks(state, builder);
+    }
 }

@@ -1,4 +1,4 @@
-package com.proctoredgames.tiled.block.entity;
+package com.proctoredgames.tiled.block.entity.records;
 
 
 import com.mojang.serialization.Codec;

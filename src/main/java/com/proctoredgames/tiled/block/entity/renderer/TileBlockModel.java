@@ -2,7 +2,7 @@ package com.proctoredgames.tiled.block.entity.renderer;
 
 import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
-import com.proctoredgames.tiled.block.entity.Tiles;
+import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -111,41 +111,6 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
 
     }
 
-    private static void emit(
-            QuadEmitter emitter,
-            Direction dir,
-            float x1, float y1, float x2, float y2,
-            Sprite sprite
-    ) {
-        emitter.square(dir, x1, y1, x2, y2, 0f);
-        emitter.spriteBake(sprite, MutableQuadView.BAKE_LOCK_UV);
-        emitter.color(-1, -1, -1, -1);
-        emitter.emit();
-    }
-
-    private int getTextureIdFromTile(Optional<Item> tile) {
-        if (tile.isEmpty()) return 1;
-
-        Item item = tile.get();
-        if (item == Items.BLACK_CONCRETE) return 0;
-        if (item == Items.BLUE_CONCRETE) return 1;
-        if (item == Items.BROWN_CONCRETE) return 2;
-        if (item == Items.CYAN_CONCRETE) return 3;
-        if (item == Items.GRAY_CONCRETE) return 4;
-        if (item == Items.GREEN_CONCRETE) return 5;
-        if (item == Items.LIGHT_BLUE_CONCRETE) return 6;
-        if (item == Items.LIGHT_GRAY_CONCRETE) return 7;
-        if (item == Items.LIME_CONCRETE) return 8;
-        if (item == Items.MAGENTA_CONCRETE) return 9;
-        if (item == Items.ORANGE_CONCRETE) return 10;
-        if (item == Items.PINK_CONCRETE) return 11;
-        if (item == Items.PURPLE_CONCRETE) return 12;
-        if (item == Items.RED_CONCRETE) return 13;
-        if (item == Items.WHITE_CONCRETE) return 14;
-        if (item == Items.YELLOW_CONCRETE) return 15;
-        return 0; // fallback
-    }
-
     @Override
     public void emitItemQuads(
             ItemStack stack,
@@ -167,6 +132,41 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             emit(emitter, dir, 0.0f,   0.0f, 0.5f, 0.5f,   bl);
             emit(emitter, dir, 0.5f, 0.0f, 1.0f,   0.5f,   br);
         }
+    }
+
+    private static void emit(
+            QuadEmitter emitter,
+            Direction dir,
+            float x1, float y1, float x2, float y2,
+            Sprite sprite
+    ) {
+        emitter.square(dir, x1, y1, x2, y2, 0f);
+        emitter.spriteBake(sprite, MutableQuadView.BAKE_LOCK_UV);
+        emitter.color(-1, -1, -1, -1);
+        emitter.emit();
+    }
+
+    private int getTextureIdFromTile(Optional<Item> tile) {
+        if (tile.isEmpty()) return 0;
+
+        Item item = tile.get();
+        if (item == Items.BLACK_CONCRETE) return 0;
+        if (item == Items.BLUE_CONCRETE) return 1;
+        if (item == Items.BROWN_CONCRETE) return 2;
+        if (item == Items.CYAN_CONCRETE) return 3;
+        if (item == Items.GRAY_CONCRETE) return 4;
+        if (item == Items.GREEN_CONCRETE) return 5;
+        if (item == Items.LIGHT_BLUE_CONCRETE) return 6;
+        if (item == Items.LIGHT_GRAY_CONCRETE) return 7;
+        if (item == Items.LIME_CONCRETE) return 8;
+        if (item == Items.MAGENTA_CONCRETE) return 9;
+        if (item == Items.ORANGE_CONCRETE) return 10;
+        if (item == Items.PINK_CONCRETE) return 11;
+        if (item == Items.PURPLE_CONCRETE) return 12;
+        if (item == Items.RED_CONCRETE) return 13;
+        if (item == Items.WHITE_CONCRETE) return 14;
+        if (item == Items.YELLOW_CONCRETE) return 15;
+        return 0; // fallback
     }
 
     @Override public Sprite getParticleSprite() {

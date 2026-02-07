@@ -2,18 +2,21 @@ package com.proctoredgames.tiled.block.entity.custom;
 
 import com.proctoredgames.tiled.block.ModBlocks;
 import com.proctoredgames.tiled.block.entity.ModBlockEntities;
-import com.proctoredgames.tiled.block.entity.Tiles;
+import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.Sherds;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ContainerComponent;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+
+import java.util.List;
 
 public class TileBlockBE extends BlockEntity {
 
@@ -51,23 +54,6 @@ public class TileBlockBE extends BlockEntity {
         return this.tiles;
     }
 
-    public void setTiles(Tiles tiles) {
-        if (tiles == null) {
-            tiles = Tiles.DEFAULT;
-        }
-
-        this.tiles = tiles;
-
-        // Mark for saving
-        markDirty();
-
-        // Sync + rerender on client
-        if (world != null && !world.isClient) {
-            world.updateListeners(pos, getCachedState(), getCachedState(), 3);
-        }
-    }
-
-
     public void readFrom(ItemStack stack) {
         this.readComponents(stack);
     }
@@ -85,9 +71,22 @@ public class TileBlockBE extends BlockEntity {
     }
 
     @Override
+    protected void addComponents(ComponentMap.Builder componentMapBuilder) {
+        super.addComponents(componentMapBuilder);
+        componentMapBuilder.add(ModDataComponentTypes.TILE_BLOCK_TILES, this.tiles);
+    }
+
+    @Override
+    protected void readComponents(BlockEntity.ComponentsAccess components) {
+        super.readComponents(components);
+        this.tiles = components.getOrDefault(ModDataComponentTypes.TILE_BLOCK_TILES, Tiles.DEFAULT);
+    }
+
+    @Override
     public void removeFromCopiedStackNbt(NbtCompound nbt) {
         super.removeFromCopiedStackNbt(nbt);
         nbt.remove("tiles");
     }
+
 }
 
