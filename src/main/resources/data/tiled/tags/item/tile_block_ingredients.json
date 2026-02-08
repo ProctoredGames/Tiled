@@ -1,0 +1,21 @@
+{
+  "values": [
+    "tiled:black_tiles",
+    "tiled:blue_tiles",
+    "tiled:brown_tiles",
+    "tiled:cyan_tiles",
+    "tiled:gray_tiles",
+    "tiled:green_tiles",
+    "tiled:light_blue_tiles",
+    "tiled:light_gray_tiles",
+    "tiled:lime_tiles",
+    "tiled:magenta_tiles",
+    "tiled:orange_tiles",
+    "tiled:pink_tiles",
+    "tiled:purple_tiles",
+    "tiled:red_tiles",
+    "tiled:white_tiles",
+    "tiled:yellow_tiles",
+    "#tiled:concrete"
+  ]
+}

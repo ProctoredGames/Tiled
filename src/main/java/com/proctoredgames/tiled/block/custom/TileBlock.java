@@ -80,4 +80,5 @@ public class TileBlock extends BlockWithEntity implements BlockEntityProvider {
         }
         return super.getDroppedStacks(state, builder);
     }
+
 }

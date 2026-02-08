@@ -1,10 +1,13 @@
 package com.proctoredgames.tiled.recipe.custom;
 
+import com.proctoredgames.tiled.block.ModBlocks;
 import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import com.proctoredgames.tiled.recipe.ModRecipeSerializers;
 import com.proctoredgames.tiled.util.ModTags;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
@@ -24,7 +27,7 @@ public class CraftingTileBlockRecipe extends SpecialCraftingRecipe {
     }
 
     private boolean isValidIngredient(ItemStack stack) {
-        return stack.isIn(ModTags.Items.CONCRETE);
+        return stack.isIn(ModTags.Items.TILE_BLOCK_INGREDIENTS);
     }
 
     @Override
@@ -38,15 +41,21 @@ public class CraftingTileBlockRecipe extends SpecialCraftingRecipe {
         int w = input.getWidth();
 
         Tiles tiles = new Tiles(
-                input.getStackInSlot(topLeft).getItem(),
-                input.getStackInSlot(topLeft + 1).getItem(),
-                input.getStackInSlot(topLeft + w).getItem(),
-                input.getStackInSlot(topLeft + w + 1).getItem()
+                convert(input.getStackInSlot(topLeft).getItem()),
+                convert(input.getStackInSlot(topLeft + 1).getItem()),
+                convert(input.getStackInSlot(topLeft + w).getItem()),
+                convert(input.getStackInSlot(topLeft + w + 1).getItem())
         );
 
         ItemStack stack = TileBlockBE.getStackWith(tiles);
         stack.setCount(4);
         return stack;
+    }
+
+    private Item convert(Item item){
+
+        if (item == ModBlocks.TILE_BLOCK.asItem()) return Items.YELLOW_CONCRETE;
+        return item;
     }
 
     private int findTopLeft(CraftingRecipeInput input) {

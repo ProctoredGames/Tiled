@@ -2,11 +2,23 @@ package com.proctoredgames.tiled;
 
 import com.proctoredgames.tiled.block.ModBlocks;
 import com.proctoredgames.tiled.block.entity.ModBlockEntities;
+import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
+import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import com.proctoredgames.tiled.item.ModItemGroups;
 import com.proctoredgames.tiled.recipe.ModRecipeSerializers;
+import com.proctoredgames.tiled.util.ModTags;
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroups;
+import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,5 +34,21 @@ public class Tiled implements ModInitializer {
 		ModBlockEntities.registerBlockEntities();
 		ModRecipeSerializers.register();
 		ModDataComponentTypes.registerDataComponentTypes();
+
+		ItemGroupEvents.modifyEntriesEvent(ModItemGroups.TILED_GROUP_KEY)
+				.register(entries -> {
+
+					for (RegistryEntry<Item> entry :
+							Registries.ITEM.iterateEntries(ModTags.Items.CONCRETE)) {
+
+						Item tile = entry.value();
+
+						Tiles tiles = new Tiles(tile, tile, tile, tile);
+						ItemStack stack = TileBlockBE.getStackWith(tiles);
+
+						entries.add(stack);
+					}
+				});
+
 	}
 }

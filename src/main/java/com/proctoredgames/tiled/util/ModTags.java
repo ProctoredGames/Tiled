@@ -18,6 +18,7 @@ public class ModTags {
 
     public static class Items {
         public static final TagKey<Item> CONCRETE = createTag("concrete");
+        public static final TagKey<Item> TILE_BLOCK_INGREDIENTS = createTag("tile_block_ingredients");
 
         private static TagKey<Item> createTag(String name) {
             return TagKey.of(RegistryKeys.ITEM, Identifier.of(Tiled.MOD_ID, name));
