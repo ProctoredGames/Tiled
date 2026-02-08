@@ -44,7 +44,9 @@ public class CraftingTileBlockRecipe extends SpecialCraftingRecipe {
                 input.getStackInSlot(topLeft + w + 1).getItem()
         );
 
-        return TileBlockBE.getStackWith(tiles);
+        ItemStack stack = TileBlockBE.getStackWith(tiles);
+        stack.setCount(4);
+        return stack;
     }
 
     private int findTopLeft(CraftingRecipeInput input) {
