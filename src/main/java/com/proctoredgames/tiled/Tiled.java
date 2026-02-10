@@ -2,7 +2,9 @@ package com.proctoredgames.tiled;
 
 import com.proctoredgames.tiled.block.ModBlocks;
 import com.proctoredgames.tiled.block.entity.ModBlockEntities;
+import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
+import com.proctoredgames.tiled.block.entity.records.SmallTiles;
 import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import com.proctoredgames.tiled.item.ModItemGroups;
@@ -37,6 +39,22 @@ public class Tiled implements ModInitializer {
 
 		ItemGroupEvents.modifyEntriesEvent(ModItemGroups.TILED_GROUP_KEY)
 				.register(entries -> {
+
+					for (RegistryEntry<Item> entry :
+							Registries.ITEM.iterateEntries(ModTags.Items.CONCRETE)) {
+
+						Item tile = entry.value();
+
+						SmallTiles tiles = new SmallTiles(
+								tile, tile, tile, tile,
+								tile, tile, tile, tile,
+								tile, tile, tile, tile,
+								tile, tile, tile, tile
+						);
+						ItemStack stack = SmallTileBlockBE.getStackWith(tiles);
+
+						entries.add(stack);
+					}
 
 					for (RegistryEntry<Item> entry :
 							Registries.ITEM.iterateEntries(ModTags.Items.CONCRETE)) {

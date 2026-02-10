@@ -15,6 +15,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -53,6 +54,11 @@ public class TileBlockBE extends BlockEntity {
     public Tiles getTiles() {
         return this.tiles;
     }
+
+//    @Nullable
+//    public static Tiles getTilesFromStack(ItemStack stack) {
+//        return stack.get(ModDataComponentTypes.TILE_BLOCK_TILES);
+//    }
 
     public void readFrom(ItemStack stack) {
         this.readComponents(stack);

@@ -3,6 +3,7 @@ package com.proctoredgames.tiled.block.entity.custom;
 import com.proctoredgames.tiled.block.ModBlocks;
 import com.proctoredgames.tiled.block.entity.ModBlockEntities;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
+import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -12,6 +13,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.Nullable;
 
 public class SmallTileBlockBE extends BlockEntity {
 
@@ -48,6 +50,11 @@ public class SmallTileBlockBE extends BlockEntity {
     public SmallTiles getTiles() {
         return this.tiles;
     }
+
+//    @Nullable
+//    public static SmallTiles getTilesFromStack(ItemStack stack) {
+//        return stack.get(ModDataComponentTypes.SMALL_TILE_BLOCK_TILES);
+//    }
 
     public void readFrom(ItemStack stack) {
         this.readComponents(stack);
