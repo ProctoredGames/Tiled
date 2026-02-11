@@ -3,5 +3,7 @@
   "block.tiled.tile_block": "Tile Block",
   "block.tiled.tiling_table": "Tiling Table",
 
-  "itemgroup.tiled.tiled": "Tiled"
+  "itemgroup.tiled.tiled": "Tiled",
+
+  "container.tiling_table": "Tiling Table"
 }

@@ -9,6 +9,7 @@ import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import com.proctoredgames.tiled.item.ModItemGroups;
 import com.proctoredgames.tiled.recipe.ModRecipeSerializers;
+import com.proctoredgames.tiled.screen.ModScreenHandlers;
 import com.proctoredgames.tiled.util.ModTags;
 import net.fabricmc.api.ModInitializer;
 
@@ -31,11 +32,11 @@ public class Tiled implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		ModItemGroups.registerItemGroups();
-//		ModItems.registerModItems();
 		ModBlocks.registerModBlocks();
 		ModBlockEntities.registerBlockEntities();
 		ModRecipeSerializers.register();
 		ModDataComponentTypes.registerDataComponentTypes();
+		ModScreenHandlers.registerScreenHandlers();
 
 		ItemGroupEvents.modifyEntriesEvent(ModItemGroups.TILED_GROUP_KEY)
 				.register(entries -> {

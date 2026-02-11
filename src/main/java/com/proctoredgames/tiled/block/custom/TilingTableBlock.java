@@ -1,28 +1,23 @@
 package com.proctoredgames.tiled.block.custom;
 
 import com.mojang.serialization.MapCodec;
+import com.proctoredgames.tiled.screen.custom.TilingTableScreenHandler;
 import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.screen.CraftingScreenHandler;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
-import net.minecraft.stat.Stats;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
 public class TilingTableBlock extends HorizontalFacingBlock {
     public static final MapCodec<TilingTableBlock> CODEC = createCodec(TilingTableBlock::new);
-    private static final Text TITLE = Text.translatable("container.tiling");
+    private static final Text TITLE = Text.translatable("container.tiling_table");
 
     @Override
     public MapCodec<? extends TilingTableBlock> getCodec() {
@@ -46,7 +41,7 @@ public class TilingTableBlock extends HorizontalFacingBlock {
     @Override
     protected NamedScreenHandlerFactory createScreenHandlerFactory(BlockState state, World world, BlockPos pos) {
         return new SimpleNamedScreenHandlerFactory(
-                (syncId, inventory, player) -> new CraftingScreenHandler(syncId, inventory, ScreenHandlerContext.create(world, pos)), TITLE
+                (syncId, inventory, player) -> new TilingTableScreenHandler(syncId, inventory, ScreenHandlerContext.create(world, pos)), TITLE
         );
     }
 
