@@ -12,11 +12,8 @@ import net.minecraft.util.math.BlockPos;
 
 public class ModScreenHandlers {
     public static final ScreenHandlerType<TilingTableScreenHandler> TILING_TABLE_SCREEN_HANDLER =
-            Registry.register(
-                    Registries.SCREEN_HANDLER,
-                    Identifier.of(Tiled.MOD_ID, "tiling_table_screen_handler"),
-                    new ScreenHandlerType<>(TilingTableScreenHandler::new, FeatureSet.empty())
-            );
+            Registry.register(Registries.SCREEN_HANDLER, Identifier.of(Tiled.MOD_ID, "tiling_table_screen_handler"),
+                    new ExtendedScreenHandlerType<>(TilingTableScreenHandler::new, BlockPos.PACKET_CODEC));
 
     public static void registerScreenHandlers() {
         Tiled.LOGGER.info("registering Screen Handlers for " + Tiled.MOD_ID);

@@ -141,10 +141,10 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             Sprite sprite
     ) {
         if(dir == Direction.UP || dir == Direction.DOWN){
-            float newX1 =1-x2;
-            float newY1 =1-y2;
-            float newX2 =1-x1;
-            float newY2 =1-y1;
+            float newX2 =1-x2;
+            float newY2 =1-y2;
+            float newX1 =1-x1;
+            float newY1 =1-y1;
             x1=newX1;
             x2=newX2;
             y1=newY1;

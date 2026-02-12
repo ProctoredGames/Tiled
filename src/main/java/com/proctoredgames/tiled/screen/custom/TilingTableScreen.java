@@ -32,7 +32,7 @@ public class TilingTableScreen extends HandledScreen<TilingTableScreenHandler> {
         RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 
         int x = (width - backgroundWidth) / 2;
-        int y = (height - (backgroundHeight+18)) / 2;
+        int y = (height - (backgroundHeight+36)) / 2;
 
         context.drawTexture(GUI_TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight+18);
     }
