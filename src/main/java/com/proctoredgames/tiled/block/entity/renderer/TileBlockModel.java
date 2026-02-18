@@ -141,14 +141,10 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             Sprite sprite
     ) {
         if(dir == Direction.UP || dir == Direction.DOWN){
-            float newX2 =1-x2;
-            float newY2 =1-y2;
-            float newX1 =1-x1;
-            float newY1 =1-y1;
-            x1=newX1;
-            x2=newX2;
-            y1=newY1;
-            y2=newY2;
+            x1=1-x1;
+            x2=1-x2;
+            y1=1-y1;
+            y2=1-y2;
         }
         emitter.square(dir, x1, y1, x2, y2, 0f);
         emitter.spriteBake(sprite, MutableQuadView.BAKE_LOCK_UV);
