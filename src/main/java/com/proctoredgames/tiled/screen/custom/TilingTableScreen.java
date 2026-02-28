@@ -23,6 +23,7 @@ public class TilingTableScreen extends HandledScreen<TilingTableScreenHandler> {
 
     public TilingTableScreen(TilingTableScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
+        this.titleY = this.titleY-18;
     }
 
     @Override
