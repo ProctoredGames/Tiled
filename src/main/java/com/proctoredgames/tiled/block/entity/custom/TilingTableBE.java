@@ -2,6 +2,10 @@ package com.proctoredgames.tiled.block.entity.custom;
 
 import com.proctoredgames.tiled.block.entity.ImplementedInventory;
 import com.proctoredgames.tiled.block.entity.ModBlockEntities;
+import com.proctoredgames.tiled.recipe.ModRecipes;
+import com.proctoredgames.tiled.recipe.TilingTableRecipe;
+import com.proctoredgames.tiled.recipe.TilingTableRecipeInput;
+import com.proctoredgames.tiled.recipe.custom.CraftingSmallTileBlockRecipe;
 import com.proctoredgames.tiled.screen.custom.TilingTableScreenHandler;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
@@ -18,6 +22,8 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.recipe.RecipeEntry;
+import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
@@ -27,6 +33,8 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public class TilingTableBE extends BlockEntity implements ImplementedInventory, ExtendedScreenHandlerFactory<BlockPos> {
 
@@ -98,19 +106,42 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
     }
 
     private void craftItem() {
-        ItemStack output = new ItemStack(Blocks.DIAMOND_BLOCK, 6);
+        Optional<RecipeEntry<TilingTableRecipe>> recipe = getCurrentRecipe();
 
-        this.removeStack(INPUT_SLOT, 1);
+        assert world != null;
+        ItemStack output = recipe.get().value().getResult(world.getRegistryManager());
+
+        for (int i = 0; i < 16; i++) {
+            this.removeStack(i, 1);
+        }
         this.setStack(OUTPUT_SLOT, new ItemStack(output.getItem(),
                 this.getStack(OUTPUT_SLOT).getCount() + output.getCount()));
     }
 
     private boolean hasRecipe() {
-        Item input = Blocks.DIRT.asItem();
-        ItemStack output = new ItemStack(Blocks.DIAMOND_BLOCK, 6);
+        Optional<RecipeEntry<TilingTableRecipe>> recipe = getCurrentRecipe();
+        if(recipe.isEmpty()){
+            return false;
+        }
 
-        return this.getStack(INPUT_SLOT).isOf(input) &&
-                canInsertAmountIntoOutputSlot(output.getCount()) && canInsertItemIntoOutputSlot(output);
+        assert world != null;
+        ItemStack output = recipe.get().value().getResult(world.getRegistryManager());
+        return canInsertAmountIntoOutputSlot(output.getCount()) && canInsertItemIntoOutputSlot(output);
+    }
+
+    private Optional<RecipeEntry<TilingTableRecipe>> getCurrentRecipe() {
+        DefaultedList<ItemStack> inputInventory =
+                DefaultedList.ofSize(16, ItemStack.EMPTY);
+
+        for (int i = 0; i < 16; i++) {
+            inputInventory.set(i, inventory.get(i));
+        }
+
+        return world.getRecipeManager().getFirstMatch(
+                ModRecipes.TILING_TABLE_TYPE,
+                new TilingTableRecipeInput(4, 4, inputInventory),
+                world
+        );
     }
 
     private boolean canInsertItemIntoOutputSlot(ItemStack output) {
