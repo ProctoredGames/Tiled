@@ -190,6 +190,12 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
             float x1, float y1, float x2, float y2,
             Sprite sprite
     ) {
+        if(dir == Direction.UP || dir == Direction.DOWN){
+            x1=1-x1;
+            x2=1-x2;
+            y1=1-y1;
+            y2=1-y2;
+        }
         emitter.square(dir, x1, y1, x2, y2, 0f);
         emitter.spriteBake(sprite, MutableQuadView.BAKE_LOCK_UV);
         emitter.color(-1, -1, -1, -1);

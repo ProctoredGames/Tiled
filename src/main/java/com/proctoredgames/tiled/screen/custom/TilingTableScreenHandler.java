@@ -1,109 +1,88 @@
 package com.proctoredgames.tiled.screen.custom;
 
+import com.proctoredgames.tiled.block.entity.custom.TilingTableBE;
 import com.proctoredgames.tiled.screen.ModScreenHandlers;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
-import net.minecraft.recipe.CraftingRecipe;
-import net.minecraft.recipe.RecipeEntry;
-import net.minecraft.recipe.RecipeMatcher;
-import net.minecraft.recipe.RecipeType;
-import net.minecraft.recipe.book.RecipeBookCategory;
-import net.minecraft.recipe.input.CraftingRecipeInput;
-import net.minecraft.screen.AbstractRecipeScreenHandler;
+import net.minecraft.screen.ArrayPropertyDelegate;
+import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerContext;
-import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.CraftingResultSlot;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Optional;
 
 public class TilingTableScreenHandler extends ScreenHandler {
+    private final Inventory inventory;
+    private final PropertyDelegate propertyDelegate;
+    public final TilingTableBE blockEntity;
 
-    private final RecipeInputInventory input = new CraftingInventory(this, 4, 4);
-    private final CraftingResultInventory result = new CraftingResultInventory();
-
-    public TilingTableScreenHandler(int syncId, PlayerInventory playerInventory, BlockPos pos) {
-        this(syncId, playerInventory, playerInventory.player.getEntityWorld().getBlockEntity(pos));
+    public TilingTableScreenHandler(int syncId, PlayerInventory inventory, BlockPos pos) {
+        this(syncId, inventory, inventory.player.getWorld().getBlockEntity(pos), new ArrayPropertyDelegate(2));
     }
 
-    public TilingTableScreenHandler(int syncId, PlayerInventory playerInventory, BlockEntity blockEntity) {
+    public TilingTableScreenHandler(int syncId, PlayerInventory playerInventory,
+                                      BlockEntity blockEntity, PropertyDelegate arrayPropertyDelegate) {
         super(ModScreenHandlers.TILING_TABLE_SCREEN_HANDLER, syncId);
+        this.inventory = ((Inventory) blockEntity);
+        this.blockEntity = ((TilingTableBE) blockEntity);
+        this.propertyDelegate = arrayPropertyDelegate;
 
-        this.addSlot(new CraftingResultSlot(playerInventory.player, this.input, this.result, 0, 115, 35));
+        this.addSlot(new Slot(inventory, 16, 115, 35));
 
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                this.addSlot(new Slot(this.input, j + i * 4, 21 + j * 18, -1 + i * 18));
+                this.addSlot(new Slot(this.inventory, j + i * 4, 21 + j * 18, -1 + i * 18));
             }
         }
 
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
+
+        addProperties(arrayPropertyDelegate);
+    }
+
+//    public boolean isCrafting() {
+//        return propertyDelegate.get(0) > 0;
+//    }
+
+//    public int getScaledArrowProgress() {
+//        int progress = this.propertyDelegate.get(0);
+//        int maxProgress = this.propertyDelegate.get(1); // Max Progress
+//        int arrowPixelSize = 24; // This is the width in pixels of your arrow
+//
+//        return maxProgress != 0 && progress != 0 ? progress * arrowPixelSize / maxProgress : 0;
+//    }
+
+    @Override
+    public ItemStack quickMove(PlayerEntity player, int invSlot) {
+        ItemStack newStack = ItemStack.EMPTY;
+        Slot slot = this.slots.get(invSlot);
+        if (slot != null && slot.hasStack()) {
+            ItemStack originalStack = slot.getStack();
+            newStack = originalStack.copy();
+            if (invSlot < this.inventory.size()) {
+                if (!this.insertItem(originalStack, this.inventory.size(), this.slots.size(), true)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (!this.insertItem(originalStack, 0, this.inventory.size(), false)) {
+                return ItemStack.EMPTY;
+            }
+
+            if (originalStack.isEmpty()) {
+                slot.setStack(ItemStack.EMPTY);
+            } else {
+                slot.markDirty();
+            }
+        }
+        return newStack;
     }
 
     @Override
     public boolean canUse(PlayerEntity player) {
-        return true;
-    }
-
-    @Override
-    public ItemStack quickMove(PlayerEntity player, int slot) {
-        ItemStack itemStack = ItemStack.EMPTY;
-        Slot slot2 = this.slots.get(slot);
-        if (slot2 != null && slot2.hasStack()) {
-            ItemStack itemStack2 = slot2.getStack();
-            itemStack = itemStack2.copy();
-            if (slot == 0) {
-//                this.context.run((world, pos) -> itemStack2.getItem().onCraftByPlayer(itemStack2, world, player));
-                if (!this.insertItem(itemStack2, 10, 46, true)) {
-                    return ItemStack.EMPTY;
-                }
-
-                slot2.onQuickTransfer(itemStack2, itemStack);
-            } else if (slot >= 10 && slot < 46) {
-                if (!this.insertItem(itemStack2, 1, 10, false)) {
-                    if (slot < 37) {
-                        if (!this.insertItem(itemStack2, 37, 46, false)) {
-                            return ItemStack.EMPTY;
-                        }
-                    } else if (!this.insertItem(itemStack2, 10, 37, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                }
-            } else if (!this.insertItem(itemStack2, 10, 46, false)) {
-                return ItemStack.EMPTY;
-            }
-
-            if (itemStack2.isEmpty()) {
-                slot2.setStack(ItemStack.EMPTY);
-            } else {
-                slot2.markDirty();
-            }
-
-            if (itemStack2.getCount() == itemStack.getCount()) {
-                return ItemStack.EMPTY;
-            }
-
-            slot2.onTakeItem(player, itemStack2);
-            if (slot == 0) {
-                player.dropItem(itemStack2, false);
-            }
-        }
-
-        return itemStack;
+        return this.inventory.canPlayerUse(player);
     }
 
     private void addPlayerInventory(PlayerInventory playerInventory) {

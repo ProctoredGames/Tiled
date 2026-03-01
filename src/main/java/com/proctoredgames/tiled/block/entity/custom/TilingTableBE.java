@@ -5,26 +5,61 @@ import com.proctoredgames.tiled.block.entity.ModBlockEntities;
 import com.proctoredgames.tiled.screen.custom.TilingTableScreenHandler;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class TilingTableBE extends BlockEntity implements ImplementedInventory, ExtendedScreenHandlerFactory<BlockPos> {
-    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(1, ItemStack.EMPTY);
-    private float rotation = 0;
+
+    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(17, ItemStack.EMPTY);
+
+    private static final int INPUT_SLOT = 0;
+    private static final int OUTPUT_SLOT = 16;
+
+    protected final PropertyDelegate propertyDelegate;
 
     public TilingTableBE(BlockPos pos, BlockState state) {
         super(ModBlockEntities.TILING_TABLE_BE, pos, state);
+        this.propertyDelegate = new PropertyDelegate() {
+            @Override
+            public int get(int index) {
+                return 0;
+            }
+
+            @Override
+            public void set(int index, int value) {
+
+            }
+
+            @Override
+            public int size() {
+                return 2;
+            }
+        };
+    }
+
+    @Override
+    public BlockPos getScreenOpeningData(ServerPlayerEntity serverPlayerEntity) {
+        return this.pos;
     }
 
     @Override
@@ -32,35 +67,71 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         return inventory;
     }
 
-    public float getRenderingRotation() {
-        rotation += 0.5f;
-        if(rotation >= 360) {
-            rotation = 0;
-        }
-        return rotation;
-    }
-
-    @Override
-    public BlockPos getScreenOpeningData(ServerPlayerEntity player) {
-        return this.pos;
-    }
-
     @Override
     public Text getDisplayName() {
-        return Text.literal("Tiling Table");
+        return Text.translatable("block.tiled.tiling_table");
     }
 
     @Nullable
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-        return new TilingTableScreenHandler(syncId, playerInventory, this.pos);
+        return new TilingTableScreenHandler(syncId, playerInventory, this, this.propertyDelegate);
     }
 
+    @Override
+    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+        super.writeNbt(nbt, registryLookup);
+        Inventories.writeNbt(nbt, inventory, registryLookup);
+    }
+
+    @Override
+    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+        Inventories.readNbt(nbt, inventory, registryLookup);
+        super.readNbt(nbt, registryLookup);
+    }
+
+    public void tick(World world, BlockPos pos, BlockState state) {
+        if(hasRecipe()){
+            markDirty(world, pos, state);
+            craftItem();
+        }
+    }
+
+    private void craftItem() {
+        ItemStack output = new ItemStack(Blocks.DIAMOND_BLOCK, 6);
+
+        this.removeStack(INPUT_SLOT, 1);
+        this.setStack(OUTPUT_SLOT, new ItemStack(output.getItem(),
+                this.getStack(OUTPUT_SLOT).getCount() + output.getCount()));
+    }
+
+    private boolean hasRecipe() {
+        Item input = Blocks.DIRT.asItem();
+        ItemStack output = new ItemStack(Blocks.DIAMOND_BLOCK, 6);
+
+        return this.getStack(INPUT_SLOT).isOf(input) &&
+                canInsertAmountIntoOutputSlot(output.getCount()) && canInsertItemIntoOutputSlot(output);
+    }
+
+    private boolean canInsertItemIntoOutputSlot(ItemStack output) {
+        return this.getStack(OUTPUT_SLOT).isEmpty() || this.getStack(OUTPUT_SLOT).getItem() == output.getItem();
+    }
+
+    private boolean canInsertAmountIntoOutputSlot(int count) {
+        int maxCount = this.getStack(OUTPUT_SLOT).isEmpty() ? 64 : this.getStack(OUTPUT_SLOT).getMaxCount();
+        int currentCount = this.getStack(OUTPUT_SLOT).getCount();
+
+        return maxCount >= currentCount + count;
+    }
 
     @Nullable
     @Override
     public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
+        return super.toUpdatePacket();
     }
 
+    @Override
+    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
+        return super.toInitialChunkDataNbt(registryLookup);
+    }
 }
