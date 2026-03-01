@@ -30,11 +30,11 @@ public class TilingTableScreenHandler extends ScreenHandler {
         this.blockEntity = ((TilingTableBE) blockEntity);
         this.propertyDelegate = arrayPropertyDelegate;
 
-        this.addSlot(new Slot(inventory, 16, 115, 35));
+        this.addSlot(new Slot(inventory, 16, 133, 26));
 
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                this.addSlot(new Slot(this.inventory, j + i * 4, 21 + j * 18, -1 + i * 18));
+                this.addSlot(new Slot(inventory, j + i * 4, 21 + j * 18, -1 + i * 18));
             }
         }
 
