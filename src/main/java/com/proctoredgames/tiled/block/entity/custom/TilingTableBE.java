@@ -59,7 +59,7 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
 
             @Override
             public int size() {
-                return 2;
+                return 17;
             }
         };
     }

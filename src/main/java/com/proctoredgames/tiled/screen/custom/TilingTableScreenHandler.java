@@ -20,7 +20,7 @@ public class TilingTableScreenHandler extends ScreenHandler {
     public final TilingTableBE blockEntity;
 
     public TilingTableScreenHandler(int syncId, PlayerInventory inventory, BlockPos pos) {
-        this(syncId, inventory, inventory.player.getWorld().getBlockEntity(pos), new ArrayPropertyDelegate(2));
+        this(syncId, inventory, inventory.player.getWorld().getBlockEntity(pos), new ArrayPropertyDelegate(17));
     }
 
     public TilingTableScreenHandler(int syncId, PlayerInventory playerInventory,
