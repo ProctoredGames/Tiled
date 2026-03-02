@@ -111,9 +111,9 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         assert world != null;
         ItemStack output = recipe.get().value().getResult(world.getRegistryManager());
 
-        for (int i = 0; i < 16; i++) {
-            this.removeStack(i, 1);
-        }
+//        for (int i = 0; i < 16; i++) {
+//            this.removeStack(i, 1);
+//        }
         this.setStack(OUTPUT_SLOT, new ItemStack(output.getItem(),
                 this.getStack(OUTPUT_SLOT).getCount() + output.getCount()));
     }
