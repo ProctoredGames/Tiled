@@ -5,7 +5,6 @@ import com.proctoredgames.tiled.block.entity.ModBlockEntities;
 import com.proctoredgames.tiled.recipe.ModRecipes;
 import com.proctoredgames.tiled.recipe.TilingTableRecipe;
 import com.proctoredgames.tiled.recipe.TilingTableRecipeInput;
-import com.proctoredgames.tiled.recipe.custom.CraftingSmallTileBlockRecipe;
 import com.proctoredgames.tiled.screen.custom.TilingTableScreenHandler;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
@@ -108,40 +107,25 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
     private void craftItem() {
         Optional<RecipeEntry<TilingTableRecipe>> recipe = getCurrentRecipe();
 
-        assert world != null;
-        ItemStack output = recipe.get().value().getResult(world.getRegistryManager());
-
-//        for (int i = 0; i < 16; i++) {
-//            this.removeStack(i, 1);
-//        }
+        ItemStack output = recipe.get().value().output();
+        this.removeStack(INPUT_SLOT, 1);
         this.setStack(OUTPUT_SLOT, new ItemStack(output.getItem(),
                 this.getStack(OUTPUT_SLOT).getCount() + output.getCount()));
     }
 
     private boolean hasRecipe() {
         Optional<RecipeEntry<TilingTableRecipe>> recipe = getCurrentRecipe();
-        if(recipe.isEmpty()){
+        if(recipe.isEmpty()) {
             return false;
         }
 
-        assert world != null;
-        ItemStack output = recipe.get().value().getResult(world.getRegistryManager());
+        ItemStack output = recipe.get().value().output();
         return canInsertAmountIntoOutputSlot(output.getCount()) && canInsertItemIntoOutputSlot(output);
     }
 
     private Optional<RecipeEntry<TilingTableRecipe>> getCurrentRecipe() {
-        DefaultedList<ItemStack> inputInventory =
-                DefaultedList.ofSize(16, ItemStack.EMPTY);
-
-        for (int i = 0; i < 16; i++) {
-            inputInventory.set(i, inventory.get(i));
-        }
-
-        return world.getRecipeManager().getFirstMatch(
-                ModRecipes.TILING_TABLE_TYPE,
-                new TilingTableRecipeInput(4, 4, inputInventory),
-                world
-        );
+        return this.getWorld().getRecipeManager()
+                .getFirstMatch(ModRecipes.TILING_TABLE_TYPE, new TilingTableRecipeInput(inventory.get(INPUT_SLOT)), this.getWorld());
     }
 
     private boolean canInsertItemIntoOutputSlot(ItemStack output) {
