@@ -9,23 +9,25 @@
 //
 //import net.minecraft.item.ItemStack;
 //import net.minecraft.recipe.RecipeSerializer;
+//import net.minecraft.recipe.SpecialCraftingRecipe;
 //import net.minecraft.recipe.book.CraftingRecipeCategory;
+//import net.minecraft.recipe.input.CraftingRecipeInput;
 //import net.minecraft.registry.RegistryWrapper;
 //import net.minecraft.world.World;
 //
-//public class CraftingSmallTileBlockRecipe extends SpecialTilingTableRecipe {
+//public class CraftingSmallTileBlockRecipe extends SpecialCraftingRecipe {
 //
 //    public CraftingSmallTileBlockRecipe(CraftingRecipeCategory category) {
 //        super(category);
 //    }
 //
 //    @Override
-//    public boolean matches(TilingTableRecipeInput input, World world) {
+//    public boolean matches(CraftingRecipeInput input, World world) {
 //        return findTopLeft(input) != -1;
 //    }
 //
 //    @Override
-//    public ItemStack craft(TilingTableRecipeInput input, RegistryWrapper.WrapperLookup lookup) {
+//    public ItemStack craft(CraftingRecipeInput input, RegistryWrapper.WrapperLookup lookup) {
 //        int topLeft = findTopLeft(input);
 //        if (topLeft == -1) {
 //            return ItemStack.EMPTY;

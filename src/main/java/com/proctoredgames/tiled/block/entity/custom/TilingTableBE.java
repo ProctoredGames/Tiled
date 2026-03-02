@@ -98,10 +98,10 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
     }
 
     public void tick(World world, BlockPos pos, BlockState state) {
-        if (hasRecipe()){
+        if (hasRecipe()) {
             markDirty(world, pos, state);
         }
-        while(hasRecipe()){
+        while (hasRecipe()) {
             craftItem();
         }
     }
@@ -117,7 +117,7 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
 
     private boolean hasRecipe() {
         Optional<RecipeEntry<TilingTableRecipe>> recipe = getCurrentRecipe();
-        if(recipe.isEmpty()) {
+        if (recipe.isEmpty()) {
             return false;
         }
 
@@ -126,8 +126,15 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
     }
 
     private Optional<RecipeEntry<TilingTableRecipe>> getCurrentRecipe() {
+        DefaultedList<ItemStack> inputInventory =
+                DefaultedList.ofSize(16, ItemStack.EMPTY);
+
+        for (int i = 0; i < 16; i++) {
+            inputInventory.set(i, inventory.get(i));
+        }
+
         return this.getWorld().getRecipeManager()
-                .getFirstMatch(ModRecipes.TILING_TABLE_TYPE, new TilingTableRecipeInput(inventory.get(INPUT_SLOT)), this.getWorld());
+                .getFirstMatch(ModRecipes.TILING_TABLE_TYPE, new TilingTableRecipeInput(inputInventory), this.getWorld());
     }
 
     private boolean canInsertItemIntoOutputSlot(ItemStack output) {

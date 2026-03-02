@@ -2,6 +2,9 @@ package com.proctoredgames.tiled.recipe;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
+import com.proctoredgames.tiled.block.entity.records.SmallTiles;
+import com.proctoredgames.tiled.util.ModTags;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -14,6 +17,7 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
 public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implements Recipe<TilingTableRecipeInput> {
+
     @Override
     public DefaultedList<Ingredient> getIngredients() {
         DefaultedList<Ingredient> list = DefaultedList.of();
@@ -21,25 +25,81 @@ public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implemen
         return list;
     }
 
-    // read Recipe JSON files --> new TilingTableRecipe
-
     @Override
     public boolean matches(TilingTableRecipeInput input, World world) {
-        if(world.isClient()) {
+        if (world.isClient()) {
             return false;
         }
-
-        return inputItem.test(input.getStackInSlot(0));
+        return findTopLeft(input) != -1;
     }
 
     @Override
     public ItemStack craft(TilingTableRecipeInput input, RegistryWrapper.WrapperLookup lookup) {
-        return output.copy();
+        int topLeft = findTopLeft(input);
+        if (topLeft == -1) {
+            return ItemStack.EMPTY;
+        }
+
+        int w = input.getWidth();
+        ItemStack[] stacks = new ItemStack[16];
+        int index = 0;
+
+        for (int dy = 0; dy < 4; dy++) {
+            for (int dx = 0; dx < 4; dx++) {
+                int slot = (topLeft % w + dx) + ((topLeft / w) + dy) * w;
+                stacks[index++] = input.getStackInSlot(slot);
+            }
+        }
+
+        SmallTiles tiles = new SmallTiles(
+                stacks[0].getItem(), stacks[1].getItem(),
+                stacks[2].getItem(), stacks[3].getItem(),
+                stacks[4].getItem(), stacks[5].getItem(),
+                stacks[6].getItem(), stacks[7].getItem(),
+                stacks[8].getItem(), stacks[9].getItem(),
+                stacks[10].getItem(), stacks[11].getItem(),
+                stacks[12].getItem(), stacks[13].getItem(),
+                stacks[14].getItem(), stacks[15].getItem()
+        );
+
+        return SmallTileBlockBE.getStackWith(tiles);
+    }
+
+    private int findTopLeft(TilingTableRecipeInput input) {
+        int width = input.getWidth();
+        int height = input.getHeight();
+
+        for (int y = 0; y <= height - 4; y++) {
+            for (int x = 0; x <= width - 4; x++) {
+                boolean valid = true;
+
+                for (int dy = 0; dy < 4; dy++) {
+                    for (int dx = 0; dx < 4; dx++) {
+                        int index = (x + dx) + (y + dy) * width;
+                        if (!isValidIngredient(input.getStackInSlot(index))) {
+                            valid = false;
+                            break;
+                        }
+                    }
+                    if (!valid) break;
+                }
+
+                if (valid) {
+                    return x + y * width;
+                }
+            }
+        }
+
+        return -1;
+    }
+
+    private boolean isValidIngredient(ItemStack stack) {
+        return stack.isIn(ModTags.Items.CONCRETE);
     }
 
     @Override
     public boolean fits(int width, int height) {
-        return true;
+        return width >= 4 && height >= 4;
     }
 
     @Override
@@ -49,34 +109,11 @@ public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implemen
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return ModRecipes.TILING_TABLE_SERIALIZER;
+        return null;
     }
 
     @Override
     public RecipeType<?> getType() {
         return ModRecipes.TILING_TABLE_TYPE;
-    }
-
-    public static class Serializer implements RecipeSerializer<TilingTableRecipe> {
-        public static final MapCodec<TilingTableRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-                Ingredient.DISALLOW_EMPTY_CODEC.fieldOf("ingredient").forGetter(TilingTableRecipe::inputItem),
-                ItemStack.CODEC.fieldOf("result").forGetter(TilingTableRecipe::output)
-        ).apply(inst, TilingTableRecipe::new));
-
-        public static final PacketCodec<RegistryByteBuf, TilingTableRecipe> STREAM_CODEC =
-                PacketCodec.tuple(
-                        Ingredient.PACKET_CODEC, TilingTableRecipe::inputItem,
-                        ItemStack.PACKET_CODEC, TilingTableRecipe::output,
-                        TilingTableRecipe::new);
-
-        @Override
-        public MapCodec<TilingTableRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public PacketCodec<RegistryByteBuf, TilingTableRecipe> packetCodec() {
-            return STREAM_CODEC;
-        }
     }
 }
