@@ -98,8 +98,10 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
     }
 
     public void tick(World world, BlockPos pos, BlockState state) {
-        if(hasRecipe()){
+        if (hasRecipe()){
             markDirty(world, pos, state);
+        }
+        while(hasRecipe()){
             craftItem();
         }
     }
