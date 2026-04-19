@@ -34,7 +34,7 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
 
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(17, ItemStack.EMPTY);
 
-    private static final int OUTPUT_SLOT = 16;
+    public static final int OUTPUT_SLOT = 16;
 
     protected final PropertyDelegate propertyDelegate;
 
@@ -42,18 +42,11 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         super(ModBlockEntities.TILING_TABLE_BE, pos, state);
         this.propertyDelegate = new PropertyDelegate() {
             @Override
-            public int get(int index) {
-                return 0;
-            }
-
+            public int get(int index) { return 0; }
             @Override
-            public void set(int index, int value) {
-            }
-
+            public void set(int index, int value) {}
             @Override
-            public int size() {
-                return 17;
-            }
+            public int size() { return 17; }
         };
     }
 
@@ -90,72 +83,48 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         super.readNbt(nbt, registryLookup);
     }
 
-    public void tick(World world, BlockPos pos, BlockState state) {
-        // Craft one output per tick, not the entire inventory at once
-        if (hasRecipe()) {
-            craftItem();
-            markDirty(world, pos, state);
-        }
-    }
-
-    private void craftItem() {
+    /**
+     * Called by the screen handler whenever the input inventory changes.
+     * Updates the output slot with a preview of the craft result without
+     * consuming any inputs — consumption happens in the output slot on take.
+     */
+    public void updateResult(World world) {
         Optional<RecipeEntry<TilingTableRecipe>> recipe = getCurrentRecipe();
-        if (recipe.isEmpty()) return;
-
-        // Use craft() so the output carries the correct SmallTiles data component
-        ItemStack output = recipe.get().value().craft(
-                new TilingTableRecipeInput(getInputInventory()),
-                this.getWorld().getRegistryManager()
-        );
-
-        // Consume one item from each of the 16 input slots
-        for (int i = 0; i < 16; i++) {
-            this.removeStack(i, 1);
-        }
-
-        ItemStack currentOutput = this.getStack(OUTPUT_SLOT);
-        if (currentOutput.isEmpty()) {
-            this.setStack(OUTPUT_SLOT, output.copy());
+        if (recipe.isPresent()) {
+            ItemStack result = recipe.get().value().craft(
+                    new TilingTableRecipeInput(getInputInventory()),
+                    world.getRegistryManager()
+            );
+            inventory.set(OUTPUT_SLOT, result);
         } else {
-            currentOutput.increment(output.getCount());
+            inventory.set(OUTPUT_SLOT, ItemStack.EMPTY);
         }
+        markDirty();
     }
 
-    private boolean hasRecipe() {
-        Optional<RecipeEntry<TilingTableRecipe>> recipe = getCurrentRecipe();
-        if (recipe.isEmpty()) {
-            return false;
+    /**
+     * Consumes one item from each of the 16 input slots.
+     * Called by the output slot after the player takes the result.
+     */
+    public void consumeIngredients(World world) {
+        for (int i = 0; i < 16; i++) {
+            removeStack(i, 1);
         }
-        ItemStack output = recipe.get().value().craft(
-                new TilingTableRecipeInput(getInputInventory()),
-                this.getWorld().getRegistryManager()
-        );
-        return canInsertAmountIntoOutputSlot(output.getCount()) && canInsertItemIntoOutputSlot(output);
+        updateResult(world);
     }
 
-    private DefaultedList<ItemStack> getInputInventory() {
+    public Optional<RecipeEntry<TilingTableRecipe>> getCurrentRecipe() {
+        if (world == null) return Optional.empty();
+        return world.getRecipeManager()
+                .getFirstMatch(ModRecipes.TILING_TABLE_TYPE, new TilingTableRecipeInput(getInputInventory()), world);
+    }
+
+    public DefaultedList<ItemStack> getInputInventory() {
         DefaultedList<ItemStack> inputInventory = DefaultedList.ofSize(16, ItemStack.EMPTY);
         for (int i = 0; i < 16; i++) {
             inputInventory.set(i, inventory.get(i));
         }
         return inputInventory;
-    }
-
-    private Optional<RecipeEntry<TilingTableRecipe>> getCurrentRecipe() {
-        return this.getWorld().getRecipeManager()
-                .getFirstMatch(ModRecipes.TILING_TABLE_TYPE, new TilingTableRecipeInput(getInputInventory()), this.getWorld());
-    }
-
-    private boolean canInsertItemIntoOutputSlot(ItemStack output) {
-        ItemStack current = this.getStack(OUTPUT_SLOT);
-        return current.isEmpty() || ItemStack.areItemsEqual(current, output);
-    }
-
-    private boolean canInsertAmountIntoOutputSlot(int count) {
-        ItemStack current = this.getStack(OUTPUT_SLOT);
-        int maxCount = current.isEmpty() ? 64 : current.getMaxCount();
-        int currentCount = current.isEmpty() ? 0 : current.getCount();
-        return maxCount >= currentCount + count;
     }
 
     @Nullable
