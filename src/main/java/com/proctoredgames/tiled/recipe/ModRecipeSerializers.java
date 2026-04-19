@@ -23,7 +23,7 @@ public class ModRecipeSerializers {
     public static final RecipeSerializer<CraftingTileBlockRecipe> CRAFTING_TILE_BLOCK =
             new SpecialRecipeSerializer<>(CraftingTileBlockRecipe::new);
 
-    public static final RecipeSerializer<TilingTableRecipe> TILING_TABLE_RECIPE =
+    public static final RecipeSerializer<TilingTableRecipe> TILING_TABLE_SMALL_TILE_BLOCK_RECIPE =
             new RecipeSerializer<>() {
                 private static final MapCodec<TilingTableRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
                         instance.group(
@@ -80,8 +80,8 @@ public class ModRecipeSerializers {
         );
         Registry.register(
                 Registries.RECIPE_SERIALIZER,
-                Identifier.of(Tiled.MOD_ID, "tiling_table_recipe"),
-                TILING_TABLE_RECIPE
+                Identifier.of(Tiled.MOD_ID, "tiling_table_small_tile_block_recipe"),
+                TILING_TABLE_SMALL_TILE_BLOCK_RECIPE
         );
         Registry.register(
                 Registries.RECIPE_SERIALIZER,

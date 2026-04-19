@@ -97,7 +97,7 @@ public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implemen
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return ModRecipeSerializers.TILING_TABLE_RECIPE;
+        return ModRecipeSerializers.TILING_TABLE_SMALL_TILE_BLOCK_RECIPE;
     }
 
     @Override

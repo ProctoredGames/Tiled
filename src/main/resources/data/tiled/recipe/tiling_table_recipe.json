@@ -1,5 +1,5 @@
 {
-  "type": "tiled:tiling_table_recipe",
+  "type": "tiled:tiling_table_small_tile_block_recipe",
   "ingredient": {
     "item": "minecraft:string"
   },
