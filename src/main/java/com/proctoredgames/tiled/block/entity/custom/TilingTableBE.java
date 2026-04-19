@@ -5,6 +5,7 @@ import com.proctoredgames.tiled.block.entity.ModBlockEntities;
 import com.proctoredgames.tiled.recipe.ModRecipes;
 import com.proctoredgames.tiled.recipe.TilingTableRecipe;
 import com.proctoredgames.tiled.recipe.TilingTableRecipeInput;
+import com.proctoredgames.tiled.recipe.TilingTableTileBlockRecipe;
 import com.proctoredgames.tiled.screen.custom.TilingTableScreenHandler;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
@@ -17,6 +18,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.PropertyDelegate;
@@ -83,29 +85,25 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         super.readNbt(nbt, registryLookup);
     }
 
-    /**
-     * Called by the screen handler whenever the input inventory changes.
-     * Updates the output slot with a preview of the craft result without
-     * consuming any inputs — consumption happens in the output slot on take.
-     */
     public void updateResult(World world) {
-        Optional<RecipeEntry<TilingTableRecipe>> recipe = getCurrentRecipe();
-        if (recipe.isPresent()) {
-            ItemStack result = recipe.get().value().craft(
-                    new TilingTableRecipeInput(getInputInventory()),
-                    world.getRegistryManager()
-            );
-            inventory.set(OUTPUT_SLOT, result);
+        TilingTableRecipeInput recipeInput = new TilingTableRecipeInput(getInputInventory());
+        ItemStack result = ItemStack.EMPTY;
+
+        // Check small tile block recipe first (4x4), then tile block recipe (2x2)
+        Optional<RecipeEntry<TilingTableRecipe>> smallTileRecipe = getSmallTileRecipe();
+        if (smallTileRecipe.isPresent()) {
+            result = smallTileRecipe.get().value().craft(recipeInput, world.getRegistryManager());
         } else {
-            inventory.set(OUTPUT_SLOT, ItemStack.EMPTY);
+            Optional<RecipeEntry<TilingTableTileBlockRecipe>> tileRecipe = getTileBlockRecipe();
+            if (tileRecipe.isPresent()) {
+                result = tileRecipe.get().value().craft(recipeInput, world.getRegistryManager());
+            }
         }
+
+        inventory.set(OUTPUT_SLOT, result);
         markDirty();
     }
 
-    /**
-     * Consumes one item from each of the 16 input slots.
-     * Called by the output slot after the player takes the result.
-     */
     public void consumeIngredients(World world) {
         for (int i = 0; i < 16; i++) {
             removeStack(i, 1);
@@ -113,10 +111,16 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         updateResult(world);
     }
 
-    public Optional<RecipeEntry<TilingTableRecipe>> getCurrentRecipe() {
+    public Optional<RecipeEntry<TilingTableRecipe>> getSmallTileRecipe() {
         if (world == null) return Optional.empty();
         return world.getRecipeManager()
                 .getFirstMatch(ModRecipes.TILING_TABLE_TYPE, new TilingTableRecipeInput(getInputInventory()), world);
+    }
+
+    public Optional<RecipeEntry<TilingTableTileBlockRecipe>> getTileBlockRecipe() {
+        if (world == null) return Optional.empty();
+        return world.getRecipeManager()
+                .getFirstMatch(ModRecipes.TILING_TABLE_TILE_BLOCK_TYPE, new TilingTableRecipeInput(getInputInventory()), world);
     }
 
     public DefaultedList<ItemStack> getInputInventory() {

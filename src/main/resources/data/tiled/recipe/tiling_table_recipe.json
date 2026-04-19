@@ -1,0 +1,10 @@
+{
+  "type": "tiled:tiling_table_recipe",
+  "ingredient": {
+    "item": "minecraft:string"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:egg"
+  }
+}

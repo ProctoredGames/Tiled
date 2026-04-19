@@ -1,7 +1,8 @@
 {
   "variants": {
     "": {
-      "model": "tiled:block/tile_block"
+      "model": "tiled:block/tile_block",
+      "y": 180
     }
   }
 }

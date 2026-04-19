@@ -80,12 +80,12 @@ public class ModRecipeSerializers {
         );
         Registry.register(
                 Registries.RECIPE_SERIALIZER,
-                Identifier.of(Tiled.MOD_ID, "tiling_table"),
+                Identifier.of(Tiled.MOD_ID, "tiling_table_recipe"),
                 TILING_TABLE_RECIPE
         );
         Registry.register(
                 Registries.RECIPE_SERIALIZER,
-                Identifier.of(Tiled.MOD_ID, "tiling_table_tile_block"),
+                Identifier.of(Tiled.MOD_ID, "tiling_table_tile_block_recipe"),
                 TILING_TABLE_TILE_BLOCK_RECIPE
         );
         Tiled.LOGGER.info("Registering recipe serializers for " + Tiled.MOD_ID);

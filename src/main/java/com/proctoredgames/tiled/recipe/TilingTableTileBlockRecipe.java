@@ -12,11 +12,6 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
-/**
- * Matches a 2x2 of concrete (or monochrome tile/small tile blocks) in the tiling table,
- * with all other slots empty. Produces a tile block containing those 4 colors.
- * Only fires when the full 4x4 is NOT filled (which would match TilingTableRecipe instead).
- */
 public record TilingTableTileBlockRecipe(Ingredient inputItem, ItemStack output) implements Recipe<TilingTableRecipeInput> {
 
     @Override
@@ -38,7 +33,6 @@ public record TilingTableTileBlockRecipe(Ingredient inputItem, ItemStack output)
 
         int w = input.getWidth();
 
-        // Collect the 4 resolved stacks from the 2x2 block
         ItemStack tl = input.getResolvedStack(topLeft);
         ItemStack tr = input.getResolvedStack(topLeft + 1);
         ItemStack bl = input.getResolvedStack(topLeft + w);
@@ -107,6 +101,6 @@ public record TilingTableTileBlockRecipe(Ingredient inputItem, ItemStack output)
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipes.TILING_TABLE_TYPE;
+        return ModRecipes.TILING_TABLE_TILE_BLOCK_TYPE;
     }
 }
