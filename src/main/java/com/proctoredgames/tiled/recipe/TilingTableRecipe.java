@@ -58,6 +58,7 @@ public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implemen
         ItemStack stack = SmallTileBlockBE.getStackWith(tiles);
         stack.setCount(16);
         return stack;
+
     }
 
     private int findTopLeft(TilingTableRecipeInput input) {
