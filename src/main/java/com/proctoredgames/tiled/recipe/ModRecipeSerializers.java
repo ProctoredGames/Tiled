@@ -23,7 +23,6 @@ public class ModRecipeSerializers {
     public static final RecipeSerializer<CraftingTileBlockRecipe> CRAFTING_TILE_BLOCK =
             new SpecialRecipeSerializer<>(CraftingTileBlockRecipe::new);
 
-    // Serializer for TilingTableRecipe (used by the tiling table block entity)
     public static final RecipeSerializer<TilingTableRecipe> TILING_TABLE_RECIPE =
             new RecipeSerializer<>() {
                 private static final MapCodec<TilingTableRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
@@ -32,7 +31,6 @@ public class ModRecipeSerializers {
                                 ItemStack.CODEC.fieldOf("result").forGetter(TilingTableRecipe::output)
                         ).apply(instance, TilingTableRecipe::new)
                 );
-
                 private static final PacketCodec<RegistryByteBuf, TilingTableRecipe> PACKET_CODEC =
                         PacketCodec.tuple(
                                 Ingredient.PACKET_CODEC, TilingTableRecipe::inputItem,
@@ -41,14 +39,32 @@ public class ModRecipeSerializers {
                         );
 
                 @Override
-                public MapCodec<TilingTableRecipe> codec() {
-                    return CODEC;
-                }
+                public MapCodec<TilingTableRecipe> codec() { return CODEC; }
 
                 @Override
-                public PacketCodec<RegistryByteBuf, TilingTableRecipe> packetCodec() {
-                    return PACKET_CODEC;
-                }
+                public PacketCodec<RegistryByteBuf, TilingTableRecipe> packetCodec() { return PACKET_CODEC; }
+            };
+
+    public static final RecipeSerializer<TilingTableTileBlockRecipe> TILING_TABLE_TILE_BLOCK_RECIPE =
+            new RecipeSerializer<>() {
+                private static final MapCodec<TilingTableTileBlockRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
+                        instance.group(
+                                Ingredient.DISALLOW_EMPTY_CODEC.fieldOf("ingredient").forGetter(TilingTableTileBlockRecipe::inputItem),
+                                ItemStack.CODEC.fieldOf("result").forGetter(TilingTableTileBlockRecipe::output)
+                        ).apply(instance, TilingTableTileBlockRecipe::new)
+                );
+                private static final PacketCodec<RegistryByteBuf, TilingTableTileBlockRecipe> PACKET_CODEC =
+                        PacketCodec.tuple(
+                                Ingredient.PACKET_CODEC, TilingTableTileBlockRecipe::inputItem,
+                                ItemStack.PACKET_CODEC, TilingTableTileBlockRecipe::output,
+                                TilingTableTileBlockRecipe::new
+                        );
+
+                @Override
+                public MapCodec<TilingTableTileBlockRecipe> codec() { return CODEC; }
+
+                @Override
+                public PacketCodec<RegistryByteBuf, TilingTableTileBlockRecipe> packetCodec() { return PACKET_CODEC; }
             };
 
     public static void register() {
@@ -66,6 +82,11 @@ public class ModRecipeSerializers {
                 Registries.RECIPE_SERIALIZER,
                 Identifier.of(Tiled.MOD_ID, "tiling_table"),
                 TILING_TABLE_RECIPE
+        );
+        Registry.register(
+                Registries.RECIPE_SERIALIZER,
+                Identifier.of(Tiled.MOD_ID, "tiling_table_tile_block"),
+                TILING_TABLE_TILE_BLOCK_RECIPE
         );
         Tiled.LOGGER.info("Registering recipe serializers for " + Tiled.MOD_ID);
     }

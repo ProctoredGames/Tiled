@@ -29,9 +29,7 @@ public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implemen
     @Override
     public ItemStack craft(TilingTableRecipeInput input, RegistryWrapper.WrapperLookup lookup) {
         int topLeft = findTopLeft(input);
-        if (topLeft == -1) {
-            return ItemStack.EMPTY;
-        }
+        if (topLeft == -1) return ItemStack.EMPTY;
 
         int w = input.getWidth();
         ItemStack[] stacks = new ItemStack[16];
@@ -40,7 +38,8 @@ public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implemen
         for (int dy = 0; dy < 4; dy++) {
             for (int dx = 0; dx < 4; dx++) {
                 int slot = (topLeft % w + dx) + ((topLeft / w) + dy) * w;
-                stacks[index++] = input.getStackInSlot(slot);
+                // Use resolved stacks so monochrome tile blocks contribute their concrete color
+                stacks[index++] = input.getResolvedStack(slot);
             }
         }
 
@@ -69,7 +68,7 @@ public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implemen
                 for (int dy = 0; dy < 4 && valid; dy++) {
                     for (int dx = 0; dx < 4 && valid; dx++) {
                         int slot = (x + dx) + (y + dy) * width;
-                        if (!isValidIngredient(input.getStackInSlot(slot))) {
+                        if (!isValidIngredient(input.getResolvedStack(slot))) {
                             valid = false;
                         }
                     }
