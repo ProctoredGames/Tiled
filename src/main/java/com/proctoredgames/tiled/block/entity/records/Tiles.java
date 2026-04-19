@@ -50,7 +50,10 @@ public record Tiles(Optional<Item> top_left, Optional<Item> top_right, Optional<
     }
 
     public List<Item> stream() {
-        return Stream.of(this.top_left, this.top_right, this.bottom_left, this.bottom_right).map(item -> (Item)item.orElse(Items.LILY_PAD)).toList();
+        return Stream.of(
+                this.top_left, this.top_right,
+                this.bottom_left, this.bottom_right
+        ).map(item -> item.orElse(Items.AIR)).toList();
     }
 
     public static Tiles fromNbt(@Nullable NbtCompound nbt) {

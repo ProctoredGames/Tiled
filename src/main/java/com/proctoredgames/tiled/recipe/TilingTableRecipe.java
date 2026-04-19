@@ -1,13 +1,9 @@
 package com.proctoredgames.tiled.recipe;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
 import com.proctoredgames.tiled.util.ModTags;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
@@ -27,9 +23,6 @@ public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implemen
 
     @Override
     public boolean matches(TilingTableRecipeInput input, World world) {
-        if (world.isClient()) {
-            return false;
-        }
         return findTopLeft(input) != -1;
     }
 
@@ -52,11 +45,11 @@ public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implemen
         }
 
         SmallTiles tiles = new SmallTiles(
-                stacks[0].getItem(), stacks[1].getItem(),
-                stacks[2].getItem(), stacks[3].getItem(),
-                stacks[4].getItem(), stacks[5].getItem(),
-                stacks[6].getItem(), stacks[7].getItem(),
-                stacks[8].getItem(), stacks[9].getItem(),
+                stacks[0].getItem(),  stacks[1].getItem(),
+                stacks[2].getItem(),  stacks[3].getItem(),
+                stacks[4].getItem(),  stacks[5].getItem(),
+                stacks[6].getItem(),  stacks[7].getItem(),
+                stacks[8].getItem(),  stacks[9].getItem(),
                 stacks[10].getItem(), stacks[11].getItem(),
                 stacks[12].getItem(), stacks[13].getItem(),
                 stacks[14].getItem(), stacks[15].getItem()
@@ -73,20 +66,16 @@ public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implemen
             for (int x = 0; x <= width - 4; x++) {
                 boolean valid = true;
 
-                for (int dy = 0; dy < 4; dy++) {
-                    for (int dx = 0; dx < 4; dx++) {
-                        int index = (x + dx) + (y + dy) * width;
-                        if (!isValidIngredient(input.getStackInSlot(index))) {
+                for (int dy = 0; dy < 4 && valid; dy++) {
+                    for (int dx = 0; dx < 4 && valid; dx++) {
+                        int slot = (x + dx) + (y + dy) * width;
+                        if (!isValidIngredient(input.getStackInSlot(slot))) {
                             valid = false;
-                            break;
                         }
                     }
-                    if (!valid) break;
                 }
 
-                if (valid) {
-                    return x + y * width;
-                }
+                if (valid) return x + y * width;
             }
         }
 
@@ -94,7 +83,7 @@ public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implemen
     }
 
     private boolean isValidIngredient(ItemStack stack) {
-        return stack.isIn(ModTags.Items.CONCRETE);
+        return !stack.isEmpty() && stack.isIn(ModTags.Items.CONCRETE);
     }
 
     @Override
@@ -109,7 +98,7 @@ public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implemen
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return null;
+        return ModRecipeSerializers.TILING_TABLE_RECIPE;
     }
 
     @Override

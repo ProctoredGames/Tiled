@@ -8,21 +8,16 @@ import com.proctoredgames.tiled.recipe.TilingTableRecipeInput;
 import com.proctoredgames.tiled.screen.custom.TilingTableScreenHandler;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.recipe.RecipeEntry;
-import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
@@ -39,7 +34,6 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
 
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(17, ItemStack.EMPTY);
 
-    private static final int INPUT_SLOT = 0;
     private static final int OUTPUT_SLOT = 16;
 
     protected final PropertyDelegate propertyDelegate;
@@ -54,7 +48,6 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
 
             @Override
             public void set(int index, int value) {
-
             }
 
             @Override
@@ -98,21 +91,34 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
     }
 
     public void tick(World world, BlockPos pos, BlockState state) {
+        // Craft one output per tick, not the entire inventory at once
         if (hasRecipe()) {
-            markDirty(world, pos, state);
-        }
-        while (hasRecipe()) {
             craftItem();
+            markDirty(world, pos, state);
         }
     }
 
     private void craftItem() {
         Optional<RecipeEntry<TilingTableRecipe>> recipe = getCurrentRecipe();
+        if (recipe.isEmpty()) return;
 
-        ItemStack output = recipe.get().value().output();
-        this.removeStack(INPUT_SLOT, 1);
-        this.setStack(OUTPUT_SLOT, new ItemStack(output.getItem(),
-                this.getStack(OUTPUT_SLOT).getCount() + output.getCount()));
+        // Use craft() so the output carries the correct SmallTiles data component
+        ItemStack output = recipe.get().value().craft(
+                new TilingTableRecipeInput(getInputInventory()),
+                this.getWorld().getRegistryManager()
+        );
+
+        // Consume one item from each of the 16 input slots
+        for (int i = 0; i < 16; i++) {
+            this.removeStack(i, 1);
+        }
+
+        ItemStack currentOutput = this.getStack(OUTPUT_SLOT);
+        if (currentOutput.isEmpty()) {
+            this.setStack(OUTPUT_SLOT, output.copy());
+        } else {
+            currentOutput.increment(output.getCount());
+        }
     }
 
     private boolean hasRecipe() {
@@ -120,42 +126,46 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         if (recipe.isEmpty()) {
             return false;
         }
-
-        ItemStack output = recipe.get().value().output();
+        ItemStack output = recipe.get().value().craft(
+                new TilingTableRecipeInput(getInputInventory()),
+                this.getWorld().getRegistryManager()
+        );
         return canInsertAmountIntoOutputSlot(output.getCount()) && canInsertItemIntoOutputSlot(output);
     }
 
-    private Optional<RecipeEntry<TilingTableRecipe>> getCurrentRecipe() {
-        DefaultedList<ItemStack> inputInventory =
-                DefaultedList.ofSize(16, ItemStack.EMPTY);
-
+    private DefaultedList<ItemStack> getInputInventory() {
+        DefaultedList<ItemStack> inputInventory = DefaultedList.ofSize(16, ItemStack.EMPTY);
         for (int i = 0; i < 16; i++) {
             inputInventory.set(i, inventory.get(i));
         }
+        return inputInventory;
+    }
 
+    private Optional<RecipeEntry<TilingTableRecipe>> getCurrentRecipe() {
         return this.getWorld().getRecipeManager()
-                .getFirstMatch(ModRecipes.TILING_TABLE_TYPE, new TilingTableRecipeInput(inputInventory), this.getWorld());
+                .getFirstMatch(ModRecipes.TILING_TABLE_TYPE, new TilingTableRecipeInput(getInputInventory()), this.getWorld());
     }
 
     private boolean canInsertItemIntoOutputSlot(ItemStack output) {
-        return this.getStack(OUTPUT_SLOT).isEmpty() || this.getStack(OUTPUT_SLOT).getItem() == output.getItem();
+        ItemStack current = this.getStack(OUTPUT_SLOT);
+        return current.isEmpty() || ItemStack.areItemsEqual(current, output);
     }
 
     private boolean canInsertAmountIntoOutputSlot(int count) {
-        int maxCount = this.getStack(OUTPUT_SLOT).isEmpty() ? 64 : this.getStack(OUTPUT_SLOT).getMaxCount();
-        int currentCount = this.getStack(OUTPUT_SLOT).getCount();
-
+        ItemStack current = this.getStack(OUTPUT_SLOT);
+        int maxCount = current.isEmpty() ? 64 : current.getMaxCount();
+        int currentCount = current.isEmpty() ? 0 : current.getCount();
         return maxCount >= currentCount + count;
     }
 
     @Nullable
     @Override
     public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return super.toUpdatePacket();
+        return BlockEntityUpdateS2CPacket.create(this);
     }
 
     @Override
     public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        return super.toInitialChunkDataNbt(registryLookup);
+        return createNbt(registryLookup);
     }
 }
