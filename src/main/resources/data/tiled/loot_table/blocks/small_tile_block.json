@@ -12,7 +12,7 @@
             {
               "function": "minecraft:copy_components",
               "include": [
-                "tiled:small_tile_block"
+                "tiled:small_tile_block_tiles"
               ],
               "source": "block_entity"
             }
