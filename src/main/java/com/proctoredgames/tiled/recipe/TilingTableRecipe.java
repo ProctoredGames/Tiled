@@ -1,6 +1,7 @@
 package com.proctoredgames.tiled.recipe;
 
 import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
+import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
 import com.proctoredgames.tiled.util.ModTags;
 import net.minecraft.item.ItemStack;
@@ -54,7 +55,9 @@ public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implemen
                 stacks[14].getItem(), stacks[15].getItem()
         );
 
-        return SmallTileBlockBE.getStackWith(tiles);
+        ItemStack stack = SmallTileBlockBE.getStackWith(tiles);
+        stack.setCount(16);
+        return stack;
     }
 
     private int findTopLeft(TilingTableRecipeInput input) {

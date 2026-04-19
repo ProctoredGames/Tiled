@@ -39,6 +39,7 @@ public record TilingTableTileBlockRecipe(Ingredient inputItem, ItemStack output)
         ItemStack br = input.getResolvedStack(topLeft + w + 1);
 
         Tiles tiles = new Tiles(tl.getItem(), tr.getItem(), bl.getItem(), br.getItem());
+
         ItemStack result = TileBlockBE.getStackWith(tiles);
         result.setCount(4);
         return result;
