@@ -4,6 +4,7 @@ import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
 import com.proctoredgames.tiled.recipe.ModRecipeSerializers;
 import com.proctoredgames.tiled.recipe.TileResolver;
+import com.proctoredgames.tiled.recipe.TilingTableRecipeInput;
 import com.proctoredgames.tiled.util.ModTags;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
@@ -27,9 +28,7 @@ public class CraftingSmallTileBlock extends SpecialCraftingRecipe {
     @Override
     public ItemStack craft(CraftingRecipeInput input, RegistryWrapper.WrapperLookup lookup) {
         int topLeft = findTopLeft(input);
-        if (topLeft == -1) {
-            return ItemStack.EMPTY;
-        }
+        if (topLeft == -1) return ItemStack.EMPTY;
 
         int w = input.getWidth();
         ItemStack[] stacks = new ItemStack[16];
@@ -69,28 +68,13 @@ public class CraftingSmallTileBlock extends SpecialCraftingRecipe {
                 for (int dy = 0; dy < 4 && valid; dy++) {
                     for (int dx = 0; dx < 4 && valid; dx++) {
                         int slot = (x + dx) + (y + dy) * width;
-                        if (!isValidIngredient(input.getStackInSlot(slot))) {
+                        if (!isValidIngredient(TileResolver.resolve(input.getStackInSlot(slot)))) {
                             valid = false;
                         }
                     }
                 }
 
-                if (valid) {
-                    int topLeft = x + y * width;
-
-                    // Ensure all slots outside the 4x4 block are empty
-                    for (int i = 0; i < input.getSize(); i++) {
-                        int ix = i % width;
-                        int iy = i / width;
-                        boolean inBlock = ix >= x && ix < x + 4 && iy >= y && iy < y + 4;
-                        if (!inBlock && !input.getStackInSlot(i).isEmpty()) {
-                            valid = false;
-                            break;
-                        }
-                    }
-
-                    if (valid) return topLeft;
-                }
+                if (valid) return x + y * width;
             }
         }
 

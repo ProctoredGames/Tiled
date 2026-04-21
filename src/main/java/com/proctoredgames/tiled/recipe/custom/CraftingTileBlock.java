@@ -4,6 +4,7 @@ import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import com.proctoredgames.tiled.recipe.ModRecipeSerializers;
 import com.proctoredgames.tiled.recipe.TileResolver;
+import com.proctoredgames.tiled.recipe.TilingTableRecipeInput;
 import com.proctoredgames.tiled.util.ModTags;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
@@ -55,28 +56,30 @@ public class CraftingTileBlock extends SpecialCraftingRecipe {
 
         for (int y = 0; y < height - 1; y++) {
             for (int x = 0; x < width - 1; x++) {
-
                 int i0 = x + y * width;
                 int i1 = i0 + 1;
                 int i2 = i0 + width;
                 int i3 = i2 + 1;
 
-                if (isValidIngredient(input.getStackInSlot(i0)) &&
-                        isValidIngredient(input.getStackInSlot(i1)) &&
-                        isValidIngredient(input.getStackInSlot(i2)) &&
-                        isValidIngredient(input.getStackInSlot(i3))) {
+                if (!isValidIngredient(TileResolver.resolve(input.getStackInSlot(i0))) ||
+                        !isValidIngredient(TileResolver.resolve(input.getStackInSlot(i1))) ||
+                        !isValidIngredient(TileResolver.resolve(input.getStackInSlot(i2))) ||
+                        !isValidIngredient(TileResolver.resolve(input.getStackInSlot(i3)))) {
+                    continue;
+                }
 
-                    // ensure others empty
-                    for (int i = 0; i < input.getSize(); i++) {
-                        if (i != i0 && i != i1 && i != i2 && i != i3) {
-                            if (!input.getStackInSlot(i).isEmpty()) {
-                                return -1;
-                            }
+                // All other slots must be empty
+                boolean othersEmpty = true;
+                for (int i = 0; i < input.getSize(); i++) {
+                    if (i != i0 && i != i1 && i != i2 && i != i3) {
+                        if (!input.getStackInSlot(i).isEmpty()) {
+                            othersEmpty = false;
+                            break;
                         }
                     }
-
-                    return i0;
                 }
+
+                if (othersEmpty) return i0;
             }
         }
 
