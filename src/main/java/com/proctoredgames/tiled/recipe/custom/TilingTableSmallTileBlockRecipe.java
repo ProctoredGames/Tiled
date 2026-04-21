@@ -1,7 +1,11 @@
-package com.proctoredgames.tiled.recipe;
+package com.proctoredgames.tiled.recipe.custom;
 
 import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
+import com.proctoredgames.tiled.recipe.ModRecipeSerializers;
+import com.proctoredgames.tiled.recipe.ModRecipes;
+import com.proctoredgames.tiled.recipe.TileResolver;
+import com.proctoredgames.tiled.recipe.TilingTableRecipeInput;
 import com.proctoredgames.tiled.util.ModTags;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Ingredient;

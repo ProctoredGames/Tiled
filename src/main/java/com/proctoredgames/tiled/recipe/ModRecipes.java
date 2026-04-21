@@ -1,6 +1,8 @@
 package com.proctoredgames.tiled.recipe;
 
 import com.proctoredgames.tiled.Tiled;
+import com.proctoredgames.tiled.recipe.custom.TilingTableSmallTileBlockRecipe;
+import com.proctoredgames.tiled.recipe.custom.TilingTableTileBlockRecipe;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;

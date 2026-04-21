@@ -5,6 +5,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.recipe.custom.CraftingSmallTileBlock;
 import com.proctoredgames.tiled.recipe.custom.CraftingTileBlock;
+import com.proctoredgames.tiled.recipe.custom.TilingTableSmallTileBlockRecipe;
+import com.proctoredgames.tiled.recipe.custom.TilingTableTileBlockRecipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
