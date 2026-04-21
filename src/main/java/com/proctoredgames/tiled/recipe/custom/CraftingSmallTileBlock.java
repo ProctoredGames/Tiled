@@ -1,9 +1,9 @@
 package com.proctoredgames.tiled.recipe.custom;
 
 import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
-import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
 import com.proctoredgames.tiled.recipe.ModRecipeSerializers;
+import com.proctoredgames.tiled.recipe.TileResolver;
 import com.proctoredgames.tiled.util.ModTags;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
@@ -13,9 +13,9 @@ import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.world.World;
 
-public class CraftingSmallTileBlockRecipe extends SpecialCraftingRecipe {
+public class CraftingSmallTileBlock extends SpecialCraftingRecipe {
 
-    public CraftingSmallTileBlockRecipe(CraftingRecipeCategory category) {
+    public CraftingSmallTileBlock(CraftingRecipeCategory category) {
         super(category);
     }
 
@@ -38,7 +38,7 @@ public class CraftingSmallTileBlockRecipe extends SpecialCraftingRecipe {
         for (int dy = 0; dy < 4; dy++) {
             for (int dx = 0; dx < 4; dx++) {
                 int slot = (topLeft % w + dx) + ((topLeft / w) + dy) * w;
-                stacks[index++] = input.getStackInSlot(slot);
+                stacks[index++] = TileResolver.resolve(input.getStackInSlot(slot));
             }
         }
 

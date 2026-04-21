@@ -3,8 +3,8 @@ package com.proctoredgames.tiled.recipe;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.proctoredgames.tiled.Tiled;
-import com.proctoredgames.tiled.recipe.custom.CraftingSmallTileBlockRecipe;
-import com.proctoredgames.tiled.recipe.custom.CraftingTileBlockRecipe;
+import com.proctoredgames.tiled.recipe.custom.CraftingSmallTileBlock;
+import com.proctoredgames.tiled.recipe.custom.CraftingTileBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -17,32 +17,32 @@ import net.minecraft.util.Identifier;
 
 public class ModRecipeSerializers {
 
-    public static final RecipeSerializer<CraftingSmallTileBlockRecipe> CRAFTING_SMALL_TILE_BLOCK =
-            new SpecialRecipeSerializer<>(CraftingSmallTileBlockRecipe::new);
+    public static final RecipeSerializer<CraftingSmallTileBlock> CRAFTING_SMALL_TILE_BLOCK =
+            new SpecialRecipeSerializer<>(CraftingSmallTileBlock::new);
 
-    public static final RecipeSerializer<CraftingTileBlockRecipe> CRAFTING_TILE_BLOCK =
-            new SpecialRecipeSerializer<>(CraftingTileBlockRecipe::new);
+    public static final RecipeSerializer<CraftingTileBlock> CRAFTING_TILE_BLOCK =
+            new SpecialRecipeSerializer<>(CraftingTileBlock::new);
 
-    public static final RecipeSerializer<TilingTableRecipe> TILING_TABLE_SMALL_TILE_BLOCK_RECIPE =
+    public static final RecipeSerializer<TilingTableSmallTileBlockRecipe> TILING_TABLE_SMALL_TILE_BLOCK_RECIPE =
             new RecipeSerializer<>() {
-                private static final MapCodec<TilingTableRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
+                private static final MapCodec<TilingTableSmallTileBlockRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
                         instance.group(
-                                Ingredient.DISALLOW_EMPTY_CODEC.fieldOf("ingredient").forGetter(TilingTableRecipe::inputItem),
-                                ItemStack.CODEC.fieldOf("result").forGetter(TilingTableRecipe::output)
-                        ).apply(instance, TilingTableRecipe::new)
+                                Ingredient.DISALLOW_EMPTY_CODEC.fieldOf("ingredient").forGetter(TilingTableSmallTileBlockRecipe::inputItem),
+                                ItemStack.CODEC.fieldOf("result").forGetter(TilingTableSmallTileBlockRecipe::output)
+                        ).apply(instance, TilingTableSmallTileBlockRecipe::new)
                 );
-                private static final PacketCodec<RegistryByteBuf, TilingTableRecipe> PACKET_CODEC =
+                private static final PacketCodec<RegistryByteBuf, TilingTableSmallTileBlockRecipe> PACKET_CODEC =
                         PacketCodec.tuple(
-                                Ingredient.PACKET_CODEC, TilingTableRecipe::inputItem,
-                                ItemStack.PACKET_CODEC, TilingTableRecipe::output,
-                                TilingTableRecipe::new
+                                Ingredient.PACKET_CODEC, TilingTableSmallTileBlockRecipe::inputItem,
+                                ItemStack.PACKET_CODEC, TilingTableSmallTileBlockRecipe::output,
+                                TilingTableSmallTileBlockRecipe::new
                         );
 
                 @Override
-                public MapCodec<TilingTableRecipe> codec() { return CODEC; }
+                public MapCodec<TilingTableSmallTileBlockRecipe> codec() { return CODEC; }
 
                 @Override
-                public PacketCodec<RegistryByteBuf, TilingTableRecipe> packetCodec() { return PACKET_CODEC; }
+                public PacketCodec<RegistryByteBuf, TilingTableSmallTileBlockRecipe> packetCodec() { return PACKET_CODEC; }
             };
 
     public static final RecipeSerializer<TilingTableTileBlockRecipe> TILING_TABLE_TILE_BLOCK_RECIPE =

@@ -33,12 +33,12 @@ public record TilingTableTileBlockRecipe(Ingredient inputItem, ItemStack output)
 
         int w = input.getWidth();
 
-        ItemStack tl = input.getResolvedStack(topLeft);
-        ItemStack tr = input.getResolvedStack(topLeft + 1);
-        ItemStack bl = input.getResolvedStack(topLeft + w);
-        ItemStack br = input.getResolvedStack(topLeft + w + 1);
-
-        Tiles tiles = new Tiles(tl.getItem(), tr.getItem(), bl.getItem(), br.getItem());
+        Tiles tiles = new Tiles(
+                TileResolver.resolve(input.getStackInSlot(topLeft)).getItem(),
+                TileResolver.resolve(input.getStackInSlot(topLeft + 1)).getItem(),
+                TileResolver.resolve(input.getStackInSlot(topLeft + w)).getItem(),
+                TileResolver.resolve(input.getStackInSlot(topLeft + w + 1)).getItem()
+        );
 
         ItemStack result = TileBlockBE.getStackWith(tiles);
         result.setCount(4);
@@ -56,10 +56,10 @@ public record TilingTableTileBlockRecipe(Ingredient inputItem, ItemStack output)
                 int i2 = i0 + width;
                 int i3 = i2 + 1;
 
-                if (!isValidIngredient(input.getResolvedStack(i0)) ||
-                        !isValidIngredient(input.getResolvedStack(i1)) ||
-                        !isValidIngredient(input.getResolvedStack(i2)) ||
-                        !isValidIngredient(input.getResolvedStack(i3))) {
+                if (!isValidIngredient(TileResolver.resolve(input.getStackInSlot(i0))) ||
+                        !isValidIngredient(TileResolver.resolve(input.getStackInSlot(i1))) ||
+                        !isValidIngredient(TileResolver.resolve(input.getStackInSlot(i2))) ||
+                        !isValidIngredient(TileResolver.resolve(input.getStackInSlot(i3)))) {
                     continue;
                 }
 

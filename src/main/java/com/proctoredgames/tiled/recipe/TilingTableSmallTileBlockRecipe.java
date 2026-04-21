@@ -1,7 +1,6 @@
 package com.proctoredgames.tiled.recipe;
 
 import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
-import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
 import com.proctoredgames.tiled.util.ModTags;
 import net.minecraft.item.ItemStack;
@@ -13,7 +12,7 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
-public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implements Recipe<TilingTableRecipeInput> {
+public record TilingTableSmallTileBlockRecipe(Ingredient inputItem, ItemStack output) implements Recipe<TilingTableRecipeInput> {
 
     @Override
     public DefaultedList<Ingredient> getIngredients() {
@@ -39,8 +38,7 @@ public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implemen
         for (int dy = 0; dy < 4; dy++) {
             for (int dx = 0; dx < 4; dx++) {
                 int slot = (topLeft % w + dx) + ((topLeft / w) + dy) * w;
-                // Use resolved stacks so monochrome tile blocks contribute their concrete color
-                stacks[index++] = input.getResolvedStack(slot);
+                stacks[index++] = TileResolver.resolve(input.getStackInSlot(slot));
             }
         }
 
@@ -58,7 +56,6 @@ public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implemen
         ItemStack stack = SmallTileBlockBE.getStackWith(tiles);
         stack.setCount(16);
         return stack;
-
     }
 
     private int findTopLeft(TilingTableRecipeInput input) {
@@ -72,7 +69,7 @@ public record TilingTableRecipe(Ingredient inputItem, ItemStack output) implemen
                 for (int dy = 0; dy < 4 && valid; dy++) {
                     for (int dx = 0; dx < 4 && valid; dx++) {
                         int slot = (x + dx) + (y + dy) * width;
-                        if (!isValidIngredient(input.getResolvedStack(slot))) {
+                        if (!isValidIngredient(TileResolver.resolve(input.getStackInSlot(slot)))) {
                             valid = false;
                         }
                     }

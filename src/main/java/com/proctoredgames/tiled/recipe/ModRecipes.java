@@ -7,7 +7,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
 public class ModRecipes {
-    public static final RecipeType<TilingTableRecipe> TILING_TABLE_TYPE = Registry.register(
+    public static final RecipeType<TilingTableSmallTileBlockRecipe> TILING_TABLE_TYPE = Registry.register(
             Registries.RECIPE_TYPE, Identifier.of(Tiled.MOD_ID, "tiling_table"), new RecipeType<>() {
                 @Override
                 public String toString() { return "tiling_table"; }

@@ -11,22 +11,8 @@ import net.minecraft.item.Items;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Resolves tile block and small tile block ItemStacks to their effective
- * concrete ingredient for recipe matching purposes.
- *
- * A monochrome tile/small tile block (all slots the same concrete color)
- * is treated as a single stack of that concrete block.
- * Mixed-color or empty blocks resolve to themselves (i.e. are not valid concrete).
- */
 public class TileResolver {
 
-    /**
-     * Returns the effective ItemStack for recipe purposes.
-     * If the stack is a monochrome tile block or small tile block,
-     * returns a stack of the corresponding concrete item.
-     * Otherwise returns the original stack unchanged.
-     */
     public static ItemStack resolve(ItemStack stack) {
         if (stack.isEmpty()) return stack;
 
@@ -47,10 +33,6 @@ public class TileResolver {
         return stack;
     }
 
-    /**
-     * Returns the single Item if all entries in the list are the same non-air item,
-     * or null if the list is mixed, empty, or contains air.
-     */
     private static Item getMonochromeItem(List<Item> items) {
         Item found = null;
         for (Item item : items) {

@@ -1,13 +1,11 @@
 package com.proctoredgames.tiled.recipe.custom;
 
-import com.proctoredgames.tiled.block.ModBlocks;
 import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import com.proctoredgames.tiled.recipe.ModRecipeSerializers;
+import com.proctoredgames.tiled.recipe.TileResolver;
 import com.proctoredgames.tiled.util.ModTags;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
@@ -15,11 +13,9 @@ import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.world.World;
 
-import java.util.Optional;
+public class CraftingTileBlock extends SpecialCraftingRecipe {
 
-public class CraftingTileBlockRecipe extends SpecialCraftingRecipe {
-
-    public CraftingTileBlockRecipe(CraftingRecipeCategory category) {
+    public CraftingTileBlock(CraftingRecipeCategory category) {
         super(category);
     }
 
@@ -34,7 +30,6 @@ public class CraftingTileBlockRecipe extends SpecialCraftingRecipe {
 
     @Override
     public ItemStack craft(CraftingRecipeInput input, RegistryWrapper.WrapperLookup lookup) {
-
         int topLeft = findTopLeft(input);
         if (topLeft == -1) {
             return ItemStack.EMPTY;
@@ -43,10 +38,10 @@ public class CraftingTileBlockRecipe extends SpecialCraftingRecipe {
         int w = input.getWidth();
 
         Tiles tiles = new Tiles(
-                input.getStackInSlot(topLeft).getItem(),
-                input.getStackInSlot(topLeft + 1).getItem(),
-                input.getStackInSlot(topLeft + w).getItem(),
-                input.getStackInSlot(topLeft + w + 1).getItem()
+                TileResolver.resolve(input.getStackInSlot(topLeft)).getItem(),
+                TileResolver.resolve(input.getStackInSlot(topLeft + 1)).getItem(),
+                TileResolver.resolve(input.getStackInSlot(topLeft + w)).getItem(),
+                TileResolver.resolve(input.getStackInSlot(topLeft + w + 1)).getItem()
         );
 
         ItemStack stack = TileBlockBE.getStackWith(tiles);
@@ -55,7 +50,6 @@ public class CraftingTileBlockRecipe extends SpecialCraftingRecipe {
     }
 
     private int findTopLeft(CraftingRecipeInput input) {
-
         int width = input.getWidth();
         int height = input.getHeight();
 
@@ -99,4 +93,3 @@ public class CraftingTileBlockRecipe extends SpecialCraftingRecipe {
         return ModRecipeSerializers.CRAFTING_TILE_BLOCK;
     }
 }
-

@@ -3,7 +3,7 @@ package com.proctoredgames.tiled.block.entity.custom;
 import com.proctoredgames.tiled.block.entity.ImplementedInventory;
 import com.proctoredgames.tiled.block.entity.ModBlockEntities;
 import com.proctoredgames.tiled.recipe.ModRecipes;
-import com.proctoredgames.tiled.recipe.TilingTableRecipe;
+import com.proctoredgames.tiled.recipe.TilingTableSmallTileBlockRecipe;
 import com.proctoredgames.tiled.recipe.TilingTableRecipeInput;
 import com.proctoredgames.tiled.recipe.TilingTableTileBlockRecipe;
 import com.proctoredgames.tiled.screen.custom.TilingTableScreenHandler;
@@ -18,7 +18,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.PropertyDelegate;
@@ -90,7 +89,7 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         ItemStack result = ItemStack.EMPTY;
 
         // Check small tile block recipe first (4x4), then tile block recipe (2x2)
-        Optional<RecipeEntry<TilingTableRecipe>> smallTileRecipe = getSmallTileRecipe();
+        Optional<RecipeEntry<TilingTableSmallTileBlockRecipe>> smallTileRecipe = getSmallTileRecipe();
         if (smallTileRecipe.isPresent()) {
             result = smallTileRecipe.get().value().craft(recipeInput, world.getRegistryManager());
         } else {
@@ -111,7 +110,7 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         updateResult(world);
     }
 
-    public Optional<RecipeEntry<TilingTableRecipe>> getSmallTileRecipe() {
+    public Optional<RecipeEntry<TilingTableSmallTileBlockRecipe>> getSmallTileRecipe() {
         if (world == null) return Optional.empty();
         return world.getRecipeManager()
                 .getFirstMatch(ModRecipes.TILING_TABLE_TYPE, new TilingTableRecipeInput(getInputInventory()), world);
