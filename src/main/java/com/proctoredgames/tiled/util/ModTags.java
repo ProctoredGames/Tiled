@@ -12,7 +12,7 @@ public class ModTags {
 //        public static final TagKey<Block> NEEDS_PINK_GARNET_TOOL = createTag("needs_pink_garnet_tool");
 
         private static TagKey<Block> createTag(String name) {
-            return TagKey.of(RegistryKeys.BLOCK, Identifier.of(Tiled.MOD_ID, name));
+            return TagKey.of(RegistryKeys.BLOCK, new Identifier(Tiled.MOD_ID, name));
         }
     }
 
@@ -21,7 +21,7 @@ public class ModTags {
         public static final TagKey<Item> TILE_BLOCK_INGREDIENTS = createTag("tile_block_ingredients");
 
         private static TagKey<Item> createTag(String name) {
-            return TagKey.of(RegistryKeys.ITEM, Identifier.of(Tiled.MOD_ID, name));
+            return TagKey.of(RegistryKeys.ITEM, new Identifier(Tiled.MOD_ID, name));
         }
     }
 }

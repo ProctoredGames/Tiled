@@ -10,9 +10,6 @@ import net.minecraft.util.Identifier;
 
 import java.util.function.Function;
 
-// 1.20.1: Using ModelLoadingRegistry (fabric-models-v0) + ModelVariantProvider instead of
-// the newer ModelLoadingPlugin v1 API, for maximum compatibility with all 1.20.1 fabric-api versions.
-// ModelVariantProvider intercepts model loading by ModelIdentifier and lets us return a custom model.
 @Environment(EnvType.CLIENT)
 public class TiledModelLoadingPlugin {
 

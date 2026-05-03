@@ -5,8 +5,6 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
 
-// 1.20.1: getFirstMatch is typed <C extends Inventory, T extends Recipe<C>>
-// TilingTableRecipeInput only needs to implement Inventory — it is not used with SpecialCraftingRecipe
 public record TilingTableRecipeInput(DefaultedList<ItemStack> input) implements Inventory {
 
     public int getWidth() {

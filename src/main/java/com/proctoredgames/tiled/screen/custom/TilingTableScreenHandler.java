@@ -20,9 +20,6 @@ public class TilingTableScreenHandler extends ScreenHandler {
     private final PropertyDelegate propertyDelegate;
     public final TilingTableBE blockEntity;
 
-    // 1.20.1: ExtendedScreenHandlerType passes a PacketByteBuf, not a BlockPos.
-    // This constructor is called by the client-side factory registered in ModScreenHandlers.
-    // The buf contains the BlockPos written by TilingTableBE.writeScreenOpeningData().
     public TilingTableScreenHandler(int syncId, PlayerInventory inventory, PacketByteBuf buf) {
         this(syncId, inventory, inventory.player.getWorld().getBlockEntity(buf.readBlockPos()), new ArrayPropertyDelegate(17));
     }

@@ -21,7 +21,6 @@ public class SmallTileBlockBE extends BlockEntity {
         this.tiles = SmallTiles.DEFAULT;
     }
 
-    // 1.20.1: no RegistryWrapper parameter
     @Override
     protected void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
@@ -38,7 +37,6 @@ public class SmallTileBlockBE extends BlockEntity {
         return BlockEntityUpdateS2CPacket.create(this);
     }
 
-    // 1.20.1: no RegistryWrapper parameter
     @Override
     public NbtCompound toInitialChunkDataNbt() {
         return createNbt();
@@ -53,10 +51,6 @@ public class SmallTileBlockBE extends BlockEntity {
         markDirty();
     }
 
-    /**
-     * Reads tile data from the NBT stored on an ItemStack (the "BlockEntityTag").
-     * Replaces the 1.21.1 readComponents() call.
-     */
     public void readFrom(ItemStack stack) {
         NbtCompound nbt = stack.getSubNbt("BlockEntityTag");
         if (nbt != null) {
@@ -66,10 +60,6 @@ public class SmallTileBlockBE extends BlockEntity {
         }
     }
 
-    /**
-     * Produces an ItemStack with tile data stored in "BlockEntityTag" NBT.
-     * Replaces the 1.21.1 applyComponentsFrom() call.
-     */
     public ItemStack asStack() {
         ItemStack stack = ModBlocks.SMALL_TILE_BLOCK.asItem().getDefaultStack();
         if (!this.tiles.equals(SmallTiles.DEFAULT)) {

@@ -14,8 +14,6 @@ import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
-// 1.20.1: SpecialCraftingRecipe is Recipe<RecipeInputInventory>, so matches/craft take RecipeInputInventory.
-// The constructor is (Identifier, CraftingRecipeCategory) to match SpecialRecipeSerializer.Factory.
 public class CraftingSmallTileBlock extends SpecialCraftingRecipe {
 
     public CraftingSmallTileBlock(Identifier id, CraftingRecipeCategory category) {

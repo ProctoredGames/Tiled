@@ -19,7 +19,7 @@ import net.minecraft.util.Identifier;
 @Environment(EnvType.CLIENT)
 public class TilingTableScreen extends HandledScreen<TilingTableScreenHandler> {
     public static final Identifier GUI_TEXTURE =
-            Identifier.of(Tiled.MOD_ID, "textures/gui/tiling_table/tiling_table.png");
+            new Identifier(Tiled.MOD_ID, "textures/gui/tiling_table/tiling_table.png");
 
     public TilingTableScreen(TilingTableScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);

@@ -18,13 +18,10 @@ public record Tiles(Optional<Item> top_left, Optional<Item> top_right, Optional<
 
     public static final Tiles DEFAULT = new Tiles(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
-    // 1.20.1: sizeLimitedListOf does not exist — use listOf
-    // 1.20.1: PacketCodec does not exist (added in 1.20.5) — removed entirely
     public static final Codec<Tiles> CODEC = Registries.ITEM.getCodec()
             .listOf()
             .xmap(Tiles::new, Tiles::stream);
 
-    // Manual network helpers in place of the removed PacketCodec
     public static void encode(PacketByteBuf buf, Tiles value) {
         for (Item item : value.stream()) {
             buf.writeVarInt(Registries.ITEM.getRawId(item));
@@ -59,7 +56,6 @@ public record Tiles(Optional<Item> top_left, Optional<Item> top_right, Optional<
         if (this.equals(DEFAULT)) {
             return nbt;
         }
-        // 1.20.1: getOrThrow takes a boolean + consumer, not zero args
         nbt.put("tiles", CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow(false, e -> {}));
         return nbt;
     }

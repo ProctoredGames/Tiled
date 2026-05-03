@@ -4,7 +4,7 @@
     "item": "minecraft:string"
   },
   "result": {
-    "count": 1,
-    "id": "minecraft:egg"
+    "count": 4,
+    "item": "tiled:tile_block"
   }
 }

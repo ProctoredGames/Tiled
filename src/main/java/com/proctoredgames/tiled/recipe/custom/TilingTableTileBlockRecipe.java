@@ -17,7 +17,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
-// 1.20.1: Recipe<C> requires getId() returning Identifier — stored and returned explicitly.
 public record TilingTableTileBlockRecipe(Identifier id, Ingredient inputItem, ItemStack output) implements Recipe<TilingTableRecipeInput> {
 
     @Override

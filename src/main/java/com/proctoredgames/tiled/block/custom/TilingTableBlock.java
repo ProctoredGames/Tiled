@@ -25,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class TilingTableBlock extends BlockWithEntity implements BlockEntityProvider {
 
-    // 1.20.1: no MapCodec/getCodec on blocks
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
 
     public TilingTableBlock(Settings settings) {
@@ -55,7 +54,6 @@ public class TilingTableBlock extends BlockWithEntity implements BlockEntityProv
         }
     }
 
-    // 1.20.1: onUseWithItem + ItemActionResult -> onUse + ActionResult
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos,
                               PlayerEntity player, Hand hand, BlockHitResult hit) {

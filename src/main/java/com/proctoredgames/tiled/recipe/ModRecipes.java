@@ -10,13 +10,13 @@ import net.minecraft.util.Identifier;
 
 public class ModRecipes {
     public static final RecipeType<TilingTableSmallTileBlockRecipe> TILING_TABLE_TYPE = Registry.register(
-            Registries.RECIPE_TYPE, Identifier.of(Tiled.MOD_ID, "tiling_table"), new RecipeType<>() {
+            Registries.RECIPE_TYPE, new Identifier(Tiled.MOD_ID, "tiling_table"), new RecipeType<>() {
                 @Override
                 public String toString() { return "tiling_table"; }
             });
 
     public static final RecipeType<TilingTableTileBlockRecipe> TILING_TABLE_TILE_BLOCK_TYPE = Registry.register(
-            Registries.RECIPE_TYPE, Identifier.of(Tiled.MOD_ID, "tiling_table_tile_block"), new RecipeType<>() {
+            Registries.RECIPE_TYPE, new Identifier(Tiled.MOD_ID, "tiling_table_tile_block"), new RecipeType<>() {
                 @Override
                 public String toString() { return "tiling_table_tile_block"; }
             });

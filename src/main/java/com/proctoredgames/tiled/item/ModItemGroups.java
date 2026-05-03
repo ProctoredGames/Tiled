@@ -18,12 +18,12 @@ import net.minecraft.util.Identifier;
 public class ModItemGroups {
 
     public static final RegistryKey<ItemGroup> TILED_GROUP_KEY =
-            RegistryKey.of(RegistryKeys.ITEM_GROUP, Identifier.of(Tiled.MOD_ID, "tiled"));
+            RegistryKey.of(RegistryKeys.ITEM_GROUP, new Identifier(Tiled.MOD_ID, "tiled"));
 
     public static final Tiles icon_tiles = new Tiles(Items.BLUE_CONCRETE, Items.YELLOW_CONCRETE, Items.ORANGE_CONCRETE, Items.PURPLE_CONCRETE);
 
     public static final ItemGroup TILED_GROUP = Registry.register(Registries.ITEM_GROUP,
-            Identifier.of(Tiled.MOD_ID, "tiled"),
+            new Identifier(Tiled.MOD_ID, "tiled"),
             FabricItemGroup.builder().icon(() -> TileBlockBE.getStackWith(icon_tiles))
                     .displayName(Text.translatable("itemgroup.tiled.tiled"))
                     .entries((displayContext, entries) -> {

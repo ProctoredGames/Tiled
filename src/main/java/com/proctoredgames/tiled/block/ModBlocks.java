@@ -24,11 +24,11 @@ public class ModBlocks {
 
     private static Block registerBlock(String name, Block block) {
         registerBlockItem(name, block);
-        return Registry.register(Registries.BLOCK, Identifier.of(Tiled.MOD_ID, name), block);
+        return Registry.register(Registries.BLOCK, new Identifier(Tiled.MOD_ID, name), block);
     }
 
     private static void registerBlockItem(String name, Block block) {
-        Registry.register(Registries.ITEM, Identifier.of(Tiled.MOD_ID, name),
+        Registry.register(Registries.ITEM, new Identifier(Tiled.MOD_ID, name),
                 new BlockItem(block, new Item.Settings()));
     }
 

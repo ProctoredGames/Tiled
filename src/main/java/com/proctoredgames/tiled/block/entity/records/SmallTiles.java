@@ -26,13 +26,10 @@ public record SmallTiles(Optional<Item> slot0, Optional<Item> slot1, Optional<It
             Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()
     );
 
-    // 1.20.1: sizeLimitedListOf does not exist — use listOf
-    // 1.20.1: PacketCodec does not exist (added in 1.20.5) — removed entirely
     public static final Codec<SmallTiles> CODEC = Registries.ITEM.getCodec()
             .listOf()
             .xmap(SmallTiles::new, SmallTiles::stream);
 
-    // Manual network helpers in place of the removed PacketCodec
     public static void encode(PacketByteBuf buf, SmallTiles value) {
         for (Item item : value.stream()) {
             buf.writeVarInt(Registries.ITEM.getRawId(item));
@@ -76,7 +73,6 @@ public record SmallTiles(Optional<Item> slot0, Optional<Item> slot1, Optional<It
         if (this.equals(DEFAULT)) {
             return nbt;
         }
-        // 1.20.1: getOrThrow takes a boolean + consumer, not zero args
         nbt.put("tiles", CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow(false, e -> {}));
         return nbt;
     }

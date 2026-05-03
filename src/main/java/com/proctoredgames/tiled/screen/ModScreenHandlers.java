@@ -10,8 +10,6 @@ import net.minecraft.util.Identifier;
 
 public class ModScreenHandlers {
 
-    // 1.20.1: ExtendedScreenHandlerType is not generic — no BlockPos.PACKET_CODEC argument
-    // The screen handler receives position via writeScreenOpeningData(PacketByteBuf) on the BE
     public static final ScreenHandlerType<TilingTableScreenHandler> TILING_TABLE_SCREEN_HANDLER =
             Registry.register(
                     Registries.SCREEN_HANDLER,

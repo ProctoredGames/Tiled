@@ -15,7 +15,6 @@ public class TileResolver {
     public static ItemStack resolve(ItemStack stack) {
         if (stack.isEmpty()) return stack;
 
-        // 1.20.1: no data components — read tile data from BlockEntityTag NBT
         if (stack.isOf(ModBlocks.SMALL_TILE_BLOCK.asItem())) {
             NbtCompound tag = stack.getSubNbt("BlockEntityTag");
             SmallTiles tiles = SmallTiles.fromNbt(tag);

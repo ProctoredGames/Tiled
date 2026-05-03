@@ -30,8 +30,6 @@ public class ModRecipeSerializers {
                 @Override
                 public TilingTableSmallTileBlockRecipe read(Identifier id, com.google.gson.JsonObject json) {
                     Ingredient ingredient = Ingredient.fromJson(json.get("ingredient"));
-                    // 1.20.1: ItemStack.fromNbt takes NbtCompound, not JsonObject.
-                    // Convert the JSON object to an NbtCompound via its string representation.
                     ItemStack result = itemStackFromJson(json.getAsJsonObject("result"));
                     return new TilingTableSmallTileBlockRecipe(id, ingredient, result);
                 }
@@ -73,13 +71,6 @@ public class ModRecipeSerializers {
                 }
             };
 
-    /**
-     * Reads an ItemStack from a JsonObject in the standard recipe JSON format:
-     * { "item": "minecraft:stone", "count": 1 }
-     *
-     * In 1.20.1 there is no ItemStack.fromJson() helper, so we resolve the item
-     * from the registry directly and apply the count.
-     */
     private static ItemStack itemStackFromJson(com.google.gson.JsonObject json) {
         String itemId = JsonHelper.getString(json, "item");
         net.minecraft.item.Item item = Registries.ITEM.get(new Identifier(itemId));

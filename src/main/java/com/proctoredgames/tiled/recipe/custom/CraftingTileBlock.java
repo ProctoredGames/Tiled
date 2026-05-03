@@ -14,7 +14,6 @@ import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
-// 1.20.1: SpecialCraftingRecipe is Recipe<RecipeInputInventory>
 public class CraftingTileBlock extends SpecialCraftingRecipe {
 
     public CraftingTileBlock(Identifier id, CraftingRecipeCategory category) {

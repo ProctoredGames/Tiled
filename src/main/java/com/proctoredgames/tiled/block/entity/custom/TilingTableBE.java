@@ -30,7 +30,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-// 1.20.1: ExtendedScreenHandlerFactory is not generic — uses PacketByteBuf directly
 public class TilingTableBE extends BlockEntity implements ImplementedInventory, ExtendedScreenHandlerFactory {
 
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(17, ItemStack.EMPTY);
@@ -51,7 +50,6 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         };
     }
 
-    // 1.20.1: writeScreenOpeningData(ServerPlayerEntity, PacketByteBuf) replaces getScreenOpeningData()
     @Override
     public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
         buf.writeBlockPos(this.pos);
@@ -73,7 +71,6 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         return new TilingTableScreenHandler(syncId, playerInventory, this, this.propertyDelegate);
     }
 
-    // 1.20.1: no RegistryWrapper parameter; Inventories.writeNbt takes just nbt + list
     @Override
     protected void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
@@ -89,11 +86,8 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
     public void updateResult(World world) {
         ItemStack result = ItemStack.EMPTY;
 
-        // 1.20.1: getFirstMatch returns Optional<T> (plain recipe, no RecipeEntry wrapper)
-        // TilingTableRecipeInput must implement Inventory (not RecipeInput) for this to compile
         Optional<TilingTableSmallTileBlockRecipe> smallTileRecipe = getSmallTileRecipe();
         if (smallTileRecipe.isPresent()) {
-            // 1.20.1: craft() takes the Inventory directly, no RegistryManager parameter
             result = smallTileRecipe.get().craft(new TilingTableRecipeInput(getInputInventory()), world.getRegistryManager());
         } else {
             Optional<TilingTableTileBlockRecipe> tileRecipe = getTileBlockRecipe();
@@ -113,8 +107,6 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         updateResult(world);
     }
 
-    // 1.20.1: getFirstMatch signature: <C extends Inventory, T extends Recipe<C>> Optional<T>
-    // TilingTableRecipeInput must implement Inventory for this call to type-check
     public Optional<TilingTableSmallTileBlockRecipe> getSmallTileRecipe() {
         if (world == null) return Optional.empty();
         return world.getRecipeManager()
@@ -141,7 +133,6 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         return BlockEntityUpdateS2CPacket.create(this);
     }
 
-    // 1.20.1: no RegistryWrapper parameter
     @Override
     public NbtCompound toInitialChunkDataNbt() {
         return createNbt();

@@ -61,14 +61,11 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
 
     private final Sprite[] sprites = new Sprite[SPRITE_IDS.length];
 
-    // 1.20.1: Identifier.of() -> new Identifier()
     private static Identifier id(String path) {
         return new Identifier(Tiled.MOD_ID, "block/" + path);
     }
 
     // --- UnbakedModel ---
-    // 1.20.1: three abstract methods are getModelDependencies, setParents, and bake(Baker,...)
-    // getTextureDependencies was removed before 1.19.3; do NOT add it
 
     @Override
     public Collection<Identifier> getModelDependencies() {
@@ -78,7 +75,6 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
     @Override
     public void setParents(Function<Identifier, UnbakedModel> loader) {}
 
-    // 1.20.1: bake takes Baker (same as 1.21.1), NOT ModelLoader
     @Override
     public BakedModel bake(
             Baker baker,
@@ -129,7 +125,6 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             Supplier<Random> random,
             RenderContext context
     ) {
-        // 1.20.1: no data components — read from BlockEntityTag NBT
         Tiles tiles = Tiles.DEFAULT;
         NbtCompound blockEntityTag = stack.getSubNbt("BlockEntityTag");
         if (blockEntityTag != null) {
@@ -164,7 +159,6 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             y2 = 1 - y2;
         }
         emitter.square(dir, x1, y1, x2, y2, 0f);
-        // 1.20.1: spriteBake and spriteColor take a sprite index as first arg
         emitter.spriteBake(0, sprite, MutableQuadView.BAKE_LOCK_UV);
         emitter.spriteColor(0, -1, -1, -1, -1);
         emitter.emit();

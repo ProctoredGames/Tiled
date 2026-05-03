@@ -28,8 +28,6 @@ import java.util.stream.Stream;
 
 public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvider {
 
-    // 1.20.1: no MapCodec/getCodec on blocks
-    // 1.20.1: Identifier.of() -> new Identifier()
     public static final Identifier SMALL_TILE_BLOCK_DYNAMIC_DROP_ID = new Identifier(Tiled.MOD_ID, "small_tile_block");
 
     public SmallTileBlock(Settings settings) {
@@ -47,12 +45,10 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
         return BlockRenderType.MODEL;
     }
 
-    // 1.20.1: tooltip uses TooltipContext + BlockView, no Item.TooltipContext or TooltipType
     @Override
     public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
         super.appendTooltip(stack, world, tooltip, options);
 
-        // 1.20.1: no data components — read tile data from BlockEntityTag NBT on the stack
         SmallTiles tiles = SmallTiles.DEFAULT;
         NbtCompound blockEntityTag = stack.getSubNbt("BlockEntityTag");
         if (blockEntityTag != null) {
@@ -69,7 +65,6 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
         }
     }
 
-    // 1.20.1: getPickStack takes BlockView, not WorldView
     @Override
     public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
         return world.getBlockEntity(pos) instanceof SmallTileBlockBE blockEntity
@@ -77,7 +72,6 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
                 : super.getPickStack(world, pos, state);
     }
 
-    // LootContextParameterSet.Builder is correct for 1.20.1 — kept as-is from original
     @Override
     public List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
         BlockEntity blockEntity = builder.getOptional(LootContextParameters.BLOCK_ENTITY);

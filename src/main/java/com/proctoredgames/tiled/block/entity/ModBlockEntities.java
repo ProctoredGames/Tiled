@@ -14,15 +14,15 @@ import net.minecraft.util.Identifier;
 public class ModBlockEntities {
 
         public static final BlockEntityType<SmallTileBlockBE> SMALL_TILE_BLOCK_BE =
-            Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(Tiled.MOD_ID, "small_tile_block_be"),
+            Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(Tiled.MOD_ID,"small_tile_block_be"),
                     BlockEntityType.Builder.create(SmallTileBlockBE::new, ModBlocks.SMALL_TILE_BLOCK).build(null));
 
     public static final BlockEntityType<TileBlockBE> TILE_BLOCK_BE =
-            Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(Tiled.MOD_ID, "tile_block_be"),
+            Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(Tiled.MOD_ID,"tile_block_be"),
                     BlockEntityType.Builder.create(TileBlockBE::new, ModBlocks.TILE_BLOCK).build(null));
 
     public static final BlockEntityType<TilingTableBE> TILING_TABLE_BE =
-            Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(Tiled.MOD_ID, "tiling_table_be"),
+            Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(Tiled.MOD_ID,"tiling_table_be"),
                     BlockEntityType.Builder.create(TilingTableBE::new, ModBlocks.TILING_TABLE).build(null));
 
     public static void registerBlockEntities() {
