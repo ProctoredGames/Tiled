@@ -9,18 +9,20 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.DecoratedPotBlockEntity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.item.*;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.loot.context.LootContextParameterSet;
 import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.screen.ScreenTexts;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
@@ -33,12 +35,19 @@ public class TileBlock extends BlockWithEntity implements BlockEntityProvider {
     public static final MapCodec<TileBlock> CODEC = createCodec(TileBlock::new);
     public static final Identifier TILE_BLOCK_DYNAMIC_DROP_ID = Identifier.of(Tiled.MOD_ID, "tile_block");
 
+    private static final DirectionProperty FACING;
+
 
     @Override
     protected MapCodec<TileBlock> getCodec() { return CODEC; }
 
     public TileBlock(Settings settings) {
         super(settings);
+        this.setDefaultState((BlockState)(this.stateManager.getDefaultState()).with(FACING, Direction.NORTH));
+    }
+
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
+        return (BlockState)this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing());
     }
 
     @Nullable
@@ -63,6 +72,10 @@ public class TileBlock extends BlockWithEntity implements BlockEntityProvider {
         }
     }
 
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
+    }
+
     @Override
     public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
         return world.getBlockEntity(pos) instanceof TileBlockBE blockEntity
@@ -81,4 +94,7 @@ public class TileBlock extends BlockWithEntity implements BlockEntityProvider {
         return super.getDroppedStacks(state, builder);
     }
 
+    static {
+        FACING = Properties.HORIZONTAL_FACING;
+    }
 }

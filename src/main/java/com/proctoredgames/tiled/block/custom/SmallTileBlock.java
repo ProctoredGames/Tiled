@@ -6,25 +6,26 @@ import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.DecoratedPotBlockEntity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.item.*;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.loot.context.LootContextParameterSet;
 import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.screen.ScreenTexts;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.state.property.Property;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
@@ -37,11 +38,18 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
     public static final MapCodec<SmallTileBlock> CODEC = createCodec(SmallTileBlock::new);
     public static final Identifier SMALL_TILE_BLOCK_DYNAMIC_DROP_ID = Identifier.of(Tiled.MOD_ID, "small_tile_block");
 
+    private static final DirectionProperty FACING;
+
     @Override
     protected MapCodec<SmallTileBlock> getCodec() { return CODEC; }
 
     public SmallTileBlock(Settings settings) {
         super(settings);
+        this.setDefaultState((BlockState)(this.stateManager.getDefaultState()).with(FACING, Direction.NORTH));
+    }
+
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
+        return (BlockState)this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing());
     }
 
     @Nullable
@@ -69,6 +77,10 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
         }
     }
 
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
+    }
+
     @Override
     public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
         return world.getBlockEntity(pos) instanceof SmallTileBlockBE blockEntity
@@ -85,6 +97,10 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
             });
         }
         return super.getDroppedStacks(state, builder);
+    }
+
+    static {
+        FACING = Properties.HORIZONTAL_FACING;
     }
 }
 
