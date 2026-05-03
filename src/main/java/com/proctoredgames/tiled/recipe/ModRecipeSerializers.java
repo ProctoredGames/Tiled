@@ -1,21 +1,21 @@
 package com.proctoredgames.tiled.recipe;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.recipe.custom.CraftingSmallTileBlock;
 import com.proctoredgames.tiled.recipe.custom.CraftingTileBlock;
 import com.proctoredgames.tiled.recipe.custom.TilingTableSmallTileBlockRecipe;
 import com.proctoredgames.tiled.recipe.custom.TilingTableTileBlockRecipe;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.StringNbtReader;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialRecipeSerializer;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.JsonHelper;
 
 public class ModRecipeSerializers {
 
@@ -27,69 +27,71 @@ public class ModRecipeSerializers {
 
     public static final RecipeSerializer<TilingTableSmallTileBlockRecipe> TILING_TABLE_SMALL_TILE_BLOCK_RECIPE =
             new RecipeSerializer<>() {
-                private static final MapCodec<TilingTableSmallTileBlockRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
-                        instance.group(
-                                Ingredient.DISALLOW_EMPTY_CODEC.fieldOf("ingredient").forGetter(TilingTableSmallTileBlockRecipe::inputItem),
-                                ItemStack.CODEC.fieldOf("result").forGetter(TilingTableSmallTileBlockRecipe::output)
-                        ).apply(instance, TilingTableSmallTileBlockRecipe::new)
-                );
-                private static final PacketCodec<RegistryByteBuf, TilingTableSmallTileBlockRecipe> PACKET_CODEC =
-                        PacketCodec.tuple(
-                                Ingredient.PACKET_CODEC, TilingTableSmallTileBlockRecipe::inputItem,
-                                ItemStack.PACKET_CODEC, TilingTableSmallTileBlockRecipe::output,
-                                TilingTableSmallTileBlockRecipe::new
-                        );
+                @Override
+                public TilingTableSmallTileBlockRecipe read(Identifier id, com.google.gson.JsonObject json) {
+                    Ingredient ingredient = Ingredient.fromJson(json.get("ingredient"));
+                    // 1.20.1: ItemStack.fromNbt takes NbtCompound, not JsonObject.
+                    // Convert the JSON object to an NbtCompound via its string representation.
+                    ItemStack result = itemStackFromJson(json.getAsJsonObject("result"));
+                    return new TilingTableSmallTileBlockRecipe(id, ingredient, result);
+                }
 
                 @Override
-                public MapCodec<TilingTableSmallTileBlockRecipe> codec() { return CODEC; }
+                public TilingTableSmallTileBlockRecipe read(Identifier id, PacketByteBuf buf) {
+                    Ingredient ingredient = Ingredient.fromPacket(buf);
+                    ItemStack result = buf.readItemStack();
+                    return new TilingTableSmallTileBlockRecipe(id, ingredient, result);
+                }
 
                 @Override
-                public PacketCodec<RegistryByteBuf, TilingTableSmallTileBlockRecipe> packetCodec() { return PACKET_CODEC; }
+                public void write(PacketByteBuf buf, TilingTableSmallTileBlockRecipe recipe) {
+                    recipe.inputItem().write(buf);
+                    buf.writeItemStack(recipe.output());
+                }
             };
 
     public static final RecipeSerializer<TilingTableTileBlockRecipe> TILING_TABLE_TILE_BLOCK_RECIPE =
             new RecipeSerializer<>() {
-                private static final MapCodec<TilingTableTileBlockRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
-                        instance.group(
-                                Ingredient.DISALLOW_EMPTY_CODEC.fieldOf("ingredient").forGetter(TilingTableTileBlockRecipe::inputItem),
-                                ItemStack.CODEC.fieldOf("result").forGetter(TilingTableTileBlockRecipe::output)
-                        ).apply(instance, TilingTableTileBlockRecipe::new)
-                );
-                private static final PacketCodec<RegistryByteBuf, TilingTableTileBlockRecipe> PACKET_CODEC =
-                        PacketCodec.tuple(
-                                Ingredient.PACKET_CODEC, TilingTableTileBlockRecipe::inputItem,
-                                ItemStack.PACKET_CODEC, TilingTableTileBlockRecipe::output,
-                                TilingTableTileBlockRecipe::new
-                        );
+                @Override
+                public TilingTableTileBlockRecipe read(Identifier id, com.google.gson.JsonObject json) {
+                    Ingredient ingredient = Ingredient.fromJson(json.get("ingredient"));
+                    ItemStack result = itemStackFromJson(json.getAsJsonObject("result"));
+                    return new TilingTableTileBlockRecipe(id, ingredient, result);
+                }
 
                 @Override
-                public MapCodec<TilingTableTileBlockRecipe> codec() { return CODEC; }
+                public TilingTableTileBlockRecipe read(Identifier id, PacketByteBuf buf) {
+                    Ingredient ingredient = Ingredient.fromPacket(buf);
+                    ItemStack result = buf.readItemStack();
+                    return new TilingTableTileBlockRecipe(id, ingredient, result);
+                }
 
                 @Override
-                public PacketCodec<RegistryByteBuf, TilingTableTileBlockRecipe> packetCodec() { return PACKET_CODEC; }
+                public void write(PacketByteBuf buf, TilingTableTileBlockRecipe recipe) {
+                    recipe.inputItem().write(buf);
+                    buf.writeItemStack(recipe.output());
+                }
             };
 
+    /**
+     * Reads an ItemStack from a JsonObject in the standard recipe JSON format:
+     * { "item": "minecraft:stone", "count": 1 }
+     *
+     * In 1.20.1 there is no ItemStack.fromJson() helper, so we resolve the item
+     * from the registry directly and apply the count.
+     */
+    private static ItemStack itemStackFromJson(com.google.gson.JsonObject json) {
+        String itemId = JsonHelper.getString(json, "item");
+        net.minecraft.item.Item item = Registries.ITEM.get(new Identifier(itemId));
+        int count = JsonHelper.getInt(json, "count", 1);
+        return new ItemStack(item, count);
+    }
+
     public static void register() {
-        Registry.register(
-                Registries.RECIPE_SERIALIZER,
-                Identifier.of(Tiled.MOD_ID, "crafting_small_tile_block"),
-                CRAFTING_SMALL_TILE_BLOCK
-        );
-        Registry.register(
-                Registries.RECIPE_SERIALIZER,
-                Identifier.of(Tiled.MOD_ID, "crafting_tile_block"),
-                CRAFTING_TILE_BLOCK
-        );
-        Registry.register(
-                Registries.RECIPE_SERIALIZER,
-                Identifier.of(Tiled.MOD_ID, "tiling_table_small_tile_block_recipe"),
-                TILING_TABLE_SMALL_TILE_BLOCK_RECIPE
-        );
-        Registry.register(
-                Registries.RECIPE_SERIALIZER,
-                Identifier.of(Tiled.MOD_ID, "tiling_table_tile_block_recipe"),
-                TILING_TABLE_TILE_BLOCK_RECIPE
-        );
+        Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(Tiled.MOD_ID, "crafting_small_tile_block"), CRAFTING_SMALL_TILE_BLOCK);
+        Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(Tiled.MOD_ID, "crafting_tile_block"), CRAFTING_TILE_BLOCK);
+        Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(Tiled.MOD_ID, "tiling_table_small_tile_block_recipe"), TILING_TABLE_SMALL_TILE_BLOCK_RECIPE);
+        Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(Tiled.MOD_ID, "tiling_table_tile_block_recipe"), TILING_TABLE_TILE_BLOCK_RECIPE);
         Tiled.LOGGER.info("Registering recipe serializers for " + Tiled.MOD_ID);
     }
 }

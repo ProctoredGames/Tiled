@@ -6,10 +6,10 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.registry.Registries;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -26,29 +26,26 @@ public record SmallTiles(Optional<Item> slot0, Optional<Item> slot1, Optional<It
             Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()
     );
 
+    // 1.20.1: sizeLimitedListOf does not exist — use listOf
+    // 1.20.1: PacketCodec does not exist (added in 1.20.5) — removed entirely
     public static final Codec<SmallTiles> CODEC = Registries.ITEM.getCodec()
-            .sizeLimitedListOf(16)
+            .listOf()
             .xmap(SmallTiles::new, SmallTiles::stream);
 
-    // 1.20.1: no RegistryByteBuf or PacketCodecs.registryValue — encode/decode manually
-    public static final PacketCodec<PacketByteBuf, SmallTiles> PACKET_CODEC = new PacketCodec<>() {
-        @Override
-        public SmallTiles decode(PacketByteBuf buf) {
-            List<Item> items = new java.util.ArrayList<>(16);
-            for (int i = 0; i < 16; i++) {
-                int rawId = buf.readVarInt();
-                items.add(Registries.ITEM.get(rawId));
-            }
-            return new SmallTiles(items);
+    // Manual network helpers in place of the removed PacketCodec
+    public static void encode(PacketByteBuf buf, SmallTiles value) {
+        for (Item item : value.stream()) {
+            buf.writeVarInt(Registries.ITEM.getRawId(item));
         }
+    }
 
-        @Override
-        public void encode(PacketByteBuf buf, SmallTiles value) {
-            for (Item item : value.stream()) {
-                buf.writeVarInt(Registries.ITEM.getRawId(item));
-            }
+    public static SmallTiles decode(PacketByteBuf buf) {
+        List<Item> items = new ArrayList<>(16);
+        for (int i = 0; i < 16; i++) {
+            items.add(Registries.ITEM.get(buf.readVarInt()));
         }
-    };
+        return new SmallTiles(items);
+    }
 
     private SmallTiles(List<Item> tiles) {
         this(
@@ -79,7 +76,8 @@ public record SmallTiles(Optional<Item> slot0, Optional<Item> slot1, Optional<It
         if (this.equals(DEFAULT)) {
             return nbt;
         }
-        nbt.put("tiles", CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow());
+        // 1.20.1: getOrThrow takes a boolean + consumer, not zero args
+        nbt.put("tiles", CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow(false, e -> {}));
         return nbt;
     }
 

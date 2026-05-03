@@ -3,27 +3,29 @@ package com.proctoredgames.tiled.recipe;
 import com.proctoredgames.tiled.block.ModBlocks;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
 import com.proctoredgames.tiled.block.entity.records.Tiles;
-import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 
 import java.util.List;
-import java.util.Optional;
 
 public class TileResolver {
 
     public static ItemStack resolve(ItemStack stack) {
         if (stack.isEmpty()) return stack;
 
+        // 1.20.1: no data components — read tile data from BlockEntityTag NBT
         if (stack.isOf(ModBlocks.SMALL_TILE_BLOCK.asItem())) {
-            SmallTiles tiles = stack.getOrDefault(ModDataComponentTypes.SMALL_TILE_BLOCK_TILES, SmallTiles.DEFAULT);
+            NbtCompound tag = stack.getSubNbt("BlockEntityTag");
+            SmallTiles tiles = SmallTiles.fromNbt(tag);
             Item concrete = getMonochromeItem(tiles.stream());
             if (concrete != null) {
                 return new ItemStack(concrete);
             }
         } else if (stack.isOf(ModBlocks.TILE_BLOCK.asItem())) {
-            Tiles tiles = stack.getOrDefault(ModDataComponentTypes.TILE_BLOCK_TILES, Tiles.DEFAULT);
+            NbtCompound tag = stack.getSubNbt("BlockEntityTag");
+            Tiles tiles = Tiles.fromNbt(tag);
             Item concrete = getMonochromeItem(tiles.stream());
             if (concrete != null) {
                 return new ItemStack(concrete);

@@ -12,11 +12,19 @@ import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
-public record TilingTableSmallTileBlockRecipe(Ingredient inputItem, ItemStack output) implements Recipe<TilingTableRecipeInput> {
+// 1.20.1: Recipe<C> requires getId() returning Identifier — stored and returned explicitly.
+// The id is provided by the serializer's read() method and stored in the recipe.
+public record TilingTableSmallTileBlockRecipe(Identifier id, Ingredient inputItem, ItemStack output) implements Recipe<TilingTableRecipeInput> {
+
+    @Override
+    public Identifier getId() {
+        return id;
+    }
 
     @Override
     public DefaultedList<Ingredient> getIngredients() {
@@ -31,7 +39,7 @@ public record TilingTableSmallTileBlockRecipe(Ingredient inputItem, ItemStack ou
     }
 
     @Override
-    public ItemStack craft(TilingTableRecipeInput input, RegistryWrapper.WrapperLookup lookup) {
+    public ItemStack craft(TilingTableRecipeInput input, DynamicRegistryManager registryManager) {
         int topLeft = findTopLeft(input);
         if (topLeft == -1) return ItemStack.EMPTY;
 
@@ -42,7 +50,7 @@ public record TilingTableSmallTileBlockRecipe(Ingredient inputItem, ItemStack ou
         for (int dy = 0; dy < 4; dy++) {
             for (int dx = 0; dx < 4; dx++) {
                 int slot = (topLeft % w + dx) + ((topLeft / w) + dy) * w;
-                stacks[index++] = TileResolver.resolve(input.getStackInSlot(slot));
+                stacks[index++] = TileResolver.resolve(input.getStack(slot));
             }
         }
 
@@ -69,20 +77,17 @@ public record TilingTableSmallTileBlockRecipe(Ingredient inputItem, ItemStack ou
         for (int y = 0; y <= height - 4; y++) {
             for (int x = 0; x <= width - 4; x++) {
                 boolean valid = true;
-
                 for (int dy = 0; dy < 4 && valid; dy++) {
                     for (int dx = 0; dx < 4 && valid; dx++) {
                         int slot = (x + dx) + (y + dy) * width;
-                        if (!isValidIngredient(TileResolver.resolve(input.getStackInSlot(slot)))) {
+                        if (!isValidIngredient(TileResolver.resolve(input.getStack(slot)))) {
                             valid = false;
                         }
                     }
                 }
-
                 if (valid) return x + y * width;
             }
         }
-
         return -1;
     }
 
@@ -96,7 +101,7 @@ public record TilingTableSmallTileBlockRecipe(Ingredient inputItem, ItemStack ou
     }
 
     @Override
-    public ItemStack getResult(RegistryWrapper.WrapperLookup registriesLookup) {
+    public ItemStack getOutput(DynamicRegistryManager registryManager) {
         return output;
     }
 

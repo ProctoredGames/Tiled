@@ -19,7 +19,6 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -31,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-// 1.20.1: ExtendedScreenHandlerFactory is not generic — it uses PacketByteBuf directly
+// 1.20.1: ExtendedScreenHandlerFactory is not generic — uses PacketByteBuf directly
 public class TilingTableBE extends BlockEntity implements ImplementedInventory, ExtendedScreenHandlerFactory {
 
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(17, ItemStack.EMPTY);
@@ -52,7 +51,7 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         };
     }
 
-    // 1.20.1: writeScreenOpeningData takes a PacketByteBuf, not a generic type
+    // 1.20.1: writeScreenOpeningData(ServerPlayerEntity, PacketByteBuf) replaces getScreenOpeningData()
     @Override
     public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
         buf.writeBlockPos(this.pos);
@@ -74,7 +73,7 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         return new TilingTableScreenHandler(syncId, playerInventory, this, this.propertyDelegate);
     }
 
-    // 1.20.1: no RegistryWrapper parameter
+    // 1.20.1: no RegistryWrapper parameter; Inventories.writeNbt takes just nbt + list
     @Override
     protected void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
@@ -88,16 +87,18 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
     }
 
     public void updateResult(World world) {
-        TilingTableRecipeInput recipeInput = new TilingTableRecipeInput(getInputInventory());
         ItemStack result = ItemStack.EMPTY;
 
-        Optional<RecipeEntry<TilingTableSmallTileBlockRecipe>> smallTileRecipe = getSmallTileRecipe();
+        // 1.20.1: getFirstMatch returns Optional<T> (plain recipe, no RecipeEntry wrapper)
+        // TilingTableRecipeInput must implement Inventory (not RecipeInput) for this to compile
+        Optional<TilingTableSmallTileBlockRecipe> smallTileRecipe = getSmallTileRecipe();
         if (smallTileRecipe.isPresent()) {
-            result = smallTileRecipe.get().value().craft(recipeInput, world.getRegistryManager());
+            // 1.20.1: craft() takes the Inventory directly, no RegistryManager parameter
+            result = smallTileRecipe.get().craft(new TilingTableRecipeInput(getInputInventory()), world.getRegistryManager());
         } else {
-            Optional<RecipeEntry<TilingTableTileBlockRecipe>> tileRecipe = getTileBlockRecipe();
+            Optional<TilingTableTileBlockRecipe> tileRecipe = getTileBlockRecipe();
             if (tileRecipe.isPresent()) {
-                result = tileRecipe.get().value().craft(recipeInput, world.getRegistryManager());
+                result = tileRecipe.get().craft(new TilingTableRecipeInput(getInputInventory()), world.getRegistryManager());
             }
         }
 
@@ -112,13 +113,15 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         updateResult(world);
     }
 
-    public Optional<RecipeEntry<TilingTableSmallTileBlockRecipe>> getSmallTileRecipe() {
+    // 1.20.1: getFirstMatch signature: <C extends Inventory, T extends Recipe<C>> Optional<T>
+    // TilingTableRecipeInput must implement Inventory for this call to type-check
+    public Optional<TilingTableSmallTileBlockRecipe> getSmallTileRecipe() {
         if (world == null) return Optional.empty();
         return world.getRecipeManager()
                 .getFirstMatch(ModRecipes.TILING_TABLE_TYPE, new TilingTableRecipeInput(getInputInventory()), world);
     }
 
-    public Optional<RecipeEntry<TilingTableTileBlockRecipe>> getTileBlockRecipe() {
+    public Optional<TilingTableTileBlockRecipe> getTileBlockRecipe() {
         if (world == null) return Optional.empty();
         return world.getRecipeManager()
                 .getFirstMatch(ModRecipes.TILING_TABLE_TILE_BLOCK_TYPE, new TilingTableRecipeInput(getInputInventory()), world);

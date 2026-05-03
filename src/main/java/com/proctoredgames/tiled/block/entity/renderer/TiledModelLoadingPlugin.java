@@ -3,14 +3,19 @@ package com.proctoredgames.tiled.block.entity.renderer;
 import com.proctoredgames.tiled.Tiled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
+import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
+import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.util.Identifier;
 
-@Environment(EnvType.CLIENT)
-public class TiledModelLoadingPlugin implements ModelLoadingPlugin {
+import java.util.function.Function;
 
-    // 1.20.1: ModelIdentifier still takes (Identifier, variant) but Identifier.of() -> new Identifier()
+// 1.20.1: Using ModelLoadingRegistry (fabric-models-v0) + ModelVariantProvider instead of
+// the newer ModelLoadingPlugin v1 API, for maximum compatibility with all 1.20.1 fabric-api versions.
+// ModelVariantProvider intercepts model loading by ModelIdentifier and lets us return a custom model.
+@Environment(EnvType.CLIENT)
+public class TiledModelLoadingPlugin {
+
     public static final ModelIdentifier SMALL_TILE_BLOCK_MODEL =
             new ModelIdentifier(new Identifier(Tiled.MOD_ID, "small_tile_block"), "");
     public static final ModelIdentifier SMALL_TILE_BLOCK_MODEL_ITEM =
@@ -21,17 +26,14 @@ public class TiledModelLoadingPlugin implements ModelLoadingPlugin {
     public static final ModelIdentifier TILE_BLOCK_MODEL_ITEM =
             new ModelIdentifier(new Identifier(Tiled.MOD_ID, "tile_block"), "inventory");
 
-    @Override
-    public void onInitializeModelLoader(Context pluginContext) {
-        pluginContext.modifyModelOnLoad().register((original, context) -> {
-            final ModelIdentifier id = context.topLevelId();
-            if (id != null && (id.equals(SMALL_TILE_BLOCK_MODEL) || id.equals(SMALL_TILE_BLOCK_MODEL_ITEM))) {
+    public static void register() {
+        ModelLoadingRegistry.INSTANCE.registerVariantProvider(resourceManager -> (modelId, context) -> {
+            if (modelId.equals(SMALL_TILE_BLOCK_MODEL) || modelId.equals(SMALL_TILE_BLOCK_MODEL_ITEM)) {
                 return new SmallTileBlockModel();
-            } else if (id != null && (id.equals(TILE_BLOCK_MODEL) || id.equals(TILE_BLOCK_MODEL_ITEM))) {
+            } else if (modelId.equals(TILE_BLOCK_MODEL) || modelId.equals(TILE_BLOCK_MODEL_ITEM)) {
                 return new TileBlockModel();
-            } else {
-                return original;
             }
+            return null; // return null to let other providers handle it
         });
     }
 }

@@ -4,29 +4,31 @@ import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
 import com.proctoredgames.tiled.recipe.ModRecipeSerializers;
 import com.proctoredgames.tiled.recipe.TileResolver;
-import com.proctoredgames.tiled.recipe.TilingTableRecipeInput;
 import com.proctoredgames.tiled.util.ModTags;
+import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
-import net.minecraft.recipe.input.CraftingRecipeInput;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
+// 1.20.1: SpecialCraftingRecipe is Recipe<RecipeInputInventory>, so matches/craft take RecipeInputInventory.
+// The constructor is (Identifier, CraftingRecipeCategory) to match SpecialRecipeSerializer.Factory.
 public class CraftingSmallTileBlock extends SpecialCraftingRecipe {
 
-    public CraftingSmallTileBlock(CraftingRecipeCategory category) {
-        super(category);
+    public CraftingSmallTileBlock(Identifier id, CraftingRecipeCategory category) {
+        super(id, category);
     }
 
     @Override
-    public boolean matches(CraftingRecipeInput input, World world) {
+    public boolean matches(RecipeInputInventory input, World world) {
         return findTopLeft(input) != -1;
     }
 
     @Override
-    public ItemStack craft(CraftingRecipeInput input, RegistryWrapper.WrapperLookup lookup) {
+    public ItemStack craft(RecipeInputInventory input, DynamicRegistryManager registryManager) {
         int topLeft = findTopLeft(input);
         if (topLeft == -1) return ItemStack.EMPTY;
 
@@ -37,7 +39,7 @@ public class CraftingSmallTileBlock extends SpecialCraftingRecipe {
         for (int dy = 0; dy < 4; dy++) {
             for (int dx = 0; dx < 4; dx++) {
                 int slot = (topLeft % w + dx) + ((topLeft / w) + dy) * w;
-                stacks[index++] = TileResolver.resolve(input.getStackInSlot(slot));
+                stacks[index++] = TileResolver.resolve(input.getStack(slot));
             }
         }
 
@@ -57,27 +59,29 @@ public class CraftingSmallTileBlock extends SpecialCraftingRecipe {
         return stack;
     }
 
-    private int findTopLeft(CraftingRecipeInput input) {
+    @Override
+    public ItemStack getOutput(DynamicRegistryManager registryManager) {
+        return ItemStack.EMPTY;
+    }
+
+    private int findTopLeft(RecipeInputInventory input) {
         int width = input.getWidth();
         int height = input.getHeight();
 
         for (int y = 0; y <= height - 4; y++) {
             for (int x = 0; x <= width - 4; x++) {
                 boolean valid = true;
-
                 for (int dy = 0; dy < 4 && valid; dy++) {
                     for (int dx = 0; dx < 4 && valid; dx++) {
                         int slot = (x + dx) + (y + dy) * width;
-                        if (!isValidIngredient(TileResolver.resolve(input.getStackInSlot(slot)))) {
+                        if (!isValidIngredient(TileResolver.resolve(input.getStack(slot)))) {
                             valid = false;
                         }
                     }
                 }
-
                 if (valid) return x + y * width;
             }
         }
-
         return -1;
     }
 

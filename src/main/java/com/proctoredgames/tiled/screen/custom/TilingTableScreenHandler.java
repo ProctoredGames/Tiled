@@ -7,6 +7,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ArrayPropertyDelegate;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
@@ -19,10 +20,14 @@ public class TilingTableScreenHandler extends ScreenHandler {
     private final PropertyDelegate propertyDelegate;
     public final TilingTableBE blockEntity;
 
-    public TilingTableScreenHandler(int syncId, PlayerInventory inventory, BlockPos pos) {
-        this(syncId, inventory, inventory.player.getWorld().getBlockEntity(pos), new ArrayPropertyDelegate(17));
+    // 1.20.1: ExtendedScreenHandlerType passes a PacketByteBuf, not a BlockPos.
+    // This constructor is called by the client-side factory registered in ModScreenHandlers.
+    // The buf contains the BlockPos written by TilingTableBE.writeScreenOpeningData().
+    public TilingTableScreenHandler(int syncId, PlayerInventory inventory, PacketByteBuf buf) {
+        this(syncId, inventory, inventory.player.getWorld().getBlockEntity(buf.readBlockPos()), new ArrayPropertyDelegate(17));
     }
 
+    // Server-side constructor — called directly by TilingTableBE.createMenu()
     public TilingTableScreenHandler(int syncId, PlayerInventory playerInventory,
                                     BlockEntity blockEntity, PropertyDelegate arrayPropertyDelegate) {
         super(ModScreenHandlers.TILING_TABLE_SCREEN_HANDLER, syncId);
@@ -65,7 +70,6 @@ public class TilingTableScreenHandler extends ScreenHandler {
 
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
-
         addProperties(arrayPropertyDelegate);
     }
 

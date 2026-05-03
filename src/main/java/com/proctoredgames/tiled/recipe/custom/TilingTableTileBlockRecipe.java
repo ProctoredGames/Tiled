@@ -12,11 +12,18 @@ import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
-public record TilingTableTileBlockRecipe(Ingredient inputItem, ItemStack output) implements Recipe<TilingTableRecipeInput> {
+// 1.20.1: Recipe<C> requires getId() returning Identifier — stored and returned explicitly.
+public record TilingTableTileBlockRecipe(Identifier id, Ingredient inputItem, ItemStack output) implements Recipe<TilingTableRecipeInput> {
+
+    @Override
+    public Identifier getId() {
+        return id;
+    }
 
     @Override
     public DefaultedList<Ingredient> getIngredients() {
@@ -31,17 +38,17 @@ public record TilingTableTileBlockRecipe(Ingredient inputItem, ItemStack output)
     }
 
     @Override
-    public ItemStack craft(TilingTableRecipeInput input, RegistryWrapper.WrapperLookup lookup) {
+    public ItemStack craft(TilingTableRecipeInput input, DynamicRegistryManager registryManager) {
         int topLeft = findTopLeft(input);
         if (topLeft == -1) return ItemStack.EMPTY;
 
         int w = input.getWidth();
 
         Tiles tiles = new Tiles(
-                TileResolver.resolve(input.getStackInSlot(topLeft)).getItem(),
-                TileResolver.resolve(input.getStackInSlot(topLeft + 1)).getItem(),
-                TileResolver.resolve(input.getStackInSlot(topLeft + w)).getItem(),
-                TileResolver.resolve(input.getStackInSlot(topLeft + w + 1)).getItem()
+                TileResolver.resolve(input.getStack(topLeft)).getItem(),
+                TileResolver.resolve(input.getStack(topLeft + 1)).getItem(),
+                TileResolver.resolve(input.getStack(topLeft + w)).getItem(),
+                TileResolver.resolve(input.getStack(topLeft + w + 1)).getItem()
         );
 
         ItemStack result = TileBlockBE.getStackWith(tiles);
@@ -60,28 +67,25 @@ public record TilingTableTileBlockRecipe(Ingredient inputItem, ItemStack output)
                 int i2 = i0 + width;
                 int i3 = i2 + 1;
 
-                if (!isValidIngredient(TileResolver.resolve(input.getStackInSlot(i0))) ||
-                        !isValidIngredient(TileResolver.resolve(input.getStackInSlot(i1))) ||
-                        !isValidIngredient(TileResolver.resolve(input.getStackInSlot(i2))) ||
-                        !isValidIngredient(TileResolver.resolve(input.getStackInSlot(i3)))) {
+                if (!isValidIngredient(TileResolver.resolve(input.getStack(i0))) ||
+                        !isValidIngredient(TileResolver.resolve(input.getStack(i1))) ||
+                        !isValidIngredient(TileResolver.resolve(input.getStack(i2))) ||
+                        !isValidIngredient(TileResolver.resolve(input.getStack(i3)))) {
                     continue;
                 }
 
-                // All other slots must be empty
                 boolean othersEmpty = true;
-                for (int i = 0; i < input.getSize(); i++) {
+                for (int i = 0; i < input.size(); i++) {
                     if (i != i0 && i != i1 && i != i2 && i != i3) {
-                        if (!input.getStackInSlot(i).isEmpty()) {
+                        if (!input.getStack(i).isEmpty()) {
                             othersEmpty = false;
                             break;
                         }
                     }
                 }
-
                 if (othersEmpty) return i0;
             }
         }
-
         return -1;
     }
 
@@ -95,7 +99,7 @@ public record TilingTableTileBlockRecipe(Ingredient inputItem, ItemStack output)
     }
 
     @Override
-    public ItemStack getResult(RegistryWrapper.WrapperLookup registriesLookup) {
+    public ItemStack getOutput(DynamicRegistryManager registryManager) {
         return output;
     }
 

@@ -1,48 +1,43 @@
 package com.proctoredgames.tiled.recipe.custom;
 
-import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
+import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.recipe.ModRecipeSerializers;
 import com.proctoredgames.tiled.recipe.TileResolver;
-import com.proctoredgames.tiled.recipe.TilingTableRecipeInput;
 import com.proctoredgames.tiled.util.ModTags;
+import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
-import net.minecraft.recipe.input.CraftingRecipeInput;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
+// 1.20.1: SpecialCraftingRecipe is Recipe<RecipeInputInventory>
 public class CraftingTileBlock extends SpecialCraftingRecipe {
 
-    public CraftingTileBlock(CraftingRecipeCategory category) {
-        super(category);
+    public CraftingTileBlock(Identifier id, CraftingRecipeCategory category) {
+        super(id, category);
     }
 
     @Override
-    public boolean matches(CraftingRecipeInput input, World world) {
+    public boolean matches(RecipeInputInventory input, World world) {
         return findTopLeft(input) != -1;
     }
 
-    private boolean isValidIngredient(ItemStack stack) {
-        return stack.isIn(ModTags.Items.CONCRETE);
-    }
-
     @Override
-    public ItemStack craft(CraftingRecipeInput input, RegistryWrapper.WrapperLookup lookup) {
+    public ItemStack craft(RecipeInputInventory input, DynamicRegistryManager registryManager) {
         int topLeft = findTopLeft(input);
-        if (topLeft == -1) {
-            return ItemStack.EMPTY;
-        }
+        if (topLeft == -1) return ItemStack.EMPTY;
 
         int w = input.getWidth();
 
         Tiles tiles = new Tiles(
-                TileResolver.resolve(input.getStackInSlot(topLeft)).getItem(),
-                TileResolver.resolve(input.getStackInSlot(topLeft + 1)).getItem(),
-                TileResolver.resolve(input.getStackInSlot(topLeft + w)).getItem(),
-                TileResolver.resolve(input.getStackInSlot(topLeft + w + 1)).getItem()
+                TileResolver.resolve(input.getStack(topLeft)).getItem(),
+                TileResolver.resolve(input.getStack(topLeft + 1)).getItem(),
+                TileResolver.resolve(input.getStack(topLeft + w)).getItem(),
+                TileResolver.resolve(input.getStack(topLeft + w + 1)).getItem()
         );
 
         ItemStack stack = TileBlockBE.getStackWith(tiles);
@@ -50,7 +45,12 @@ public class CraftingTileBlock extends SpecialCraftingRecipe {
         return stack;
     }
 
-    private int findTopLeft(CraftingRecipeInput input) {
+    @Override
+    public ItemStack getOutput(DynamicRegistryManager registryManager) {
+        return ItemStack.EMPTY;
+    }
+
+    private int findTopLeft(RecipeInputInventory input) {
         int width = input.getWidth();
         int height = input.getHeight();
 
@@ -61,29 +61,30 @@ public class CraftingTileBlock extends SpecialCraftingRecipe {
                 int i2 = i0 + width;
                 int i3 = i2 + 1;
 
-                if (!isValidIngredient(TileResolver.resolve(input.getStackInSlot(i0))) ||
-                        !isValidIngredient(TileResolver.resolve(input.getStackInSlot(i1))) ||
-                        !isValidIngredient(TileResolver.resolve(input.getStackInSlot(i2))) ||
-                        !isValidIngredient(TileResolver.resolve(input.getStackInSlot(i3)))) {
+                if (!isValidIngredient(TileResolver.resolve(input.getStack(i0))) ||
+                        !isValidIngredient(TileResolver.resolve(input.getStack(i1))) ||
+                        !isValidIngredient(TileResolver.resolve(input.getStack(i2))) ||
+                        !isValidIngredient(TileResolver.resolve(input.getStack(i3)))) {
                     continue;
                 }
 
-                // All other slots must be empty
                 boolean othersEmpty = true;
-                for (int i = 0; i < input.getSize(); i++) {
+                for (int i = 0; i < input.size(); i++) {
                     if (i != i0 && i != i1 && i != i2 && i != i3) {
-                        if (!input.getStackInSlot(i).isEmpty()) {
+                        if (!input.getStack(i).isEmpty()) {
                             othersEmpty = false;
                             break;
                         }
                     }
                 }
-
                 if (othersEmpty) return i0;
             }
         }
-
         return -1;
+    }
+
+    private boolean isValidIngredient(ItemStack stack) {
+        return stack.isIn(ModTags.Items.CONCRETE);
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.proctoredgames.tiled.block.custom;
 
 import com.proctoredgames.tiled.block.entity.custom.TilingTableBE;
 import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockMirror;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;

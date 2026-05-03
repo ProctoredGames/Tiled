@@ -9,11 +9,9 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.loot.context.LootContext;
 import net.minecraft.loot.context.LootContextParameterSet;
 import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.nbt.NbtCompound;
@@ -23,7 +21,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -50,12 +47,12 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
         return BlockRenderType.MODEL;
     }
 
-    // 1.20.1: tooltip signature uses TooltipContext instead of Item.TooltipContext + TooltipType
+    // 1.20.1: tooltip uses TooltipContext + BlockView, no Item.TooltipContext or TooltipType
     @Override
     public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
         super.appendTooltip(stack, world, tooltip, options);
 
-        // 1.20.1: no data components — read from BlockEntityTag NBT
+        // 1.20.1: no data components — read tile data from BlockEntityTag NBT on the stack
         SmallTiles tiles = SmallTiles.DEFAULT;
         NbtCompound blockEntityTag = stack.getSubNbt("BlockEntityTag");
         if (blockEntityTag != null) {
@@ -72,7 +69,7 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
         }
     }
 
-    // 1.20.1: getPickStack takes World, not WorldView
+    // 1.20.1: getPickStack takes BlockView, not WorldView
     @Override
     public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
         return world.getBlockEntity(pos) instanceof SmallTileBlockBE blockEntity
@@ -80,6 +77,7 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
                 : super.getPickStack(world, pos, state);
     }
 
+    // LootContextParameterSet.Builder is correct for 1.20.1 — kept as-is from original
     @Override
     public List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
         BlockEntity blockEntity = builder.getOptional(LootContextParameters.BLOCK_ENTITY);

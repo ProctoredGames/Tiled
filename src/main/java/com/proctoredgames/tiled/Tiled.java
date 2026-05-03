@@ -6,7 +6,6 @@ import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
 import com.proctoredgames.tiled.block.entity.records.Tiles;
-import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import com.proctoredgames.tiled.item.ModItemGroups;
 import com.proctoredgames.tiled.recipe.ModRecipeSerializers;
 import com.proctoredgames.tiled.recipe.ModRecipes;
@@ -35,7 +34,6 @@ public class Tiled implements ModInitializer {
 		ModItemGroups.registerItemGroups();
 		ModBlocks.registerModBlocks();
 		ModBlockEntities.registerBlockEntities();
-		ModDataComponentTypes.registerDataComponentTypes();
 		ModScreenHandlers.registerScreenHandlers();
 		ModRecipeSerializers.register();
 		ModRecipes.registerRecipes();

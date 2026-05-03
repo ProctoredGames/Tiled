@@ -6,7 +6,6 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.registry.Registries;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,29 +18,26 @@ public record Tiles(Optional<Item> top_left, Optional<Item> top_right, Optional<
 
     public static final Tiles DEFAULT = new Tiles(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
+    // 1.20.1: sizeLimitedListOf does not exist — use listOf
+    // 1.20.1: PacketCodec does not exist (added in 1.20.5) — removed entirely
     public static final Codec<Tiles> CODEC = Registries.ITEM.getCodec()
-            .sizeLimitedListOf(4)
+            .listOf()
             .xmap(Tiles::new, Tiles::stream);
 
-    // 1.20.1: no RegistryByteBuf or PacketCodecs.registryValue — encode/decode manually
-    public static final PacketCodec<PacketByteBuf, Tiles> PACKET_CODEC = new PacketCodec<>() {
-        @Override
-        public Tiles decode(PacketByteBuf buf) {
-            List<Item> items = new ArrayList<>(4);
-            for (int i = 0; i < 4; i++) {
-                int rawId = buf.readVarInt();
-                items.add(Registries.ITEM.get(rawId));
-            }
-            return new Tiles(items);
+    // Manual network helpers in place of the removed PacketCodec
+    public static void encode(PacketByteBuf buf, Tiles value) {
+        for (Item item : value.stream()) {
+            buf.writeVarInt(Registries.ITEM.getRawId(item));
         }
+    }
 
-        @Override
-        public void encode(PacketByteBuf buf, Tiles value) {
-            for (Item item : value.stream()) {
-                buf.writeVarInt(Registries.ITEM.getRawId(item));
-            }
+    public static Tiles decode(PacketByteBuf buf) {
+        List<Item> items = new ArrayList<>(4);
+        for (int i = 0; i < 4; i++) {
+            items.add(Registries.ITEM.get(buf.readVarInt()));
         }
-    };
+        return new Tiles(items);
+    }
 
     private Tiles(List<Item> tiles) {
         this(getTile(tiles, 0), getTile(tiles, 1), getTile(tiles, 2), getTile(tiles, 3));
@@ -63,7 +59,8 @@ public record Tiles(Optional<Item> top_left, Optional<Item> top_right, Optional<
         if (this.equals(DEFAULT)) {
             return nbt;
         }
-        nbt.put("tiles", CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow());
+        // 1.20.1: getOrThrow takes a boolean + consumer, not zero args
+        nbt.put("tiles", CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow(false, e -> {}));
         return nbt;
     }
 

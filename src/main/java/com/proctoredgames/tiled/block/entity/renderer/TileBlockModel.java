@@ -3,7 +3,6 @@ package com.proctoredgames.tiled.block.entity.renderer;
 import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import com.proctoredgames.tiled.block.entity.records.Tiles;
-import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
@@ -14,8 +13,8 @@ import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.render.model.Baker;
 import net.minecraft.client.render.model.ModelBakeSettings;
-import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.client.render.model.json.ModelOverrideList;
 import net.minecraft.client.render.model.json.ModelTransformation;
@@ -67,6 +66,10 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
         return new Identifier(Tiled.MOD_ID, "block/" + path);
     }
 
+    // --- UnbakedModel ---
+    // 1.20.1: three abstract methods are getModelDependencies, setParents, and bake(Baker,...)
+    // getTextureDependencies was removed before 1.19.3; do NOT add it
+
     @Override
     public Collection<Identifier> getModelDependencies() {
         return List.of();
@@ -75,10 +78,10 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
     @Override
     public void setParents(Function<Identifier, UnbakedModel> loader) {}
 
-    // 1.20.1: Baker -> ModelLoader in bake() signature
+    // 1.20.1: bake takes Baker (same as 1.21.1), NOT ModelLoader
     @Override
     public BakedModel bake(
-            ModelLoader loader,
+            Baker baker,
             Function<SpriteIdentifier, Sprite> textureGetter,
             ModelBakeSettings settings,
             Identifier id
@@ -88,6 +91,8 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
         }
         return this;
     }
+
+    // --- FabricBakedModel ---
 
     @Override
     public void emitBlockQuads(
@@ -159,6 +164,7 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             y2 = 1 - y2;
         }
         emitter.square(dir, x1, y1, x2, y2, 0f);
+        // 1.20.1: spriteBake and spriteColor take a sprite index as first arg
         emitter.spriteBake(0, sprite, MutableQuadView.BAKE_LOCK_UV);
         emitter.spriteColor(0, -1, -1, -1, -1);
         emitter.emit();
