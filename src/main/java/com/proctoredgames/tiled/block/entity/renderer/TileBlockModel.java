@@ -6,13 +6,17 @@ import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
+import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
-import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
-import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.render.model.*;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.render.model.ModelBakeSettings;
+import net.minecraft.client.render.model.ModelLoader;
+import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.client.render.model.json.ModelOverrideList;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.texture.Sprite;
@@ -20,6 +24,7 @@ import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -57,8 +62,9 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
 
     private final Sprite[] sprites = new Sprite[SPRITE_IDS.length];
 
+    // 1.20.1: Identifier.of() -> new Identifier()
     private static Identifier id(String path) {
-        return Identifier.of(Tiled.MOD_ID, "block/" + path);
+        return new Identifier(Tiled.MOD_ID, "block/" + path);
     }
 
     @Override
@@ -69,11 +75,13 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
     @Override
     public void setParents(Function<Identifier, UnbakedModel> loader) {}
 
+    // 1.20.1: Baker -> ModelLoader in bake() signature
     @Override
     public BakedModel bake(
-            Baker baker,
+            ModelLoader loader,
             Function<SpriteIdentifier, Sprite> textureGetter,
-            ModelBakeSettings settings
+            ModelBakeSettings settings,
+            Identifier id
     ) {
         for (int i = 0; i < SPRITE_IDS.length; i++) {
             sprites[i] = textureGetter.apply(SPRITE_IDS[i]);
@@ -103,12 +111,11 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
         Sprite br = sprites[getTextureIdFromTile(tiles.bottom_right())];
 
         for (Direction dir : Direction.values()) {
-            emit(emitter, dir, 0f,   0.5f,   0.5f, 1.0f, tl);
-            emit(emitter, dir, 0.5f, 0.5f,   1.0f,   1.0f, tr);
-            emit(emitter, dir, 0.0f,   0.0f, 0.5f, 0.5f,   bl);
-            emit(emitter, dir, 0.5f, 0.0f, 1.0f,   0.5f,   br);
+            emit(emitter, dir, 0f,   0.5f, 0.5f, 1.0f, tl);
+            emit(emitter, dir, 0.5f, 0.5f, 1.0f, 1.0f, tr);
+            emit(emitter, dir, 0.0f, 0.0f, 0.5f, 0.5f, bl);
+            emit(emitter, dir, 0.5f, 0.0f, 1.0f, 0.5f, br);
         }
-
     }
 
     @Override
@@ -117,7 +124,12 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             Supplier<Random> random,
             RenderContext context
     ) {
-        Tiles tiles = stack.getOrDefault(ModDataComponentTypes.TILE_BLOCK_TILES, Tiles.DEFAULT);
+        // 1.20.1: no data components — read from BlockEntityTag NBT
+        Tiles tiles = Tiles.DEFAULT;
+        NbtCompound blockEntityTag = stack.getSubNbt("BlockEntityTag");
+        if (blockEntityTag != null) {
+            tiles = Tiles.fromNbt(blockEntityTag);
+        }
 
         QuadEmitter emitter = context.getEmitter();
 
@@ -127,10 +139,10 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
         Sprite br = sprites[getTextureIdFromTile(tiles.bottom_right())];
 
         for (Direction dir : Direction.values()) {
-            emit(emitter, dir, 0f,   0.5f,   0.5f, 1.0f, tl);
-            emit(emitter, dir, 0.5f, 0.5f,   1.0f,   1.0f, tr);
-            emit(emitter, dir, 0.0f,   0.0f, 0.5f, 0.5f,   bl);
-            emit(emitter, dir, 0.5f, 0.0f, 1.0f,   0.5f,   br);
+            emit(emitter, dir, 0f,   0.5f, 0.5f, 1.0f, tl);
+            emit(emitter, dir, 0.5f, 0.5f, 1.0f, 1.0f, tr);
+            emit(emitter, dir, 0.0f, 0.0f, 0.5f, 0.5f, bl);
+            emit(emitter, dir, 0.5f, 0.0f, 1.0f, 0.5f, br);
         }
     }
 
@@ -140,46 +152,41 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             float x1, float y1, float x2, float y2,
             Sprite sprite
     ) {
-        if(dir == Direction.UP || dir == Direction.DOWN){
-            x1=1-x1;
-            x2=1-x2;
-            y1=1-y1;
-            y2=1-y2;
+        if (dir == Direction.UP || dir == Direction.DOWN) {
+            x1 = 1 - x1;
+            x2 = 1 - x2;
+            y1 = 1 - y1;
+            y2 = 1 - y2;
         }
         emitter.square(dir, x1, y1, x2, y2, 0f);
-        emitter.spriteBake(sprite, MutableQuadView.BAKE_LOCK_UV);
-        emitter.color(-1, -1, -1, -1);
+        emitter.spriteBake(0, sprite, MutableQuadView.BAKE_LOCK_UV);
+        emitter.spriteColor(0, -1, -1, -1, -1);
         emitter.emit();
     }
 
     private int getTextureIdFromTile(Optional<Item> tile) {
         if (tile.isEmpty()) return 0;
-
         Item item = tile.get();
-        if (item == Items.BLACK_CONCRETE) return 0;
-        if (item == Items.BLUE_CONCRETE) return 1;
-        if (item == Items.BROWN_CONCRETE) return 2;
-        if (item == Items.CYAN_CONCRETE) return 3;
-        if (item == Items.GRAY_CONCRETE) return 4;
-        if (item == Items.GREEN_CONCRETE) return 5;
+        if (item == Items.BLACK_CONCRETE)      return 0;
+        if (item == Items.BLUE_CONCRETE)       return 1;
+        if (item == Items.BROWN_CONCRETE)      return 2;
+        if (item == Items.CYAN_CONCRETE)       return 3;
+        if (item == Items.GRAY_CONCRETE)       return 4;
+        if (item == Items.GREEN_CONCRETE)      return 5;
         if (item == Items.LIGHT_BLUE_CONCRETE) return 6;
         if (item == Items.LIGHT_GRAY_CONCRETE) return 7;
-        if (item == Items.LIME_CONCRETE) return 8;
-        if (item == Items.MAGENTA_CONCRETE) return 9;
-        if (item == Items.ORANGE_CONCRETE) return 10;
-        if (item == Items.PINK_CONCRETE) return 11;
-        if (item == Items.PURPLE_CONCRETE) return 12;
-        if (item == Items.RED_CONCRETE) return 13;
-        if (item == Items.WHITE_CONCRETE) return 14;
-        if (item == Items.YELLOW_CONCRETE) return 15;
-        return 0; // fallback
+        if (item == Items.LIME_CONCRETE)       return 8;
+        if (item == Items.MAGENTA_CONCRETE)    return 9;
+        if (item == Items.ORANGE_CONCRETE)     return 10;
+        if (item == Items.PINK_CONCRETE)       return 11;
+        if (item == Items.PURPLE_CONCRETE)     return 12;
+        if (item == Items.RED_CONCRETE)        return 13;
+        if (item == Items.WHITE_CONCRETE)      return 14;
+        if (item == Items.YELLOW_CONCRETE)     return 15;
+        return 0;
     }
 
-    @Override public Sprite getParticleSprite() {
-        //we have no way to get the tile data, so just use white (the inside of the tile block)
-        return sprites[14];
-    }
-
+    @Override public Sprite getParticleSprite() { return sprites[14]; }
     @Override public List<BakedQuad> getQuads(BlockState s, Direction d, Random r) { return List.of(); }
     @Override public boolean useAmbientOcclusion() { return true; }
     @Override public boolean isBuiltin() { return false; }

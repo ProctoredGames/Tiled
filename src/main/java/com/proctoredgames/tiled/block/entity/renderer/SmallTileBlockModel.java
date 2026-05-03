@@ -3,7 +3,6 @@ package com.proctoredgames.tiled.block.entity.renderer;
 import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
-import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
@@ -12,7 +11,11 @@ import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.render.model.*;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.render.model.ModelBakeSettings;
+import net.minecraft.client.render.model.ModelLoader;
+import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.client.render.model.json.ModelOverrideList;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.texture.Sprite;
@@ -20,6 +23,7 @@ import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -57,8 +61,9 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
 
     private final Sprite[] sprites = new Sprite[SPRITE_IDS.length];
 
+    // 1.20.1: Identifier.of() -> new Identifier()
     private static Identifier id(String path) {
-        return Identifier.of(Tiled.MOD_ID, "block/" + path);
+        return new Identifier(Tiled.MOD_ID, "block/" + path);
     }
 
     @Override
@@ -69,11 +74,13 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
     @Override
     public void setParents(Function<Identifier, UnbakedModel> loader) {}
 
+    // 1.20.1: Baker -> ModelLoader in bake() signature
     @Override
     public BakedModel bake(
-            Baker baker,
+            ModelLoader loader,
             Function<SpriteIdentifier, Sprite> textureGetter,
-            ModelBakeSettings settings
+            ModelBakeSettings settings,
+            Identifier id
     ) {
         for (int i = 0; i < SPRITE_IDS.length; i++) {
             sprites[i] = textureGetter.apply(SPRITE_IDS[i]);
@@ -97,16 +104,16 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
 
         QuadEmitter emitter = context.getEmitter();
 
-        Sprite s0 = sprites[getTextureIdFromTile(tiles.slot0())];
-        Sprite s1 = sprites[getTextureIdFromTile(tiles.slot1())];
-        Sprite s2 = sprites[getTextureIdFromTile(tiles.slot2())];
-        Sprite s3 = sprites[getTextureIdFromTile(tiles.slot3())];
-        Sprite s4 = sprites[getTextureIdFromTile(tiles.slot4())];
-        Sprite s5 = sprites[getTextureIdFromTile(tiles.slot5())];
-        Sprite s6 = sprites[getTextureIdFromTile(tiles.slot6())];
-        Sprite s7 = sprites[getTextureIdFromTile(tiles.slot7())];
-        Sprite s8 = sprites[getTextureIdFromTile(tiles.slot8())];
-        Sprite s9 = sprites[getTextureIdFromTile(tiles.slot9())];
+        Sprite s0  = sprites[getTextureIdFromTile(tiles.slot0())];
+        Sprite s1  = sprites[getTextureIdFromTile(tiles.slot1())];
+        Sprite s2  = sprites[getTextureIdFromTile(tiles.slot2())];
+        Sprite s3  = sprites[getTextureIdFromTile(tiles.slot3())];
+        Sprite s4  = sprites[getTextureIdFromTile(tiles.slot4())];
+        Sprite s5  = sprites[getTextureIdFromTile(tiles.slot5())];
+        Sprite s6  = sprites[getTextureIdFromTile(tiles.slot6())];
+        Sprite s7  = sprites[getTextureIdFromTile(tiles.slot7())];
+        Sprite s8  = sprites[getTextureIdFromTile(tiles.slot8())];
+        Sprite s9  = sprites[getTextureIdFromTile(tiles.slot9())];
         Sprite s10 = sprites[getTextureIdFromTile(tiles.slot10())];
         Sprite s11 = sprites[getTextureIdFromTile(tiles.slot11())];
         Sprite s12 = sprites[getTextureIdFromTile(tiles.slot12())];
@@ -114,26 +121,24 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
         Sprite s14 = sprites[getTextureIdFromTile(tiles.slot14())];
         Sprite s15 = sprites[getTextureIdFromTile(tiles.slot15())];
 
-
         for (Direction dir : Direction.values()) {
-            emit(emitter, dir, 0f,   0.75f,   0.25f, 1.0f, s0);
-            emit(emitter, dir, 0.25f, 0.75f,   0.5f,   1.0f, s1);
-            emit(emitter, dir, 0.5f,   0.75f, 0.75f, 1.0f,   s2);
-            emit(emitter, dir, 0.75f, 0.75f, 1.0f,   1.0f,   s3);
-            emit(emitter, dir, 0f,   0.5f,   0.25f, 0.75f, s4);
-            emit(emitter, dir, 0.25f, 0.5f,   0.5f,   0.75f, s5);
-            emit(emitter, dir, 0.5f,   0.5f, 0.75f, 0.75f,   s6);
-            emit(emitter, dir, 0.75f, 0.5f, 1.0f,   0.75f,   s7);
-            emit(emitter, dir, 0f, 0.25f, 0.25f,   0.5f,   s8);
-            emit(emitter, dir, 0.25f, 0.25f, 0.5f,   0.5f,   s9);
-            emit(emitter, dir, 0.5f, 0.25f, 0.75f,   0.5f,   s10);
-            emit(emitter, dir, 0.75f, 0.25f, 1.0f,   0.5f,   s11);
-            emit(emitter, dir, 0f, 0.0f, 0.25f,   0.25f,   s12);
-            emit(emitter, dir, 0.25f, 0.0f, 0.5f,   0.25f,   s13);
-            emit(emitter, dir, 0.5f, 0.0f, 0.75f,   0.25f,   s14);
-            emit(emitter, dir, 0.75f, 0.0f, 1.0f,   0.25f,   s15);
+            emit(emitter, dir, 0f,    0.75f, 0.25f, 1.0f,  s0);
+            emit(emitter, dir, 0.25f, 0.75f, 0.5f,  1.0f,  s1);
+            emit(emitter, dir, 0.5f,  0.75f, 0.75f, 1.0f,  s2);
+            emit(emitter, dir, 0.75f, 0.75f, 1.0f,  1.0f,  s3);
+            emit(emitter, dir, 0f,    0.5f,  0.25f, 0.75f, s4);
+            emit(emitter, dir, 0.25f, 0.5f,  0.5f,  0.75f, s5);
+            emit(emitter, dir, 0.5f,  0.5f,  0.75f, 0.75f, s6);
+            emit(emitter, dir, 0.75f, 0.5f,  1.0f,  0.75f, s7);
+            emit(emitter, dir, 0f,    0.25f, 0.25f, 0.5f,  s8);
+            emit(emitter, dir, 0.25f, 0.25f, 0.5f,  0.5f,  s9);
+            emit(emitter, dir, 0.5f,  0.25f, 0.75f, 0.5f,  s10);
+            emit(emitter, dir, 0.75f, 0.25f, 1.0f,  0.5f,  s11);
+            emit(emitter, dir, 0f,    0.0f,  0.25f, 0.25f, s12);
+            emit(emitter, dir, 0.25f, 0.0f,  0.5f,  0.25f, s13);
+            emit(emitter, dir, 0.5f,  0.0f,  0.75f, 0.25f, s14);
+            emit(emitter, dir, 0.75f, 0.0f,  1.0f,  0.25f, s15);
         }
-
     }
 
     @Override
@@ -142,20 +147,25 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
             Supplier<Random> random,
             RenderContext context
     ) {
-        SmallTiles tiles = stack.getOrDefault(ModDataComponentTypes.SMALL_TILE_BLOCK_TILES, SmallTiles.DEFAULT);
+        // 1.20.1: no data components — read from BlockEntityTag NBT
+        SmallTiles tiles = SmallTiles.DEFAULT;
+        NbtCompound blockEntityTag = stack.getSubNbt("BlockEntityTag");
+        if (blockEntityTag != null) {
+            tiles = SmallTiles.fromNbt(blockEntityTag);
+        }
 
         QuadEmitter emitter = context.getEmitter();
 
-        Sprite s0 = sprites[getTextureIdFromTile(tiles.slot0())];
-        Sprite s1 = sprites[getTextureIdFromTile(tiles.slot1())];
-        Sprite s2 = sprites[getTextureIdFromTile(tiles.slot2())];
-        Sprite s3 = sprites[getTextureIdFromTile(tiles.slot3())];
-        Sprite s4 = sprites[getTextureIdFromTile(tiles.slot4())];
-        Sprite s5 = sprites[getTextureIdFromTile(tiles.slot5())];
-        Sprite s6 = sprites[getTextureIdFromTile(tiles.slot6())];
-        Sprite s7 = sprites[getTextureIdFromTile(tiles.slot7())];
-        Sprite s8 = sprites[getTextureIdFromTile(tiles.slot8())];
-        Sprite s9 = sprites[getTextureIdFromTile(tiles.slot9())];
+        Sprite s0  = sprites[getTextureIdFromTile(tiles.slot0())];
+        Sprite s1  = sprites[getTextureIdFromTile(tiles.slot1())];
+        Sprite s2  = sprites[getTextureIdFromTile(tiles.slot2())];
+        Sprite s3  = sprites[getTextureIdFromTile(tiles.slot3())];
+        Sprite s4  = sprites[getTextureIdFromTile(tiles.slot4())];
+        Sprite s5  = sprites[getTextureIdFromTile(tiles.slot5())];
+        Sprite s6  = sprites[getTextureIdFromTile(tiles.slot6())];
+        Sprite s7  = sprites[getTextureIdFromTile(tiles.slot7())];
+        Sprite s8  = sprites[getTextureIdFromTile(tiles.slot8())];
+        Sprite s9  = sprites[getTextureIdFromTile(tiles.slot9())];
         Sprite s10 = sprites[getTextureIdFromTile(tiles.slot10())];
         Sprite s11 = sprites[getTextureIdFromTile(tiles.slot11())];
         Sprite s12 = sprites[getTextureIdFromTile(tiles.slot12())];
@@ -163,24 +173,23 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
         Sprite s14 = sprites[getTextureIdFromTile(tiles.slot14())];
         Sprite s15 = sprites[getTextureIdFromTile(tiles.slot15())];
 
-
         for (Direction dir : Direction.values()) {
-            emit(emitter, dir, 0f,   0.75f,   0.25f, 1.0f, s0);
-            emit(emitter, dir, 0.25f, 0.75f,   0.5f,   1.0f, s1);
-            emit(emitter, dir, 0.5f,   0.75f, 0.75f, 1.0f,   s2);
-            emit(emitter, dir, 0.75f, 0.75f, 1.0f,   1.0f,   s3);
-            emit(emitter, dir, 0f,   0.5f,   0.25f, 0.75f, s4);
-            emit(emitter, dir, 0.25f, 0.5f,   0.5f,   0.75f, s5);
-            emit(emitter, dir, 0.5f,   0.5f, 0.75f, 0.75f,   s6);
-            emit(emitter, dir, 0.75f, 0.5f, 1.0f,   0.75f,   s7);
-            emit(emitter, dir, 0f, 0.25f, 0.25f,   0.5f,   s8);
-            emit(emitter, dir, 0.25f, 0.25f, 0.5f,   0.5f,   s9);
-            emit(emitter, dir, 0.5f, 0.25f, 0.75f,   0.5f,   s10);
-            emit(emitter, dir, 0.75f, 0.25f, 1.0f,   0.5f,   s11);
-            emit(emitter, dir, 0f, 0.0f, 0.25f,   0.25f,   s12);
-            emit(emitter, dir, 0.25f, 0.0f, 0.5f,   0.25f,   s13);
-            emit(emitter, dir, 0.5f, 0.0f, 0.75f,   0.25f,   s14);
-            emit(emitter, dir, 0.75f, 0.0f, 1.0f,   0.25f,   s15);
+            emit(emitter, dir, 0f,    0.75f, 0.25f, 1.0f,  s0);
+            emit(emitter, dir, 0.25f, 0.75f, 0.5f,  1.0f,  s1);
+            emit(emitter, dir, 0.5f,  0.75f, 0.75f, 1.0f,  s2);
+            emit(emitter, dir, 0.75f, 0.75f, 1.0f,  1.0f,  s3);
+            emit(emitter, dir, 0f,    0.5f,  0.25f, 0.75f, s4);
+            emit(emitter, dir, 0.25f, 0.5f,  0.5f,  0.75f, s5);
+            emit(emitter, dir, 0.5f,  0.5f,  0.75f, 0.75f, s6);
+            emit(emitter, dir, 0.75f, 0.5f,  1.0f,  0.75f, s7);
+            emit(emitter, dir, 0f,    0.25f, 0.25f, 0.5f,  s8);
+            emit(emitter, dir, 0.25f, 0.25f, 0.5f,  0.5f,  s9);
+            emit(emitter, dir, 0.5f,  0.25f, 0.75f, 0.5f,  s10);
+            emit(emitter, dir, 0.75f, 0.25f, 1.0f,  0.5f,  s11);
+            emit(emitter, dir, 0f,    0.0f,  0.25f, 0.25f, s12);
+            emit(emitter, dir, 0.25f, 0.0f,  0.5f,  0.25f, s13);
+            emit(emitter, dir, 0.5f,  0.0f,  0.75f, 0.25f, s14);
+            emit(emitter, dir, 0.75f, 0.0f,  1.0f,  0.25f, s15);
         }
     }
 
@@ -190,46 +199,41 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
             float x1, float y1, float x2, float y2,
             Sprite sprite
     ) {
-        if(dir == Direction.UP || dir == Direction.DOWN){
-            x1=1-x1;
-            x2=1-x2;
-            y1=1-y1;
-            y2=1-y2;
+        if (dir == Direction.UP || dir == Direction.DOWN) {
+            x1 = 1 - x1;
+            x2 = 1 - x2;
+            y1 = 1 - y1;
+            y2 = 1 - y2;
         }
         emitter.square(dir, x1, y1, x2, y2, 0f);
-        emitter.spriteBake(sprite, MutableQuadView.BAKE_LOCK_UV);
-        emitter.color(-1, -1, -1, -1);
+        emitter.spriteBake(0, sprite, MutableQuadView.BAKE_LOCK_UV);
+        emitter.spriteColor(0, -1, -1, -1, -1);
         emitter.emit();
     }
 
     private int getTextureIdFromTile(Optional<Item> tile) {
         if (tile.isEmpty()) return 0;
-
         Item item = tile.get();
-        if (item == Items.BLACK_CONCRETE) return 0;
-        if (item == Items.BLUE_CONCRETE) return 1;
-        if (item == Items.BROWN_CONCRETE) return 2;
-        if (item == Items.CYAN_CONCRETE) return 3;
-        if (item == Items.GRAY_CONCRETE) return 4;
-        if (item == Items.GREEN_CONCRETE) return 5;
+        if (item == Items.BLACK_CONCRETE)      return 0;
+        if (item == Items.BLUE_CONCRETE)       return 1;
+        if (item == Items.BROWN_CONCRETE)      return 2;
+        if (item == Items.CYAN_CONCRETE)       return 3;
+        if (item == Items.GRAY_CONCRETE)       return 4;
+        if (item == Items.GREEN_CONCRETE)      return 5;
         if (item == Items.LIGHT_BLUE_CONCRETE) return 6;
         if (item == Items.LIGHT_GRAY_CONCRETE) return 7;
-        if (item == Items.LIME_CONCRETE) return 8;
-        if (item == Items.MAGENTA_CONCRETE) return 9;
-        if (item == Items.ORANGE_CONCRETE) return 10;
-        if (item == Items.PINK_CONCRETE) return 11;
-        if (item == Items.PURPLE_CONCRETE) return 12;
-        if (item == Items.RED_CONCRETE) return 13;
-        if (item == Items.WHITE_CONCRETE) return 14;
-        if (item == Items.YELLOW_CONCRETE) return 15;
-        return 0; // fallback
+        if (item == Items.LIME_CONCRETE)       return 8;
+        if (item == Items.MAGENTA_CONCRETE)    return 9;
+        if (item == Items.ORANGE_CONCRETE)     return 10;
+        if (item == Items.PINK_CONCRETE)       return 11;
+        if (item == Items.PURPLE_CONCRETE)     return 12;
+        if (item == Items.RED_CONCRETE)        return 13;
+        if (item == Items.WHITE_CONCRETE)      return 14;
+        if (item == Items.YELLOW_CONCRETE)     return 15;
+        return 0;
     }
 
-    @Override public Sprite getParticleSprite() {
-        //we have no way to get the tile data, so just use white (the inside of the tile block)
-        return sprites[14];
-    }
-
+    @Override public Sprite getParticleSprite() { return sprites[14]; }
     @Override public List<BakedQuad> getQuads(BlockState s, Direction d, Random r) { return List.of(); }
     @Override public boolean useAmbientOcclusion() { return true; }
     @Override public boolean isBuiltin() { return false; }

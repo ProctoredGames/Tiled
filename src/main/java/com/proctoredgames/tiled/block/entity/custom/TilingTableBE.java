@@ -15,11 +15,11 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.recipe.RecipeEntry;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -31,7 +31,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class TilingTableBE extends BlockEntity implements ImplementedInventory, ExtendedScreenHandlerFactory<BlockPos> {
+// 1.20.1: ExtendedScreenHandlerFactory is not generic — it uses PacketByteBuf directly
+public class TilingTableBE extends BlockEntity implements ImplementedInventory, ExtendedScreenHandlerFactory {
 
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(17, ItemStack.EMPTY);
 
@@ -51,9 +52,10 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         };
     }
 
+    // 1.20.1: writeScreenOpeningData takes a PacketByteBuf, not a generic type
     @Override
-    public BlockPos getScreenOpeningData(ServerPlayerEntity serverPlayerEntity) {
-        return this.pos;
+    public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+        buf.writeBlockPos(this.pos);
     }
 
     @Override
@@ -72,23 +74,23 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         return new TilingTableScreenHandler(syncId, playerInventory, this, this.propertyDelegate);
     }
 
+    // 1.20.1: no RegistryWrapper parameter
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        super.writeNbt(nbt, registryLookup);
-        Inventories.writeNbt(nbt, inventory, registryLookup);
+    protected void writeNbt(NbtCompound nbt) {
+        super.writeNbt(nbt);
+        Inventories.writeNbt(nbt, inventory);
     }
 
     @Override
-    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        Inventories.readNbt(nbt, inventory, registryLookup);
-        super.readNbt(nbt, registryLookup);
+    public void readNbt(NbtCompound nbt) {
+        Inventories.readNbt(nbt, inventory);
+        super.readNbt(nbt);
     }
 
     public void updateResult(World world) {
         TilingTableRecipeInput recipeInput = new TilingTableRecipeInput(getInputInventory());
         ItemStack result = ItemStack.EMPTY;
 
-        // Check small tile block recipe first (4x4), then tile block recipe (2x2)
         Optional<RecipeEntry<TilingTableSmallTileBlockRecipe>> smallTileRecipe = getSmallTileRecipe();
         if (smallTileRecipe.isPresent()) {
             result = smallTileRecipe.get().value().craft(recipeInput, world.getRegistryManager());
@@ -136,8 +138,9 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         return BlockEntityUpdateS2CPacket.create(this);
     }
 
+    // 1.20.1: no RegistryWrapper parameter
     @Override
-    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        return createNbt(registryLookup);
+    public NbtCompound toInitialChunkDataNbt() {
+        return createNbt();
     }
 }

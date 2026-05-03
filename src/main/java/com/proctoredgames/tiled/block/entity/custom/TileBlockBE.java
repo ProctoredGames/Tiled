@@ -3,21 +3,12 @@ package com.proctoredgames.tiled.block.entity.custom;
 import com.proctoredgames.tiled.block.ModBlocks;
 import com.proctoredgames.tiled.block.entity.ModBlockEntities;
 import com.proctoredgames.tiled.block.entity.records.Tiles;
-import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.Sherds;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ContainerComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public class TileBlockBE extends BlockEntity {
 
@@ -30,15 +21,16 @@ public class TileBlockBE extends BlockEntity {
         this.tiles = Tiles.DEFAULT;
     }
 
+    // 1.20.1: no RegistryWrapper parameter
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        super.writeNbt(nbt, registryLookup);
+    protected void writeNbt(NbtCompound nbt) {
+        super.writeNbt(nbt);
         this.tiles.toNbt(nbt);
     }
 
     @Override
-    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        super.readNbt(nbt, registryLookup);
+    public void readNbt(NbtCompound nbt) {
+        super.readNbt(nbt);
         this.tiles = Tiles.fromNbt(nbt);
     }
 
@@ -46,53 +38,55 @@ public class TileBlockBE extends BlockEntity {
         return BlockEntityUpdateS2CPacket.create(this);
     }
 
+    // 1.20.1: no RegistryWrapper parameter
     @Override
-    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        return this.createComponentlessNbt(registryLookup);
+    public NbtCompound toInitialChunkDataNbt() {
+        return createNbt();
     }
 
     public Tiles getTiles() {
         return this.tiles;
     }
 
-//    @Nullable
-//    public static Tiles getTilesFromStack(ItemStack stack) {
-//        return stack.get(ModDataComponentTypes.TILE_BLOCK_TILES);
-//    }
-
-    public void readFrom(ItemStack stack) {
-        this.readComponents(stack);
+    public void setTiles(Tiles tiles) {
+        this.tiles = tiles;
+        markDirty();
     }
 
+    /**
+     * Reads tile data from the NBT stored on an ItemStack (the "BlockEntityTag").
+     * Replaces the 1.21.1 readComponents() call.
+     */
+    public void readFrom(ItemStack stack) {
+        NbtCompound nbt = stack.getSubNbt("BlockEntityTag");
+        if (nbt != null) {
+            this.tiles = Tiles.fromNbt(nbt);
+        } else {
+            this.tiles = Tiles.DEFAULT;
+        }
+    }
+
+    /**
+     * Produces an ItemStack with tile data stored in "BlockEntityTag" NBT.
+     * Replaces the 1.21.1 applyComponentsFrom() call.
+     */
     public ItemStack asStack() {
-        ItemStack itemStack = ModBlocks.TILE_BLOCK.asItem().getDefaultStack();
-        itemStack.applyComponentsFrom(this.createComponentMap());
-        return itemStack;
+        ItemStack stack = ModBlocks.TILE_BLOCK.asItem().getDefaultStack();
+        if (!this.tiles.equals(Tiles.DEFAULT)) {
+            NbtCompound tag = new NbtCompound();
+            this.tiles.toNbt(tag);
+            stack.setSubNbt("BlockEntityTag", tag);
+        }
+        return stack;
     }
 
     public static ItemStack getStackWith(Tiles tiles) {
-        ItemStack itemStack = ModBlocks.TILE_BLOCK.asItem().getDefaultStack();
-        itemStack.set(ModDataComponentTypes.TILE_BLOCK_TILES, tiles);
-        return itemStack;
+        ItemStack stack = ModBlocks.TILE_BLOCK.asItem().getDefaultStack();
+        if (!tiles.equals(Tiles.DEFAULT)) {
+            NbtCompound tag = new NbtCompound();
+            tiles.toNbt(tag);
+            stack.setSubNbt("BlockEntityTag", tag);
+        }
+        return stack;
     }
-
-    @Override
-    protected void addComponents(ComponentMap.Builder componentMapBuilder) {
-        super.addComponents(componentMapBuilder);
-        componentMapBuilder.add(ModDataComponentTypes.TILE_BLOCK_TILES, this.tiles);
-    }
-
-    @Override
-    protected void readComponents(BlockEntity.ComponentsAccess components) {
-        super.readComponents(components);
-        this.tiles = components.getOrDefault(ModDataComponentTypes.TILE_BLOCK_TILES, Tiles.DEFAULT);
-    }
-
-    @Override
-    public void removeFromCopiedStackNbt(NbtCompound nbt) {
-        super.removeFromCopiedStackNbt(nbt);
-        nbt.remove("tiles");
-    }
-
 }
-

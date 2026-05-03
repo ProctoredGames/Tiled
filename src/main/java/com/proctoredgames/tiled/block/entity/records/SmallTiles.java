@@ -5,11 +5,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKeys;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -32,10 +30,25 @@ public record SmallTiles(Optional<Item> slot0, Optional<Item> slot1, Optional<It
             .sizeLimitedListOf(16)
             .xmap(SmallTiles::new, SmallTiles::stream);
 
-    public static final PacketCodec<RegistryByteBuf, SmallTiles> PACKET_CODEC =
-            PacketCodecs.registryValue(RegistryKeys.ITEM)
-                    .collect(PacketCodecs.toList(16))
-                    .xmap(SmallTiles::new, SmallTiles::stream);
+    // 1.20.1: no RegistryByteBuf or PacketCodecs.registryValue — encode/decode manually
+    public static final PacketCodec<PacketByteBuf, SmallTiles> PACKET_CODEC = new PacketCodec<>() {
+        @Override
+        public SmallTiles decode(PacketByteBuf buf) {
+            List<Item> items = new java.util.ArrayList<>(16);
+            for (int i = 0; i < 16; i++) {
+                int rawId = buf.readVarInt();
+                items.add(Registries.ITEM.get(rawId));
+            }
+            return new SmallTiles(items);
+        }
+
+        @Override
+        public void encode(PacketByteBuf buf, SmallTiles value) {
+            for (Item item : value.stream()) {
+                buf.writeVarInt(Registries.ITEM.getRawId(item));
+            }
+        }
+    };
 
     private SmallTiles(List<Item> tiles) {
         this(
@@ -59,7 +72,6 @@ public record SmallTiles(Optional<Item> slot0, Optional<Item> slot1, Optional<It
             return Optional.empty();
         }
         Item item = tiles.get(index);
-        // Treat air as empty so slots don't get polluted with air items
         return item == Items.AIR ? Optional.empty() : Optional.of(item);
     }
 
@@ -71,11 +83,6 @@ public record SmallTiles(Optional<Item> slot0, Optional<Item> slot1, Optional<It
         return nbt;
     }
 
-    /**
-     * Returns each slot as an Item, using Items.AIR for empty slots.
-     * Previously this fell back to Items.BRICK, which caused empty slots to
-     * appear as brick in tooltips and NBT data.
-     */
     public List<Item> stream() {
         return Stream.of(
                 slot0, slot1, slot2,  slot3,

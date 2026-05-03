@@ -1,32 +1,29 @@
 package com.proctoredgames.tiled.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
-import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
-import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.DecoratedPotBlockEntity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.loot.context.LootContext;
 import net.minecraft.loot.context.LootContextParameterSet;
 import net.minecraft.loot.context.LootContextParameters;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -34,11 +31,9 @@ import java.util.stream.Stream;
 
 public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvider {
 
-    public static final MapCodec<SmallTileBlock> CODEC = createCodec(SmallTileBlock::new);
-    public static final Identifier SMALL_TILE_BLOCK_DYNAMIC_DROP_ID = Identifier.of(Tiled.MOD_ID, "small_tile_block");
-
-    @Override
-    protected MapCodec<SmallTileBlock> getCodec() { return CODEC; }
+    // 1.20.1: no MapCodec/getCodec on blocks
+    // 1.20.1: Identifier.of() -> new Identifier()
+    public static final Identifier SMALL_TILE_BLOCK_DYNAMIC_DROP_ID = new Identifier(Tiled.MOD_ID, "small_tile_block");
 
     public SmallTileBlock(Settings settings) {
         super(settings);
@@ -51,14 +46,22 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
     }
 
     @Override
-    protected BlockRenderType getRenderType(BlockState state) {
+    public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.MODEL;
     }
 
+    // 1.20.1: tooltip signature uses TooltipContext instead of Item.TooltipContext + TooltipType
     @Override
-    public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType options) {
-        super.appendTooltip(stack, context, tooltip, options);
-        SmallTiles tiles = stack.getOrDefault(ModDataComponentTypes.SMALL_TILE_BLOCK_TILES, SmallTiles.DEFAULT);
+    public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
+        super.appendTooltip(stack, world, tooltip, options);
+
+        // 1.20.1: no data components — read from BlockEntityTag NBT
+        SmallTiles tiles = SmallTiles.DEFAULT;
+        NbtCompound blockEntityTag = stack.getSubNbt("BlockEntityTag");
+        if (blockEntityTag != null) {
+            tiles = SmallTiles.fromNbt(blockEntityTag);
+        }
+
         if (!tiles.equals(SmallTiles.DEFAULT)) {
             tooltip.add(ScreenTexts.EMPTY);
             Stream.of(tiles.slot0(), tiles.slot1(), tiles.slot2(), tiles.slot3(),
@@ -69,15 +72,16 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
         }
     }
 
+    // 1.20.1: getPickStack takes World, not WorldView
     @Override
-    public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
+    public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
         return world.getBlockEntity(pos) instanceof SmallTileBlockBE blockEntity
                 ? blockEntity.asStack()
                 : super.getPickStack(world, pos, state);
     }
 
     @Override
-    protected List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
+    public List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
         BlockEntity blockEntity = builder.getOptional(LootContextParameters.BLOCK_ENTITY);
         if (blockEntity instanceof SmallTileBlockBE smallTileBlockBE) {
             builder.addDynamicDrop(SMALL_TILE_BLOCK_DYNAMIC_DROP_ID, lootConsumer -> {
@@ -87,4 +91,3 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
         return super.getDroppedStacks(state, builder);
     }
 }
-

@@ -1,8 +1,11 @@
 package com.proctoredgames.tiled.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import com.proctoredgames.tiled.block.entity.custom.TilingTableBE;
-import net.minecraft.block.*;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockMirror;
+import net.minecraft.block.BlockRenderType;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
@@ -11,7 +14,11 @@ import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.BlockMirror;
+import net.minecraft.util.BlockRotation;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -19,16 +26,11 @@ import org.jetbrains.annotations.Nullable;
 
 public class TilingTableBlock extends BlockWithEntity implements BlockEntityProvider {
 
-    public static final MapCodec<TilingTableBlock> CODEC = TilingTableBlock.createCodec(TilingTableBlock::new);
+    // 1.20.1: no MapCodec/getCodec on blocks
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
 
     public TilingTableBlock(Settings settings) {
         super(settings);
-    }
-
-    @Override
-    protected MapCodec<TilingTableBlock> getCodec() {
-        return CODEC;
     }
 
     @Nullable
@@ -38,12 +40,12 @@ public class TilingTableBlock extends BlockWithEntity implements BlockEntityProv
     }
 
     @Override
-    protected BlockRenderType getRenderType(BlockState state) {
+    public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.MODEL;
     }
 
     @Override
-    protected void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof TilingTableBE) {
@@ -54,25 +56,26 @@ public class TilingTableBlock extends BlockWithEntity implements BlockEntityProv
         }
     }
 
+    // 1.20.1: onUseWithItem + ItemActionResult -> onUse + ActionResult
     @Override
-    protected ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos,
-                                             PlayerEntity player, Hand hand, BlockHitResult hit) {
+    public ActionResult onUse(BlockState state, World world, BlockPos pos,
+                              PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (!world.isClient) {
-            NamedScreenHandlerFactory screenHandlerFactory = ((TilingTableBE) world.getBlockEntity(pos));
+            NamedScreenHandlerFactory screenHandlerFactory = (TilingTableBE) world.getBlockEntity(pos);
             if (screenHandlerFactory != null) {
                 player.openHandledScreen(screenHandlerFactory);
             }
         }
-        return ItemActionResult.SUCCESS;
+        return ActionResult.SUCCESS;
     }
 
     @Override
-    protected BlockState rotate(BlockState state, BlockRotation rotation) {
+    public BlockState rotate(BlockState state, BlockRotation rotation) {
         return state.with(FACING, rotation.rotate(state.get(FACING)));
     }
 
     @Override
-    protected BlockState mirror(BlockState state, BlockMirror mirror) {
+    public BlockState mirror(BlockState state, BlockMirror mirror) {
         return state.rotate(mirror.getRotation(state.get(FACING)));
     }
 
@@ -82,7 +85,7 @@ public class TilingTableBlock extends BlockWithEntity implements BlockEntityProv
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void appendProperties(StateManager.Builder<net.minecraft.block.Block, BlockState> builder) {
         builder.add(FACING);
     }
 }
