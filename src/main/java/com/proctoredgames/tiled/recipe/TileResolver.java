@@ -32,6 +32,7 @@ public class TileResolver {
         }
 
         return stack;
+
     }
 
     private static Item getMonochromeItem(List<Item> items) {
