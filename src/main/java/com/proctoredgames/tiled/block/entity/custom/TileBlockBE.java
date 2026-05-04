@@ -3,6 +3,7 @@ package com.proctoredgames.tiled.block.entity.custom;
 import com.proctoredgames.tiled.block.ModBlocks;
 import com.proctoredgames.tiled.block.entity.ModBlockEntities;
 import com.proctoredgames.tiled.block.entity.records.Tiles;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.ItemStack;
@@ -31,6 +32,9 @@ public class TileBlockBE extends BlockEntity {
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
         this.tiles = Tiles.fromNbt(nbt);
+        if (this.world != null && this.world.isClient) {
+            this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), Block.NOTIFY_LISTENERS);
+        }
     }
 
     public BlockEntityUpdateS2CPacket toUpdatePacket() {
