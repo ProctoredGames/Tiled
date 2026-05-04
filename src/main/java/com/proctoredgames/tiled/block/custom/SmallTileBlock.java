@@ -20,6 +20,7 @@ import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
@@ -50,8 +51,12 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         super.onPlaced(world, pos, state, placer, itemStack);
-        if (!world.isClient) {
-            world.updateListeners(pos, state, state, 3);
+        if (!world.isClient && world.getBlockEntity(pos) instanceof SmallTileBlockBE be) {
+            ServerWorld serverWorld = (ServerWorld) world;
+            serverWorld.getServer().getPlayerManager().sendToAround(
+                null, pos.getX(), pos.getY(), pos.getZ(), 64.0,
+                serverWorld.getRegistryKey(), be.toUpdatePacket()
+            );
         }
     }
 
