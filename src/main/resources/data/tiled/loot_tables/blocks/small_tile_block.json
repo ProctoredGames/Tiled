@@ -6,17 +6,8 @@
       "bonus_rolls": 0.0,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "tiled:small_tile_block",
-          "functions": [
-            {
-              "function": "minecraft:copy_components",
-              "include": [
-                "tiled:small_tile_block_tiles"
-              ],
-              "source": "block_entity"
-            }
-          ]
+          "type": "minecraft:dynamic",
+          "name": "tiled:small_tile_block"
         }
       ]
     }
