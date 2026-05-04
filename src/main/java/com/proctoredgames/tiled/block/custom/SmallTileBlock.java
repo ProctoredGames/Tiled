@@ -58,6 +58,7 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
                 serverWorld.getRegistryKey(), be.toUpdatePacket()
             );
         }
+
     }
 
     @Override
