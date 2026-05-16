@@ -38,18 +38,11 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
     public static final MapCodec<SmallTileBlock> CODEC = createCodec(SmallTileBlock::new);
     public static final Identifier SMALL_TILE_BLOCK_DYNAMIC_DROP_ID = Identifier.of(Tiled.MOD_ID, "small_tile_block");
 
-    private static final DirectionProperty FACING;
-
     @Override
     protected MapCodec<SmallTileBlock> getCodec() { return CODEC; }
 
     public SmallTileBlock(Settings settings) {
         super(settings);
-        this.setDefaultState((BlockState)(this.stateManager.getDefaultState()).with(FACING, Direction.NORTH));
-    }
-
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return (BlockState)this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing());
     }
 
     @Nullable
@@ -77,10 +70,6 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
         }
     }
 
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
-    }
-
     @Override
     public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
         return world.getBlockEntity(pos) instanceof SmallTileBlockBE blockEntity
@@ -99,8 +88,5 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
         return super.getDroppedStacks(state, builder);
     }
 
-    static {
-        FACING = Properties.HORIZONTAL_FACING;
-    }
 }
 

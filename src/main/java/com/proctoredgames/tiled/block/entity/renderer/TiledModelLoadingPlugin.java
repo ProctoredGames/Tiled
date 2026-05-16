@@ -9,26 +9,22 @@ import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public class TiledModelLoadingPlugin implements ModelLoadingPlugin {
-    public static final ModelIdentifier SMALL_TILE_BLOCK_MODEL = new ModelIdentifier(Identifier.of(Tiled.MOD_ID, "small_tile_block"), "");
-    public static final ModelIdentifier SMALL_TILE_BLOCK_MODEL_ITEM = new ModelIdentifier(Identifier.of(Tiled.MOD_ID, "small_tile_block"), "inventory");
-
-    public static final ModelIdentifier TILE_BLOCK_MODEL = new ModelIdentifier(Identifier.of(Tiled.MOD_ID, "tile_block"), "");
-    public static final ModelIdentifier TILE_BLOCK_MODEL_ITEM = new ModelIdentifier(Identifier.of(Tiled.MOD_ID, "tile_block"), "inventory");
+    private static final Identifier SMALL_TILE_BLOCK_ID = Identifier.of(Tiled.MOD_ID, "small_tile_block");
+    private static final Identifier TILE_BLOCK_ID = Identifier.of(Tiled.MOD_ID, "tile_block");
 
     @Override
     public void onInitializeModelLoader(Context pluginContext) {
-        // We want to add our model when the models are loaded
         pluginContext.modifyModelOnLoad().register((original, context) -> {
-            // This is called for every model that is loaded, so make sure we only target ours
             final ModelIdentifier id = context.topLevelId();
-            if (id != null && (id.equals(SMALL_TILE_BLOCK_MODEL) || id.equals(SMALL_TILE_BLOCK_MODEL_ITEM))) {
+            if (id == null) return original;
+
+            Identifier blockId = id.id();
+            if (blockId.equals(SMALL_TILE_BLOCK_ID)) {
                 return new SmallTileBlockModel();
-            } else if (id != null && (id.equals(TILE_BLOCK_MODEL) || id.equals(TILE_BLOCK_MODEL_ITEM))) {
+            } else if (blockId.equals(TILE_BLOCK_ID)) {
                 return new TileBlockModel();
-            }else {
-                // If we don't modify the model we just return the original as-is
-                return original;
             }
+            return original;
         });
     }
 }

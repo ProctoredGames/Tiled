@@ -28,7 +28,9 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -55,7 +57,29 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
             new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_yellow_tiles"))
     };
 
+    private static final Item[] SPRITE_ITEMS = new Item[]{
+            Items.BLACK_CONCRETE,
+            Items.BLUE_CONCRETE,
+            Items.BROWN_CONCRETE,
+            Items.CYAN_CONCRETE,
+            Items.GRAY_CONCRETE,
+            Items.GREEN_CONCRETE,
+            Items.LIGHT_BLUE_CONCRETE,
+            Items.LIGHT_GRAY_CONCRETE,
+            Items.LIME_CONCRETE,
+            Items.MAGENTA_CONCRETE,
+            Items.ORANGE_CONCRETE,
+            Items.PINK_CONCRETE,
+            Items.PURPLE_CONCRETE,
+            Items.RED_CONCRETE,
+            Items.WHITE_CONCRETE,
+            Items.YELLOW_CONCRETE
+    };
+
+    private static final int FALLBACK_SPRITE_INDEX = 14; // white
+
     private final Sprite[] sprites = new Sprite[SPRITE_IDS.length];
+    private final Map<Item, Sprite> itemToSprite = new HashMap<>();
 
     private static Identifier id(String path) {
         return Identifier.of(Tiled.MOD_ID, "block/" + path);
@@ -76,7 +100,9 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
             ModelBakeSettings settings
     ) {
         for (int i = 0; i < SPRITE_IDS.length; i++) {
-            sprites[i] = textureGetter.apply(SPRITE_IDS[i]);
+            Sprite sprite = textureGetter.apply(SPRITE_IDS[i]);
+            sprites[i] = sprite;
+            itemToSprite.put(SPRITE_ITEMS[i], sprite);
         }
         return this;
     }
@@ -95,45 +121,7 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
             tiles = be.getTiles();
         }
 
-        QuadEmitter emitter = context.getEmitter();
-
-        Sprite s0 = sprites[getTextureIdFromTile(tiles.slot0())];
-        Sprite s1 = sprites[getTextureIdFromTile(tiles.slot1())];
-        Sprite s2 = sprites[getTextureIdFromTile(tiles.slot2())];
-        Sprite s3 = sprites[getTextureIdFromTile(tiles.slot3())];
-        Sprite s4 = sprites[getTextureIdFromTile(tiles.slot4())];
-        Sprite s5 = sprites[getTextureIdFromTile(tiles.slot5())];
-        Sprite s6 = sprites[getTextureIdFromTile(tiles.slot6())];
-        Sprite s7 = sprites[getTextureIdFromTile(tiles.slot7())];
-        Sprite s8 = sprites[getTextureIdFromTile(tiles.slot8())];
-        Sprite s9 = sprites[getTextureIdFromTile(tiles.slot9())];
-        Sprite s10 = sprites[getTextureIdFromTile(tiles.slot10())];
-        Sprite s11 = sprites[getTextureIdFromTile(tiles.slot11())];
-        Sprite s12 = sprites[getTextureIdFromTile(tiles.slot12())];
-        Sprite s13 = sprites[getTextureIdFromTile(tiles.slot13())];
-        Sprite s14 = sprites[getTextureIdFromTile(tiles.slot14())];
-        Sprite s15 = sprites[getTextureIdFromTile(tiles.slot15())];
-
-
-        for (Direction dir : Direction.values()) {
-            emit(emitter, dir, 0f,   0.75f,   0.25f, 1.0f, s0);
-            emit(emitter, dir, 0.25f, 0.75f,   0.5f,   1.0f, s1);
-            emit(emitter, dir, 0.5f,   0.75f, 0.75f, 1.0f,   s2);
-            emit(emitter, dir, 0.75f, 0.75f, 1.0f,   1.0f,   s3);
-            emit(emitter, dir, 0f,   0.5f,   0.25f, 0.75f, s4);
-            emit(emitter, dir, 0.25f, 0.5f,   0.5f,   0.75f, s5);
-            emit(emitter, dir, 0.5f,   0.5f, 0.75f, 0.75f,   s6);
-            emit(emitter, dir, 0.75f, 0.5f, 1.0f,   0.75f,   s7);
-            emit(emitter, dir, 0f, 0.25f, 0.25f,   0.5f,   s8);
-            emit(emitter, dir, 0.25f, 0.25f, 0.5f,   0.5f,   s9);
-            emit(emitter, dir, 0.5f, 0.25f, 0.75f,   0.5f,   s10);
-            emit(emitter, dir, 0.75f, 0.25f, 1.0f,   0.5f,   s11);
-            emit(emitter, dir, 0f, 0.0f, 0.25f,   0.25f,   s12);
-            emit(emitter, dir, 0.25f, 0.0f, 0.5f,   0.25f,   s13);
-            emit(emitter, dir, 0.5f, 0.0f, 0.75f,   0.25f,   s14);
-            emit(emitter, dir, 0.75f, 0.0f, 1.0f,   0.25f,   s15);
-        }
-
+        emitTileQuads(context.getEmitter(), tiles);
     }
 
     @Override
@@ -143,44 +131,44 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
             RenderContext context
     ) {
         SmallTiles tiles = stack.getOrDefault(ModDataComponentTypes.SMALL_TILE_BLOCK_TILES, SmallTiles.DEFAULT);
+        emitTileQuads(context.getEmitter(), tiles);
+    }
 
-        QuadEmitter emitter = context.getEmitter();
-
-        Sprite s0 = sprites[getTextureIdFromTile(tiles.slot0())];
-        Sprite s1 = sprites[getTextureIdFromTile(tiles.slot1())];
-        Sprite s2 = sprites[getTextureIdFromTile(tiles.slot2())];
-        Sprite s3 = sprites[getTextureIdFromTile(tiles.slot3())];
-        Sprite s4 = sprites[getTextureIdFromTile(tiles.slot4())];
-        Sprite s5 = sprites[getTextureIdFromTile(tiles.slot5())];
-        Sprite s6 = sprites[getTextureIdFromTile(tiles.slot6())];
-        Sprite s7 = sprites[getTextureIdFromTile(tiles.slot7())];
-        Sprite s8 = sprites[getTextureIdFromTile(tiles.slot8())];
-        Sprite s9 = sprites[getTextureIdFromTile(tiles.slot9())];
-        Sprite s10 = sprites[getTextureIdFromTile(tiles.slot10())];
-        Sprite s11 = sprites[getTextureIdFromTile(tiles.slot11())];
-        Sprite s12 = sprites[getTextureIdFromTile(tiles.slot12())];
-        Sprite s13 = sprites[getTextureIdFromTile(tiles.slot13())];
-        Sprite s14 = sprites[getTextureIdFromTile(tiles.slot14())];
-        Sprite s15 = sprites[getTextureIdFromTile(tiles.slot15())];
-
+    private void emitTileQuads(QuadEmitter emitter, SmallTiles tiles) {
+        Sprite s0  = spriteFor(tiles.slot0());
+        Sprite s1  = spriteFor(tiles.slot1());
+        Sprite s2  = spriteFor(tiles.slot2());
+        Sprite s3  = spriteFor(tiles.slot3());
+        Sprite s4  = spriteFor(tiles.slot4());
+        Sprite s5  = spriteFor(tiles.slot5());
+        Sprite s6  = spriteFor(tiles.slot6());
+        Sprite s7  = spriteFor(tiles.slot7());
+        Sprite s8  = spriteFor(tiles.slot8());
+        Sprite s9  = spriteFor(tiles.slot9());
+        Sprite s10 = spriteFor(tiles.slot10());
+        Sprite s11 = spriteFor(tiles.slot11());
+        Sprite s12 = spriteFor(tiles.slot12());
+        Sprite s13 = spriteFor(tiles.slot13());
+        Sprite s14 = spriteFor(tiles.slot14());
+        Sprite s15 = spriteFor(tiles.slot15());
 
         for (Direction dir : Direction.values()) {
-            emit(emitter, dir, 0f,   0.75f,   0.25f, 1.0f, s0);
-            emit(emitter, dir, 0.25f, 0.75f,   0.5f,   1.0f, s1);
-            emit(emitter, dir, 0.5f,   0.75f, 0.75f, 1.0f,   s2);
-            emit(emitter, dir, 0.75f, 0.75f, 1.0f,   1.0f,   s3);
-            emit(emitter, dir, 0f,   0.5f,   0.25f, 0.75f, s4);
-            emit(emitter, dir, 0.25f, 0.5f,   0.5f,   0.75f, s5);
-            emit(emitter, dir, 0.5f,   0.5f, 0.75f, 0.75f,   s6);
-            emit(emitter, dir, 0.75f, 0.5f, 1.0f,   0.75f,   s7);
-            emit(emitter, dir, 0f, 0.25f, 0.25f,   0.5f,   s8);
-            emit(emitter, dir, 0.25f, 0.25f, 0.5f,   0.5f,   s9);
-            emit(emitter, dir, 0.5f, 0.25f, 0.75f,   0.5f,   s10);
-            emit(emitter, dir, 0.75f, 0.25f, 1.0f,   0.5f,   s11);
-            emit(emitter, dir, 0f, 0.0f, 0.25f,   0.25f,   s12);
-            emit(emitter, dir, 0.25f, 0.0f, 0.5f,   0.25f,   s13);
-            emit(emitter, dir, 0.5f, 0.0f, 0.75f,   0.25f,   s14);
-            emit(emitter, dir, 0.75f, 0.0f, 1.0f,   0.25f,   s15);
+            emit(emitter, dir, 0f,    0.75f, 0.25f, 1.0f,  s0);
+            emit(emitter, dir, 0.25f, 0.75f, 0.5f,  1.0f,  s1);
+            emit(emitter, dir, 0.5f,  0.75f, 0.75f, 1.0f,  s2);
+            emit(emitter, dir, 0.75f, 0.75f, 1.0f,  1.0f,  s3);
+            emit(emitter, dir, 0f,    0.5f,  0.25f, 0.75f, s4);
+            emit(emitter, dir, 0.25f, 0.5f,  0.5f,  0.75f, s5);
+            emit(emitter, dir, 0.5f,  0.5f,  0.75f, 0.75f, s6);
+            emit(emitter, dir, 0.75f, 0.5f,  1.0f,  0.75f, s7);
+            emit(emitter, dir, 0f,    0.25f, 0.25f, 0.5f,  s8);
+            emit(emitter, dir, 0.25f, 0.25f, 0.5f,  0.5f,  s9);
+            emit(emitter, dir, 0.5f,  0.25f, 0.75f, 0.5f,  s10);
+            emit(emitter, dir, 0.75f, 0.25f, 1.0f,  0.5f,  s11);
+            emit(emitter, dir, 0f,    0.0f,  0.25f, 0.25f, s12);
+            emit(emitter, dir, 0.25f, 0.0f,  0.5f,  0.25f, s13);
+            emit(emitter, dir, 0.5f,  0.0f,  0.75f, 0.25f, s14);
+            emit(emitter, dir, 0.75f, 0.0f,  1.0f,  0.25f, s15);
         }
     }
 
@@ -190,11 +178,11 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
             float x1, float y1, float x2, float y2,
             Sprite sprite
     ) {
-        if(dir == Direction.UP || dir == Direction.DOWN){
-            x1=1-x1;
-            x2=1-x2;
-            y1=1-y1;
-            y2=1-y2;
+        if (dir == Direction.UP || dir == Direction.DOWN) {
+            x1 = 1 - x1;
+            x2 = 1 - x2;
+            y1 = 1 - y1;
+            y2 = 1 - y2;
         }
         emitter.square(dir, x1, y1, x2, y2, 0f);
         emitter.spriteBake(sprite, MutableQuadView.BAKE_LOCK_UV);
@@ -202,33 +190,12 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
         emitter.emit();
     }
 
-    private int getTextureIdFromTile(Optional<Item> tile) {
-        if (tile.isEmpty()) return 0;
-
-        Item item = tile.get();
-        if (item == Items.BLACK_CONCRETE) return 0;
-        if (item == Items.BLUE_CONCRETE) return 1;
-        if (item == Items.BROWN_CONCRETE) return 2;
-        if (item == Items.CYAN_CONCRETE) return 3;
-        if (item == Items.GRAY_CONCRETE) return 4;
-        if (item == Items.GREEN_CONCRETE) return 5;
-        if (item == Items.LIGHT_BLUE_CONCRETE) return 6;
-        if (item == Items.LIGHT_GRAY_CONCRETE) return 7;
-        if (item == Items.LIME_CONCRETE) return 8;
-        if (item == Items.MAGENTA_CONCRETE) return 9;
-        if (item == Items.ORANGE_CONCRETE) return 10;
-        if (item == Items.PINK_CONCRETE) return 11;
-        if (item == Items.PURPLE_CONCRETE) return 12;
-        if (item == Items.RED_CONCRETE) return 13;
-        if (item == Items.WHITE_CONCRETE) return 14;
-        if (item == Items.YELLOW_CONCRETE) return 15;
-        return 0; // fallback
+    private Sprite spriteFor(Optional<Item> tile) {
+        return tile.map(itemToSprite::get).orElse(sprites[FALLBACK_SPRITE_INDEX]);
     }
 
-    @Override public Sprite getParticleSprite() {
-        //we have no way to get the tile data, so just use white (the inside of the tile block)
-        return sprites[14];
-    }
+    //we have no way to get the tile data, so just use white
+    @Override public Sprite getParticleSprite() { return sprites[FALLBACK_SPRITE_INDEX]; }
 
     @Override public List<BakedQuad> getQuads(BlockState s, Direction d, Random r) { return List.of(); }
     @Override public boolean useAmbientOcclusion() { return true; }

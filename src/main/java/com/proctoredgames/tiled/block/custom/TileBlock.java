@@ -35,19 +35,12 @@ public class TileBlock extends BlockWithEntity implements BlockEntityProvider {
     public static final MapCodec<TileBlock> CODEC = createCodec(TileBlock::new);
     public static final Identifier TILE_BLOCK_DYNAMIC_DROP_ID = Identifier.of(Tiled.MOD_ID, "tile_block");
 
-    private static final DirectionProperty FACING;
-
 
     @Override
     protected MapCodec<TileBlock> getCodec() { return CODEC; }
 
     public TileBlock(Settings settings) {
         super(settings);
-        this.setDefaultState((BlockState)(this.stateManager.getDefaultState()).with(FACING, Direction.NORTH));
-    }
-
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return (BlockState)this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing());
     }
 
     @Nullable
@@ -72,10 +65,6 @@ public class TileBlock extends BlockWithEntity implements BlockEntityProvider {
         }
     }
 
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
-    }
-
     @Override
     public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
         return world.getBlockEntity(pos) instanceof TileBlockBE blockEntity
@@ -94,7 +83,4 @@ public class TileBlock extends BlockWithEntity implements BlockEntityProvider {
         return super.getDroppedStacks(state, builder);
     }
 
-    static {
-        FACING = Properties.HORIZONTAL_FACING;
-    }
 }
