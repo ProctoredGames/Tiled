@@ -32,7 +32,9 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -59,7 +61,35 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("yellow_tiles"))
     };
 
+    private static final Item[] SPRITE_ITEMS = new Item[]{
+            Items.BLACK_CONCRETE,
+            Items.BLUE_CONCRETE,
+            Items.BROWN_CONCRETE,
+            Items.CYAN_CONCRETE,
+            Items.GRAY_CONCRETE,
+            Items.GREEN_CONCRETE,
+            Items.LIGHT_BLUE_CONCRETE,
+            Items.LIGHT_GRAY_CONCRETE,
+            Items.LIME_CONCRETE,
+            Items.MAGENTA_CONCRETE,
+            Items.ORANGE_CONCRETE,
+            Items.PINK_CONCRETE,
+            Items.PURPLE_CONCRETE,
+            Items.RED_CONCRETE,
+            Items.WHITE_CONCRETE,
+            Items.YELLOW_CONCRETE
+    };
+
+    private static final SpriteIdentifier WHITE_CONCRETE_SPRITE_ID = new SpriteIdentifier(
+            PlayerScreenHandler.BLOCK_ATLAS_TEXTURE,
+            new Identifier("minecraft", "block/white_concrete")
+    );
+
+    private static final int FALLBACK_SPRITE_INDEX = 14; // white tiles
+
     private final Sprite[] sprites = new Sprite[SPRITE_IDS.length];
+    private final Map<Item, Sprite> itemToSprite = new HashMap<>();
+    private Sprite whiteConcreteSprite;
 
     private static Identifier id(String path) {
         return new Identifier(Tiled.MOD_ID, "block/" + path);
@@ -83,8 +113,11 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             Identifier id
     ) {
         for (int i = 0; i < SPRITE_IDS.length; i++) {
-            sprites[i] = textureGetter.apply(SPRITE_IDS[i]);
+            Sprite sprite = textureGetter.apply(SPRITE_IDS[i]);
+            sprites[i] = sprite;
+            itemToSprite.put(SPRITE_ITEMS[i], sprite);
         }
+        whiteConcreteSprite = textureGetter.apply(WHITE_CONCRETE_SPRITE_ID);
         return this;
     }
 
@@ -104,19 +137,7 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             tiles = be.getTiles();
         }
 
-        QuadEmitter emitter = context.getEmitter();
-
-        Sprite tl = sprites[getTextureIdFromTile(tiles.top_left())];
-        Sprite tr = sprites[getTextureIdFromTile(tiles.top_right())];
-        Sprite bl = sprites[getTextureIdFromTile(tiles.bottom_left())];
-        Sprite br = sprites[getTextureIdFromTile(tiles.bottom_right())];
-
-        for (Direction dir : Direction.values()) {
-            emit(emitter, dir, 0f,   0.5f, 0.5f, 1.0f, tl);
-            emit(emitter, dir, 0.5f, 0.5f, 1.0f, 1.0f, tr);
-            emit(emitter, dir, 0.0f, 0.0f, 0.5f, 0.5f, bl);
-            emit(emitter, dir, 0.5f, 0.0f, 1.0f, 0.5f, br);
-        }
+        emitTileQuads(context.getEmitter(), tiles);
     }
 
     @Override
@@ -131,12 +152,14 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             tiles = Tiles.fromNbt(blockEntityTag);
         }
 
-        QuadEmitter emitter = context.getEmitter();
+        emitTileQuads(context.getEmitter(), tiles);
+    }
 
-        Sprite tl = sprites[getTextureIdFromTile(tiles.top_left())];
-        Sprite tr = sprites[getTextureIdFromTile(tiles.top_right())];
-        Sprite bl = sprites[getTextureIdFromTile(tiles.bottom_left())];
-        Sprite br = sprites[getTextureIdFromTile(tiles.bottom_right())];
+    private void emitTileQuads(QuadEmitter emitter, Tiles tiles) {
+        Sprite tl = spriteFor(tiles.top_left());
+        Sprite tr = spriteFor(tiles.top_right());
+        Sprite bl = spriteFor(tiles.bottom_left());
+        Sprite br = spriteFor(tiles.bottom_right());
 
         for (Direction dir : Direction.values()) {
             emit(emitter, dir, 0f,   0.5f, 0.5f, 1.0f, tl);
@@ -164,29 +187,11 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
         emitter.emit();
     }
 
-    private int getTextureIdFromTile(Optional<Item> tile) {
-        if (tile.isEmpty()) return 0;
-        Item item = tile.get();
-        if (item == Items.BLACK_CONCRETE)      return 0;
-        if (item == Items.BLUE_CONCRETE)       return 1;
-        if (item == Items.BROWN_CONCRETE)      return 2;
-        if (item == Items.CYAN_CONCRETE)       return 3;
-        if (item == Items.GRAY_CONCRETE)       return 4;
-        if (item == Items.GREEN_CONCRETE)      return 5;
-        if (item == Items.LIGHT_BLUE_CONCRETE) return 6;
-        if (item == Items.LIGHT_GRAY_CONCRETE) return 7;
-        if (item == Items.LIME_CONCRETE)       return 8;
-        if (item == Items.MAGENTA_CONCRETE)    return 9;
-        if (item == Items.ORANGE_CONCRETE)     return 10;
-        if (item == Items.PINK_CONCRETE)       return 11;
-        if (item == Items.PURPLE_CONCRETE)     return 12;
-        if (item == Items.RED_CONCRETE)        return 13;
-        if (item == Items.WHITE_CONCRETE)      return 14;
-        if (item == Items.YELLOW_CONCRETE)     return 15;
-        return 0;
+    private Sprite spriteFor(Optional<Item> tile) {
+        return tile.map(itemToSprite::get).orElse(sprites[FALLBACK_SPRITE_INDEX]);
     }
 
-    @Override public Sprite getParticleSprite() { return sprites[14]; }
+    @Override public Sprite getParticleSprite() { return whiteConcreteSprite; }
     @Override public List<BakedQuad> getQuads(BlockState s, Direction d, Random r) { return List.of(); }
     @Override public boolean useAmbientOcclusion() { return true; }
     @Override public boolean isBuiltin() { return false; }
