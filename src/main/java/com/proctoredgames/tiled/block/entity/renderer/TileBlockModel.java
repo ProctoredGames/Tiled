@@ -76,10 +76,16 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             Items.YELLOW_CONCRETE
     };
 
-    private static final int FALLBACK_SPRITE_INDEX = 14; // white
+    private static final SpriteIdentifier WHITE_CONCRETE_SPRITE_ID = new SpriteIdentifier(
+            PlayerScreenHandler.BLOCK_ATLAS_TEXTURE,
+            Identifier.ofVanilla("block/white_concrete")
+    );
+
+    private static final int FALLBACK_SPRITE_INDEX = 14; // white tiles
 
     private final Sprite[] sprites = new Sprite[SPRITE_IDS.length];
     private final Map<Item, Sprite> itemToSprite = new HashMap<>();
+    private Sprite whiteConcreteSprite;
 
     private static Identifier id(String path) {
         return Identifier.of(Tiled.MOD_ID, "block/" + path);
@@ -104,6 +110,7 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             sprites[i] = sprite;
             itemToSprite.put(SPRITE_ITEMS[i], sprite);
         }
+        whiteConcreteSprite = textureGetter.apply(WHITE_CONCRETE_SPRITE_ID);
         return this;
     }
 
@@ -141,7 +148,7 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
         Sprite br = spriteFor(tiles.bottom_right());
 
         for (Direction dir : Direction.values()) {
-            emit(emitter, dir, 0f,  0.5f, 0.5f, 1.0f, tl);
+            emit(emitter, dir, 0f,   0.5f, 0.5f, 1.0f, tl);
             emit(emitter, dir, 0.5f, 0.5f, 1.0f, 1.0f, tr);
             emit(emitter, dir, 0.0f, 0.0f, 0.5f, 0.5f, bl);
             emit(emitter, dir, 0.5f, 0.0f, 1.0f, 0.5f, br);
@@ -170,9 +177,7 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
         return tile.map(itemToSprite::get).orElse(sprites[FALLBACK_SPRITE_INDEX]);
     }
 
-    //we have no way to get the tile data, so just use white
-    @Override public Sprite getParticleSprite() { return sprites[FALLBACK_SPRITE_INDEX]; }
-
+    @Override public Sprite getParticleSprite() { return whiteConcreteSprite; }
     @Override public List<BakedQuad> getQuads(BlockState s, Direction d, Random r) { return List.of(); }
     @Override public boolean useAmbientOcclusion() { return true; }
     @Override public boolean isBuiltin() { return false; }
