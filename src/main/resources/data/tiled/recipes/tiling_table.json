@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "#": {
-      "tag": "minecraft:bricks"
+      "item": "minecraft:bricks"
     },
     "@": {
       "item": "minecraft:copper_ingot"
