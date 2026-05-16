@@ -3,17 +3,15 @@
   "category": "misc",
   "key": {
     "#": {
-      "item": "minecraft:polished_andesite"
+      "item": "minecraft:bricks"
     },
     "@": {
-      "tag": "tiled:concrete"
-    },
-    "&": {
-      "item": "minecraft:iron_ingot"
+      "item": "minecraft:copper_ingot"
     }
   },
   "pattern": [
-    "@&",
+    "@@",
+    "##",
     "##"
   ],
   "result": {
