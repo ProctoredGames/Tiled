@@ -19,6 +19,12 @@ public class ModBlocks {
     public static final Block TILE_BLOCK = registerBlock("tile_block",
             new TileBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE)));
 
+    public static final Block SMALL_TILES = registerBlock("small_tiles",
+            new SmallTileBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE)));
+
+    public static final Block TILES = registerBlock("tiles",
+            new TileBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE)));
+
     public static final Block TILING_TABLE = registerBlock("tiling_table",
             new TilingTableBlock(AbstractBlock.Settings.copy(Blocks.POLISHED_ANDESITE)));
 
