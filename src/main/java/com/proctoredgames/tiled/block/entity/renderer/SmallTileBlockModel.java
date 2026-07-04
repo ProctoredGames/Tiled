@@ -3,6 +3,7 @@ package com.proctoredgames.tiled.block.entity.renderer;
 import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
+import com.proctoredgames.tiled.block.entity.records.SmallTilesPerFace;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -38,24 +39,23 @@ import java.util.function.Supplier;
 @Environment(EnvType.CLIENT)
 public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBakedModel {
 
-    // Placeholder textures while the tile art is reworked: use each color's concrete texture
     private static final SpriteIdentifier[] SPRITE_IDS = new SpriteIdentifier[]{
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/black_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/blue_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/brown_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/cyan_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/gray_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/green_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/light_blue_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/light_gray_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/lime_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/magenta_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/orange_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/pink_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/purple_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/red_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/white_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/yellow_concrete"))
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_black_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_blue_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_brown_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_cyan_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_gray_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_green_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_light_blue_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_light_gray_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_lime_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_magenta_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_orange_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_pink_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_purple_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_red_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_white_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_yellow_tiles"))
     };
 
     private static final Item[] SPRITE_ITEMS = new Item[]{
@@ -123,13 +123,14 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
             Supplier<Random> random,
             RenderContext context
     ) {
-        SmallTiles tiles = SmallTiles.DEFAULT;
-
+        QuadEmitter emitter = context.getEmitter();
         if (world.getBlockEntity(pos) instanceof SmallTileBlockBE be) {
-            tiles = be.getTiles();
+            for (Direction dir : Direction.values()) {
+                emitFaceQuads(emitter, dir, be.getFace(dir));
+            }
+        } else {
+            emitTileQuads(emitter, SmallTiles.DEFAULT);
         }
-
-        emitTileQuads(context.getEmitter(), tiles);
     }
 
     @Override
@@ -138,46 +139,40 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
             Supplier<Random> random,
             RenderContext context
     ) {
-        SmallTiles tiles = stack.getOrDefault(ModDataComponentTypes.SMALL_TILE_BLOCK_TILES, SmallTiles.DEFAULT);
-        emitTileQuads(context.getEmitter(), tiles);
+        QuadEmitter emitter = context.getEmitter();
+        SmallTilesPerFace perFace = stack.get(ModDataComponentTypes.SMALL_TILE_BLOCK_FACE_TILES);
+        if (perFace != null) {
+            for (Direction dir : Direction.values()) {
+                emitFaceQuads(emitter, dir, perFace.get(dir));
+            }
+        } else {
+            emitTileQuads(emitter, stack.getOrDefault(ModDataComponentTypes.SMALL_TILE_BLOCK_TILES, SmallTiles.DEFAULT));
+        }
     }
 
     private void emitTileQuads(QuadEmitter emitter, SmallTiles tiles) {
-        Sprite s0  = spriteFor(tiles.slot0());
-        Sprite s1  = spriteFor(tiles.slot1());
-        Sprite s2  = spriteFor(tiles.slot2());
-        Sprite s3  = spriteFor(tiles.slot3());
-        Sprite s4  = spriteFor(tiles.slot4());
-        Sprite s5  = spriteFor(tiles.slot5());
-        Sprite s6  = spriteFor(tiles.slot6());
-        Sprite s7  = spriteFor(tiles.slot7());
-        Sprite s8  = spriteFor(tiles.slot8());
-        Sprite s9  = spriteFor(tiles.slot9());
-        Sprite s10 = spriteFor(tiles.slot10());
-        Sprite s11 = spriteFor(tiles.slot11());
-        Sprite s12 = spriteFor(tiles.slot12());
-        Sprite s13 = spriteFor(tiles.slot13());
-        Sprite s14 = spriteFor(tiles.slot14());
-        Sprite s15 = spriteFor(tiles.slot15());
-
         for (Direction dir : Direction.values()) {
-            emit(emitter, dir, 0f,    0.75f, 0.25f, 1.0f,  s0);
-            emit(emitter, dir, 0.25f, 0.75f, 0.5f,  1.0f,  s1);
-            emit(emitter, dir, 0.5f,  0.75f, 0.75f, 1.0f,  s2);
-            emit(emitter, dir, 0.75f, 0.75f, 1.0f,  1.0f,  s3);
-            emit(emitter, dir, 0f,    0.5f,  0.25f, 0.75f, s4);
-            emit(emitter, dir, 0.25f, 0.5f,  0.5f,  0.75f, s5);
-            emit(emitter, dir, 0.5f,  0.5f,  0.75f, 0.75f, s6);
-            emit(emitter, dir, 0.75f, 0.5f,  1.0f,  0.75f, s7);
-            emit(emitter, dir, 0f,    0.25f, 0.25f, 0.5f,  s8);
-            emit(emitter, dir, 0.25f, 0.25f, 0.5f,  0.5f,  s9);
-            emit(emitter, dir, 0.5f,  0.25f, 0.75f, 0.5f,  s10);
-            emit(emitter, dir, 0.75f, 0.25f, 1.0f,  0.5f,  s11);
-            emit(emitter, dir, 0f,    0.0f,  0.25f, 0.25f, s12);
-            emit(emitter, dir, 0.25f, 0.0f,  0.5f,  0.25f, s13);
-            emit(emitter, dir, 0.5f,  0.0f,  0.75f, 0.25f, s14);
-            emit(emitter, dir, 0.75f, 0.0f,  1.0f,  0.25f, s15);
+            emitFaceQuads(emitter, dir, tiles);
         }
+    }
+
+    private void emitFaceQuads(QuadEmitter emitter, Direction dir, SmallTiles tiles) {
+        emit(emitter, dir, 0f,    0.75f, 0.25f, 1.0f,  spriteFor(tiles.slot0()));
+        emit(emitter, dir, 0.25f, 0.75f, 0.5f,  1.0f,  spriteFor(tiles.slot1()));
+        emit(emitter, dir, 0.5f,  0.75f, 0.75f, 1.0f,  spriteFor(tiles.slot2()));
+        emit(emitter, dir, 0.75f, 0.75f, 1.0f,  1.0f,  spriteFor(tiles.slot3()));
+        emit(emitter, dir, 0f,    0.5f,  0.25f, 0.75f, spriteFor(tiles.slot4()));
+        emit(emitter, dir, 0.25f, 0.5f,  0.5f,  0.75f, spriteFor(tiles.slot5()));
+        emit(emitter, dir, 0.5f,  0.5f,  0.75f, 0.75f, spriteFor(tiles.slot6()));
+        emit(emitter, dir, 0.75f, 0.5f,  1.0f,  0.75f, spriteFor(tiles.slot7()));
+        emit(emitter, dir, 0f,    0.25f, 0.25f, 0.5f,  spriteFor(tiles.slot8()));
+        emit(emitter, dir, 0.25f, 0.25f, 0.5f,  0.5f,  spriteFor(tiles.slot9()));
+        emit(emitter, dir, 0.5f,  0.25f, 0.75f, 0.5f,  spriteFor(tiles.slot10()));
+        emit(emitter, dir, 0.75f, 0.25f, 1.0f,  0.5f,  spriteFor(tiles.slot11()));
+        emit(emitter, dir, 0f,    0.0f,  0.25f, 0.25f, spriteFor(tiles.slot12()));
+        emit(emitter, dir, 0.25f, 0.0f,  0.5f,  0.25f, spriteFor(tiles.slot13()));
+        emit(emitter, dir, 0.5f,  0.0f,  0.75f, 0.25f, spriteFor(tiles.slot14()));
+        emit(emitter, dir, 0.75f, 0.0f,  1.0f,  0.25f, spriteFor(tiles.slot15()));
     }
 
     private static void emit(

@@ -48,6 +48,10 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
 
     private boolean layerMode = false;
 
+    // Per-slot amounts the current preview will consume when taken,
+    // recomputed by updateResult whenever the inputs change
+    private int[] pendingConsumption;
+
     public TilingTableBE(BlockPos pos, BlockState state) {
         super(ModBlockEntities.TILING_TABLE_BE, pos, state);
         this.propertyDelegate = new PropertyDelegate() {
@@ -114,18 +118,33 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
     public void updateResult(World world) {
         TilingTableRecipeInput recipeInput = new TilingTableRecipeInput(getInputInventory());
         ItemStack result = ItemStack.EMPTY;
+        int[] consumption = null;
 
         // Check the single-concrete item recipe, then the small tile block recipe (4x4), then the tile block recipe (2x2)
         Optional<RecipeEntry<TilingTableSmallTileItemRecipe>> smallTileItemRecipe = getSmallTileItemRecipe();
         Optional<RecipeEntry<TilingTableSmallTileBlockRecipe>> smallTileRecipe = getSmallTileRecipe();
         if (smallTileItemRecipe.isPresent()) {
-            result = smallTileItemRecipe.get().value().craft(recipeInput, world.getRegistryManager());
+            TilingTableSmallTileItemRecipe recipe = smallTileItemRecipe.get().value();
+            result = recipe.craft(recipeInput, world.getRegistryManager());
+            consumption = recipe.computeConsumption(recipeInput);
         } else if (smallTileRecipe.isPresent()) {
-            result = smallTileRecipe.get().value().craft(recipeInput, world.getRegistryManager());
+            TilingTableSmallTileBlockRecipe recipe = smallTileRecipe.get().value();
+            int count = recipe.computeOutputCount(recipeInput, layerMode);
+            if (count > 0) {
+                result = recipe.craft(recipeInput, world.getRegistryManager());
+                result.setCount(count);
+                consumption = recipe.computeConsumption(recipeInput, layerMode);
+            }
         } else {
             Optional<RecipeEntry<TilingTableTileBlockRecipe>> tileRecipe = getTileBlockRecipe();
             if (tileRecipe.isPresent()) {
-                result = tileRecipe.get().value().craft(recipeInput, world.getRegistryManager());
+                TilingTableTileBlockRecipe recipe = tileRecipe.get().value();
+                int count = recipe.computeOutputCount(recipeInput, layerMode);
+                if (count > 0) {
+                    result = recipe.craft(recipeInput, world.getRegistryManager());
+                    result.setCount(count);
+                    consumption = recipe.computeConsumption(recipeInput, layerMode);
+                }
             }
         }
 
@@ -133,6 +152,7 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
             result = toLayerStack(result);
         }
 
+        this.pendingConsumption = consumption;
         inventory.set(OUTPUT_SLOT, result);
         markDirty();
     }
@@ -155,8 +175,21 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
     }
 
     public void consumeIngredients(World world) {
-        for (int i = 0; i < 16; i++) {
-            removeStack(i, 1);
+        if (pendingConsumption == null) {
+            // Inventory restored from NBT without a preview update; recompute
+            // the consumption plan from the current inputs
+            updateResult(world);
+        }
+        if (pendingConsumption != null) {
+            for (int i = 0; i < 16 && i < pendingConsumption.length; i++) {
+                if (pendingConsumption[i] > 0) {
+                    removeStack(i, pendingConsumption[i]);
+                }
+            }
+        } else {
+            for (int i = 0; i < 16; i++) {
+                removeStack(i, 1);
+            }
         }
         updateResult(world);
     }

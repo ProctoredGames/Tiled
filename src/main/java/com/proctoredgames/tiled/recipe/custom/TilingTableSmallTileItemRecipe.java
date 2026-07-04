@@ -42,6 +42,15 @@ public record TilingTableSmallTileItemRecipe(Ingredient inputItem, ItemStack out
         return new ItemStack(smallTile, OUTPUT_COUNT);
     }
 
+    public int[] computeConsumption(TilingTableRecipeInput input) {
+        int[] amounts = new int[input.getSize()];
+        int slot = findConcreteSlot(input);
+        if (slot != -1) {
+            amounts[slot] = 1;
+        }
+        return amounts;
+    }
+
     // Matches exactly one concrete stack alone in the grid, so this recipe
     // never competes with the 4x4 small tile block recipe
     private int findConcreteSlot(TilingTableRecipeInput input) {

@@ -37,7 +37,7 @@ public class TilingTableScreen extends HandledScreen<TilingTableScreenHandler> {
             if (this.client != null && this.client.interactionManager != null) {
                 this.client.interactionManager.clickButton(this.handler.syncId, TilingTableBE.LAYER_MODE_PROPERTY);
             }
-        }).dimensions(this.x + 121, this.y + 46, 48, 16).build());
+        }).dimensions(this.x + 110, this.y + 50, 48, 16).build());
     }
 
     private Text getModeLabel() {

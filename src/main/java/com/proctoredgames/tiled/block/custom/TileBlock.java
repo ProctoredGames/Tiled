@@ -57,6 +57,11 @@ public class TileBlock extends BlockWithEntity implements BlockEntityProvider {
     @Override
     public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType options) {
         super.appendTooltip(stack, context, tooltip, options);
+        if (stack.contains(ModDataComponentTypes.TILE_BLOCK_FACE_TILES)) {
+            tooltip.add(ScreenTexts.EMPTY);
+            tooltip.add(Text.translatable("tooltip.tiled.mixed_faces").formatted(Formatting.GRAY));
+            return;
+        }
         Tiles tiles = stack.getOrDefault(ModDataComponentTypes.TILE_BLOCK_TILES, Tiles.DEFAULT);
         if (!tiles.equals(Tiles.DEFAULT)) {
             tooltip.add(ScreenTexts.EMPTY);

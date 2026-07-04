@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:block/pink_concrete"
+    "layer0": "tiled:item/small_pink_tile"
   }
 }

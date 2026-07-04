@@ -43,24 +43,23 @@ public class TilesBlockModel implements UnbakedModel, BakedModel, FabricBakedMod
     // Thickness of the plate shown for the item form (1/16)
     private static final float ITEM_PLATE_DEPTH = 1f - 0.0625f;
 
-    // Placeholder textures while the tile art is reworked: use each color's concrete texture
     private static final SpriteIdentifier[] SPRITE_IDS = new SpriteIdentifier[]{
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/black_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/blue_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/brown_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/cyan_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/gray_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/green_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/light_blue_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/light_gray_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/lime_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/magenta_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/orange_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/pink_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/purple_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/red_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/white_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/yellow_concrete"))
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("black_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("blue_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("brown_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("cyan_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("gray_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("green_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("light_blue_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("light_gray_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("lime_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("magenta_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("orange_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("pink_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("purple_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("red_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("white_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("yellow_tiles"))
     };
 
     private static final Item[] SPRITE_ITEMS = new Item[]{

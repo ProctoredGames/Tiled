@@ -46,5 +46,7 @@
   "container.tiling_table": "Tiling Table",
 
   "gui.tiled.tiling_table.mode.blocks": "Blocks",
-  "gui.tiled.tiling_table.mode.layers": "Layers"
+  "gui.tiled.tiling_table.mode.layers": "Layers",
+
+  "tooltip.tiled.mixed_faces": "Mixed Tile Faces"
 }

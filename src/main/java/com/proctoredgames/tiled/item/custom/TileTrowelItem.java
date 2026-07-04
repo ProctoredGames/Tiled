@@ -44,25 +44,27 @@ public class TileTrowelItem extends Item {
         Item offhandItem = offhand.getItem();
 
         if (blockEntity instanceof TileBlockBE tileBlock && TileColors.isTileItem(offhandItem)) {
-            List<Item> tiles = new ArrayList<>(tileBlock.getTiles().stream());
-            int slot = cellIndex(context, context.getSide(), 2);
+            Direction face = context.getSide();
+            List<Item> tiles = new ArrayList<>(tileBlock.getFace(face).stream());
+            int slot = cellIndex(context, face, 2);
             Item newTile = TileColors.concreteForTile(offhandItem);
             if (tiles.get(slot) == newTile) return ActionResult.PASS;
             if (world.isClient()) return ActionResult.SUCCESS;
             Item replaced = tiles.set(slot, newTile);
-            tileBlock.setTiles(new Tiles(tiles.get(0), tiles.get(1), tiles.get(2), tiles.get(3)));
+            tileBlock.setFace(face, new Tiles(tiles.get(0), tiles.get(1), tiles.get(2), tiles.get(3)));
             finishSwap(context, player, offhand, TileColors.tileForConcrete(replaced));
             return ActionResult.SUCCESS;
         }
 
         if (blockEntity instanceof SmallTileBlockBE smallTileBlock && TileColors.isSmallTileItem(offhandItem)) {
-            List<Item> tiles = new ArrayList<>(smallTileBlock.getTiles().stream());
-            int slot = cellIndex(context, context.getSide(), 4);
+            Direction face = context.getSide();
+            List<Item> tiles = new ArrayList<>(smallTileBlock.getFace(face).stream());
+            int slot = cellIndex(context, face, 4);
             Item newTile = TileColors.concreteForSmallTile(offhandItem);
             if (tiles.get(slot) == newTile) return ActionResult.PASS;
             if (world.isClient()) return ActionResult.SUCCESS;
             Item replaced = tiles.set(slot, newTile);
-            smallTileBlock.setTiles(smallTilesOf(tiles));
+            smallTileBlock.setFace(face, smallTilesOf(tiles));
             finishSwap(context, player, offhand, TileColors.smallTileForConcrete(replaced));
             return ActionResult.SUCCESS;
         }

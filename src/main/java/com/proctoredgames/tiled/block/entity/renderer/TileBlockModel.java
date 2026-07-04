@@ -3,6 +3,7 @@ package com.proctoredgames.tiled.block.entity.renderer;
 import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
 import com.proctoredgames.tiled.block.entity.records.Tiles;
+import com.proctoredgames.tiled.block.entity.records.TilesPerFace;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -38,24 +39,23 @@ import java.util.function.Supplier;
 @Environment(EnvType.CLIENT)
 public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedModel {
 
-    // Placeholder textures while the tile art is reworked: use each color's concrete texture
     private static final SpriteIdentifier[] SPRITE_IDS = new SpriteIdentifier[]{
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/black_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/blue_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/brown_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/cyan_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/gray_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/green_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/light_blue_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/light_gray_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/lime_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/magenta_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/orange_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/pink_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/purple_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/red_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/white_concrete")),
-            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, Identifier.ofVanilla("block/yellow_concrete"))
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("black_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("blue_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("brown_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("cyan_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("gray_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("green_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("light_blue_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("light_gray_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("lime_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("magenta_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("orange_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("pink_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("purple_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("red_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("white_tiles")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("yellow_tiles"))
     };
 
     private static final Item[] SPRITE_ITEMS = new Item[]{
@@ -123,13 +123,14 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             Supplier<Random> random,
             RenderContext context
     ) {
-        Tiles tiles = Tiles.DEFAULT;
-
+        QuadEmitter emitter = context.getEmitter();
         if (world.getBlockEntity(pos) instanceof TileBlockBE be) {
-            tiles = be.getTiles();
+            for (Direction dir : Direction.values()) {
+                emitFaceQuads(emitter, dir, be.getFace(dir));
+            }
+        } else {
+            emitTileQuads(emitter, Tiles.DEFAULT);
         }
-
-        emitTileQuads(context.getEmitter(), tiles);
     }
 
     @Override
@@ -138,22 +139,28 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             Supplier<Random> random,
             RenderContext context
     ) {
-        Tiles tiles = stack.getOrDefault(ModDataComponentTypes.TILE_BLOCK_TILES, Tiles.DEFAULT);
-        emitTileQuads(context.getEmitter(), tiles);
+        QuadEmitter emitter = context.getEmitter();
+        TilesPerFace perFace = stack.get(ModDataComponentTypes.TILE_BLOCK_FACE_TILES);
+        if (perFace != null) {
+            for (Direction dir : Direction.values()) {
+                emitFaceQuads(emitter, dir, perFace.get(dir));
+            }
+        } else {
+            emitTileQuads(emitter, stack.getOrDefault(ModDataComponentTypes.TILE_BLOCK_TILES, Tiles.DEFAULT));
+        }
     }
 
     private void emitTileQuads(QuadEmitter emitter, Tiles tiles) {
-        Sprite tl = spriteFor(tiles.top_left());
-        Sprite tr = spriteFor(tiles.top_right());
-        Sprite bl = spriteFor(tiles.bottom_left());
-        Sprite br = spriteFor(tiles.bottom_right());
-
         for (Direction dir : Direction.values()) {
-            emit(emitter, dir, 0f,   0.5f, 0.5f, 1.0f, tl);
-            emit(emitter, dir, 0.5f, 0.5f, 1.0f, 1.0f, tr);
-            emit(emitter, dir, 0.0f, 0.0f, 0.5f, 0.5f, bl);
-            emit(emitter, dir, 0.5f, 0.0f, 1.0f, 0.5f, br);
+            emitFaceQuads(emitter, dir, tiles);
         }
+    }
+
+    private void emitFaceQuads(QuadEmitter emitter, Direction dir, Tiles tiles) {
+        emit(emitter, dir, 0f,   0.5f, 0.5f, 1.0f, spriteFor(tiles.top_left()));
+        emit(emitter, dir, 0.5f, 0.5f, 1.0f, 1.0f, spriteFor(tiles.top_right()));
+        emit(emitter, dir, 0.0f, 0.0f, 0.5f, 0.5f, spriteFor(tiles.bottom_left()));
+        emit(emitter, dir, 0.5f, 0.0f, 1.0f, 0.5f, spriteFor(tiles.bottom_right()));
     }
 
     private static void emit(
