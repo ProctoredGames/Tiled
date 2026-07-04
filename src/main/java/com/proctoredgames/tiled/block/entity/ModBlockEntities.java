@@ -3,7 +3,9 @@ package com.proctoredgames.tiled.block.entity;
 import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.block.ModBlocks;
 import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
+import com.proctoredgames.tiled.block.entity.custom.SmallTilesBE;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
+import com.proctoredgames.tiled.block.entity.custom.TilesBE;
 
 import com.proctoredgames.tiled.block.entity.custom.TilingTableBE;
 import net.minecraft.block.entity.BlockEntityType;
@@ -20,6 +22,14 @@ public class ModBlockEntities {
     public static final BlockEntityType<TileBlockBE> TILE_BLOCK_BE =
             Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(Tiled.MOD_ID, "tile_block_be"),
                     BlockEntityType.Builder.create(TileBlockBE::new, ModBlocks.TILE_BLOCK).build(null));
+
+    public static final BlockEntityType<SmallTilesBE> SMALL_TILES_BE =
+            Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(Tiled.MOD_ID, "small_tiles_be"),
+                    BlockEntityType.Builder.create(SmallTilesBE::new, ModBlocks.SMALL_TILES).build(null));
+
+    public static final BlockEntityType<TilesBE> TILES_BE =
+            Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(Tiled.MOD_ID, "tiles_be"),
+                    BlockEntityType.Builder.create(TilesBE::new, ModBlocks.TILES).build(null));
 
     public static final BlockEntityType<TilingTableBE> TILING_TABLE_BE =
             Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(Tiled.MOD_ID, "tiling_table_be"),

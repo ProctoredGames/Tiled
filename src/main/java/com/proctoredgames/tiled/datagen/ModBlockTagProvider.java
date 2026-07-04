@@ -18,6 +18,8 @@ public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
         getOrCreateTagBuilder(BlockTags.PICKAXE_MINEABLE)
                 .add(ModBlocks.SMALL_TILE_BLOCK)
                 .add(ModBlocks.TILE_BLOCK)
+                .add(ModBlocks.SMALL_TILES)
+                .add(ModBlocks.TILES)
                 .add(ModBlocks.TILING_TABLE);
     }
 }

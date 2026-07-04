@@ -1,9 +1,50 @@
 {
   "block.tiled.small_tile_block": "Small Tile Block",
   "block.tiled.tile_block": "Tile Block",
+  "block.tiled.small_tiles": "Small Tiles",
+  "block.tiled.tiles": "Tiles",
   "block.tiled.tiling_table": "Tiling Table",
+
+  "item.tiled.small_white_tile": "Small White Tile",
+  "item.tiled.small_orange_tile": "Small Orange Tile",
+  "item.tiled.small_magenta_tile": "Small Magenta Tile",
+  "item.tiled.small_light_blue_tile": "Small Light Blue Tile",
+  "item.tiled.small_yellow_tile": "Small Yellow Tile",
+  "item.tiled.small_lime_tile": "Small Lime Tile",
+  "item.tiled.small_pink_tile": "Small Pink Tile",
+  "item.tiled.small_gray_tile": "Small Gray Tile",
+  "item.tiled.small_light_gray_tile": "Small Light Gray Tile",
+  "item.tiled.small_cyan_tile": "Small Cyan Tile",
+  "item.tiled.small_purple_tile": "Small Purple Tile",
+  "item.tiled.small_blue_tile": "Small Blue Tile",
+  "item.tiled.small_brown_tile": "Small Brown Tile",
+  "item.tiled.small_green_tile": "Small Green Tile",
+  "item.tiled.small_red_tile": "Small Red Tile",
+  "item.tiled.small_black_tile": "Small Black Tile",
+
+  "item.tiled.white_tile": "White Tile",
+  "item.tiled.orange_tile": "Orange Tile",
+  "item.tiled.magenta_tile": "Magenta Tile",
+  "item.tiled.light_blue_tile": "Light Blue Tile",
+  "item.tiled.yellow_tile": "Yellow Tile",
+  "item.tiled.lime_tile": "Lime Tile",
+  "item.tiled.pink_tile": "Pink Tile",
+  "item.tiled.gray_tile": "Gray Tile",
+  "item.tiled.light_gray_tile": "Light Gray Tile",
+  "item.tiled.cyan_tile": "Cyan Tile",
+  "item.tiled.purple_tile": "Purple Tile",
+  "item.tiled.blue_tile": "Blue Tile",
+  "item.tiled.brown_tile": "Brown Tile",
+  "item.tiled.green_tile": "Green Tile",
+  "item.tiled.red_tile": "Red Tile",
+  "item.tiled.black_tile": "Black Tile",
+
+  "item.tiled.tile_trowel": "Tile Trowel",
 
   "itemgroup.tiled.tiled": "Tiled",
 
-  "container.tiling_table": "Tiling Table"
+  "container.tiling_table": "Tiling Table",
+
+  "gui.tiled.tiling_table.mode.blocks": "Blocks",
+  "gui.tiled.tiling_table.mode.layers": "Layers"
 }

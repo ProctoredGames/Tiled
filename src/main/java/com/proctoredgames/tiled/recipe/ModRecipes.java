@@ -2,6 +2,7 @@ package com.proctoredgames.tiled.recipe;
 
 import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.recipe.custom.TilingTableSmallTileBlockRecipe;
+import com.proctoredgames.tiled.recipe.custom.TilingTableSmallTileItemRecipe;
 import com.proctoredgames.tiled.recipe.custom.TilingTableTileBlockRecipe;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.registry.Registries;
@@ -19,6 +20,12 @@ public class ModRecipes {
             Registries.RECIPE_TYPE, Identifier.of(Tiled.MOD_ID, "tiling_table_tile_block"), new RecipeType<>() {
                 @Override
                 public String toString() { return "tiling_table_tile_block"; }
+            });
+
+    public static final RecipeType<TilingTableSmallTileItemRecipe> TILING_TABLE_SMALL_TILE_ITEM_TYPE = Registry.register(
+            Registries.RECIPE_TYPE, Identifier.of(Tiled.MOD_ID, "tiling_table_small_tile_item"), new RecipeType<>() {
+                @Override
+                public String toString() { return "tiling_table_small_tile_item"; }
             });
 
     public static void registerRecipes() {

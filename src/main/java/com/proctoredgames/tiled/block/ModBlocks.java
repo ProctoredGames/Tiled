@@ -2,7 +2,9 @@ package com.proctoredgames.tiled.block;
 
 import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.block.custom.SmallTileBlock;
+import com.proctoredgames.tiled.block.custom.SmallTilesBlock;
 import com.proctoredgames.tiled.block.custom.TileBlock;
+import com.proctoredgames.tiled.block.custom.TilesBlock;
 import com.proctoredgames.tiled.block.custom.TilingTableBlock;
 import net.minecraft.block.*;
 import net.minecraft.item.BlockItem;
@@ -20,10 +22,10 @@ public class ModBlocks {
             new TileBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE)));
 
     public static final Block SMALL_TILES = registerBlock("small_tiles",
-            new SmallTileBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE)));
+            new SmallTilesBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE).noCollision().nonOpaque()));
 
     public static final Block TILES = registerBlock("tiles",
-            new TileBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE)));
+            new TilesBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE).noCollision().nonOpaque()));
 
     public static final Block TILING_TABLE = registerBlock("tiling_table",
             new TilingTableBlock(AbstractBlock.Settings.copy(Blocks.POLISHED_ANDESITE)));

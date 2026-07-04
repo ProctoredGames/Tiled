@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "tiled:item/purple_tile"
+    "layer0": "minecraft:block/purple_concrete"
   }
 }

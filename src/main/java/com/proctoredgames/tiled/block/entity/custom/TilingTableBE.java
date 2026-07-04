@@ -1,9 +1,14 @@
 package com.proctoredgames.tiled.block.entity.custom;
 
+import com.proctoredgames.tiled.block.ModBlocks;
 import com.proctoredgames.tiled.block.entity.ImplementedInventory;
 import com.proctoredgames.tiled.block.entity.ModBlockEntities;
+import com.proctoredgames.tiled.block.entity.records.SmallTiles;
+import com.proctoredgames.tiled.block.entity.records.Tiles;
+import com.proctoredgames.tiled.component.ModDataComponentTypes;
 import com.proctoredgames.tiled.recipe.ModRecipes;
 import com.proctoredgames.tiled.recipe.custom.TilingTableSmallTileBlockRecipe;
+import com.proctoredgames.tiled.recipe.custom.TilingTableSmallTileItemRecipe;
 import com.proctoredgames.tiled.recipe.TilingTableRecipeInput;
 import com.proctoredgames.tiled.recipe.custom.TilingTableTileBlockRecipe;
 import com.proctoredgames.tiled.screen.custom.TilingTableScreenHandler;
@@ -39,16 +44,36 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
 
     protected final PropertyDelegate propertyDelegate;
 
+    public static final int LAYER_MODE_PROPERTY = 0;
+
+    private boolean layerMode = false;
+
     public TilingTableBE(BlockPos pos, BlockState state) {
         super(ModBlockEntities.TILING_TABLE_BE, pos, state);
         this.propertyDelegate = new PropertyDelegate() {
             @Override
-            public int get(int index) { return 0; }
+            public int get(int index) {
+                return index == LAYER_MODE_PROPERTY && TilingTableBE.this.layerMode ? 1 : 0;
+            }
             @Override
-            public void set(int index, int value) {}
+            public void set(int index, int value) {
+                if (index == LAYER_MODE_PROPERTY) {
+                    TilingTableBE.this.layerMode = value != 0;
+                }
+            }
             @Override
             public int size() { return 17; }
         };
+    }
+
+    public boolean isLayerMode() {
+        return this.layerMode;
+    }
+
+    public void toggleLayerMode(World world) {
+        this.layerMode = !this.layerMode;
+        markDirty();
+        updateResult(world);
     }
 
     @Override
@@ -76,11 +101,13 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
     protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         super.writeNbt(nbt, registryLookup);
         Inventories.writeNbt(nbt, inventory, registryLookup);
+        nbt.putBoolean("layer_mode", layerMode);
     }
 
     @Override
     protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         Inventories.readNbt(nbt, inventory, registryLookup);
+        layerMode = nbt.getBoolean("layer_mode");
         super.readNbt(nbt, registryLookup);
     }
 
@@ -88,9 +115,12 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         TilingTableRecipeInput recipeInput = new TilingTableRecipeInput(getInputInventory());
         ItemStack result = ItemStack.EMPTY;
 
-        // Check small tile block recipe first (4x4), then tile block recipe (2x2)
+        // Check the single-concrete item recipe, then the small tile block recipe (4x4), then the tile block recipe (2x2)
+        Optional<RecipeEntry<TilingTableSmallTileItemRecipe>> smallTileItemRecipe = getSmallTileItemRecipe();
         Optional<RecipeEntry<TilingTableSmallTileBlockRecipe>> smallTileRecipe = getSmallTileRecipe();
-        if (smallTileRecipe.isPresent()) {
+        if (smallTileItemRecipe.isPresent()) {
+            result = smallTileItemRecipe.get().value().craft(recipeInput, world.getRegistryManager());
+        } else if (smallTileRecipe.isPresent()) {
             result = smallTileRecipe.get().value().craft(recipeInput, world.getRegistryManager());
         } else {
             Optional<RecipeEntry<TilingTableTileBlockRecipe>> tileRecipe = getTileBlockRecipe();
@@ -99,8 +129,29 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
             }
         }
 
+        if (layerMode) {
+            result = toLayerStack(result);
+        }
+
         inventory.set(OUTPUT_SLOT, result);
         markDirty();
+    }
+
+    // In layer mode, block outputs become their glow-lichen-style layer variants with the same pattern and count
+    private static ItemStack toLayerStack(ItemStack result) {
+        if (result.isOf(ModBlocks.SMALL_TILE_BLOCK.asItem())) {
+            ItemStack converted = new ItemStack(ModBlocks.SMALL_TILES, result.getCount());
+            converted.set(ModDataComponentTypes.SMALL_TILE_BLOCK_TILES,
+                    result.getOrDefault(ModDataComponentTypes.SMALL_TILE_BLOCK_TILES, SmallTiles.DEFAULT));
+            return converted;
+        }
+        if (result.isOf(ModBlocks.TILE_BLOCK.asItem())) {
+            ItemStack converted = new ItemStack(ModBlocks.TILES, result.getCount());
+            converted.set(ModDataComponentTypes.TILE_BLOCK_TILES,
+                    result.getOrDefault(ModDataComponentTypes.TILE_BLOCK_TILES, Tiles.DEFAULT));
+            return converted;
+        }
+        return result;
     }
 
     public void consumeIngredients(World world) {
@@ -120,6 +171,12 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         if (world == null) return Optional.empty();
         return world.getRecipeManager()
                 .getFirstMatch(ModRecipes.TILING_TABLE_TILE_BLOCK_TYPE, new TilingTableRecipeInput(getInputInventory()), world);
+    }
+
+    public Optional<RecipeEntry<TilingTableSmallTileItemRecipe>> getSmallTileItemRecipe() {
+        if (world == null) return Optional.empty();
+        return world.getRecipeManager()
+                .getFirstMatch(ModRecipes.TILING_TABLE_SMALL_TILE_ITEM_TYPE, new TilingTableRecipeInput(getInputInventory()), world);
     }
 
     public DefaultedList<ItemStack> getInputInventory() {

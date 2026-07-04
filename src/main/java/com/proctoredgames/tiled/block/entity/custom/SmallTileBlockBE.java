@@ -5,6 +5,7 @@ import com.proctoredgames.tiled.block.entity.ModBlockEntities;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
 import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.component.ComponentMap;
@@ -36,6 +37,9 @@ public class SmallTileBlockBE extends BlockEntity {
     protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         super.readNbt(nbt, registryLookup);
         this.tiles = SmallTiles.fromNbt(nbt);
+        if (this.world != null && this.world.isClient()) {
+            this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), Block.NOTIFY_ALL);
+        }
     }
 
     public BlockEntityUpdateS2CPacket toUpdatePacket() {
@@ -49,6 +53,11 @@ public class SmallTileBlockBE extends BlockEntity {
 
     public SmallTiles getTiles() {
         return this.tiles;
+    }
+
+    public void setTiles(SmallTiles tiles) {
+        this.tiles = tiles;
+        this.markDirty();
     }
 
 //    @Nullable
