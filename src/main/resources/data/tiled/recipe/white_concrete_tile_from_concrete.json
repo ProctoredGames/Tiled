@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "minecraft:white_concrete"
+    }
+  ],
+  "result": {
+    "id": "tiled:white_concrete_tile",
+    "count": 24
+  }
+}
