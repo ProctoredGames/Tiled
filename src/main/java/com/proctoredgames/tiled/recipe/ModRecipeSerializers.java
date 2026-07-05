@@ -6,6 +6,7 @@ import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.recipe.custom.CraftingSmallTileBlock;
 import com.proctoredgames.tiled.recipe.custom.CraftingTileBlock;
 import com.proctoredgames.tiled.recipe.custom.TilingTableSmallTileBlockRecipe;
+import com.proctoredgames.tiled.recipe.custom.TilingTableSmallTileItemRecipe;
 import com.proctoredgames.tiled.recipe.custom.TilingTableTileBlockRecipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
@@ -45,6 +46,28 @@ public class ModRecipeSerializers {
 
                 @Override
                 public PacketCodec<RegistryByteBuf, TilingTableSmallTileBlockRecipe> packetCodec() { return PACKET_CODEC; }
+            };
+
+    public static final RecipeSerializer<TilingTableSmallTileItemRecipe> TILING_TABLE_SMALL_TILE_ITEM_RECIPE =
+            new RecipeSerializer<>() {
+                private static final MapCodec<TilingTableSmallTileItemRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
+                        instance.group(
+                                Ingredient.DISALLOW_EMPTY_CODEC.fieldOf("ingredient").forGetter(TilingTableSmallTileItemRecipe::inputItem),
+                                ItemStack.CODEC.fieldOf("result").forGetter(TilingTableSmallTileItemRecipe::output)
+                        ).apply(instance, TilingTableSmallTileItemRecipe::new)
+                );
+                private static final PacketCodec<RegistryByteBuf, TilingTableSmallTileItemRecipe> PACKET_CODEC =
+                        PacketCodec.tuple(
+                                Ingredient.PACKET_CODEC, TilingTableSmallTileItemRecipe::inputItem,
+                                ItemStack.PACKET_CODEC, TilingTableSmallTileItemRecipe::output,
+                                TilingTableSmallTileItemRecipe::new
+                        );
+
+                @Override
+                public MapCodec<TilingTableSmallTileItemRecipe> codec() { return CODEC; }
+
+                @Override
+                public PacketCodec<RegistryByteBuf, TilingTableSmallTileItemRecipe> packetCodec() { return PACKET_CODEC; }
             };
 
     public static final RecipeSerializer<TilingTableTileBlockRecipe> TILING_TABLE_TILE_BLOCK_RECIPE =
@@ -89,6 +112,11 @@ public class ModRecipeSerializers {
                 Registries.RECIPE_SERIALIZER,
                 Identifier.of(Tiled.MOD_ID, "tiling_table_tile_block_recipe"),
                 TILING_TABLE_TILE_BLOCK_RECIPE
+        );
+        Registry.register(
+                Registries.RECIPE_SERIALIZER,
+                Identifier.of(Tiled.MOD_ID, "tiling_table_small_tile_item_recipe"),
+                TILING_TABLE_SMALL_TILE_ITEM_RECIPE
         );
         Tiled.LOGGER.info("Registering recipe serializers for " + Tiled.MOD_ID);
     }

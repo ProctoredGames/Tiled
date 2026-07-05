@@ -11,6 +11,8 @@ import net.minecraft.util.Identifier;
 public class TiledModelLoadingPlugin implements ModelLoadingPlugin {
     private static final Identifier SMALL_TILE_BLOCK_ID = Identifier.of(Tiled.MOD_ID, "small_tile_block");
     private static final Identifier TILE_BLOCK_ID = Identifier.of(Tiled.MOD_ID, "tile_block");
+    private static final Identifier SMALL_TILES_ID = Identifier.of(Tiled.MOD_ID, "small_tiles");
+    private static final Identifier TILES_ID = Identifier.of(Tiled.MOD_ID, "tiles");
 
     @Override
     public void onInitializeModelLoader(Context pluginContext) {
@@ -23,6 +25,10 @@ public class TiledModelLoadingPlugin implements ModelLoadingPlugin {
                 return new SmallTileBlockModel();
             } else if (blockId.equals(TILE_BLOCK_ID)) {
                 return new TileBlockModel();
+            } else if (blockId.equals(SMALL_TILES_ID)) {
+                return new SmallTilesBlockModel();
+            } else if (blockId.equals(TILES_ID)) {
+                return new TilesBlockModel();
             }
             return original;
         });
