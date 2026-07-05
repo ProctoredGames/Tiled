@@ -66,6 +66,13 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
         };
     }
 
+    // Vanilla 1.20.1 caps inventories at 64 per slot, which would clamp the
+    // 96-count small tile output; 1.20.5+ raised this to 99
+    @Override
+    public int getMaxCountPerStack() {
+        return 99;
+    }
+
     public boolean isLayerMode() {
         return this.layerMode;
     }
