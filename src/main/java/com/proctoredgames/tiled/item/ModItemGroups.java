@@ -27,6 +27,39 @@ public class ModItemGroups {
             FabricItemGroup.builder().icon(() -> TileBlockBE.getStackWith(icon_tiles))
                     .displayName(Text.translatable("itemgroup.tiled.tiled"))
                     .entries((displayContext, entries) -> {
+                        entries.add(ModItems.SMALL_WHITE_TILE);
+                        entries.add(ModItems.SMALL_ORANGE_TILE);
+                        entries.add(ModItems.SMALL_MAGENTA_TILE);
+                        entries.add(ModItems.SMALL_LIGHT_BLUE_TILE);
+                        entries.add(ModItems.SMALL_YELLOW_TILE);
+                        entries.add(ModItems.SMALL_LIME_TILE);
+                        entries.add(ModItems.SMALL_PINK_TILE);
+                        entries.add(ModItems.SMALL_GRAY_TILE);
+                        entries.add(ModItems.SMALL_LIGHT_GRAY_TILE);
+                        entries.add(ModItems.SMALL_CYAN_TILE);
+                        entries.add(ModItems.SMALL_PURPLE_TILE);
+                        entries.add(ModItems.SMALL_BLUE_TILE);
+                        entries.add(ModItems.SMALL_BROWN_TILE);
+                        entries.add(ModItems.SMALL_GREEN_TILE);
+                        entries.add(ModItems.SMALL_RED_TILE);
+                        entries.add(ModItems.SMALL_BLACK_TILE);
+                        entries.add(ModItems.WHITE_TILE);
+                        entries.add(ModItems.ORANGE_TILE);
+                        entries.add(ModItems.MAGENTA_TILE);
+                        entries.add(ModItems.LIGHT_BLUE_TILE);
+                        entries.add(ModItems.YELLOW_TILE);
+                        entries.add(ModItems.LIME_TILE);
+                        entries.add(ModItems.PINK_TILE);
+                        entries.add(ModItems.GRAY_TILE);
+                        entries.add(ModItems.LIGHT_GRAY_TILE);
+                        entries.add(ModItems.CYAN_TILE);
+                        entries.add(ModItems.PURPLE_TILE);
+                        entries.add(ModItems.BLUE_TILE);
+                        entries.add(ModItems.BROWN_TILE);
+                        entries.add(ModItems.GREEN_TILE);
+                        entries.add(ModItems.RED_TILE);
+                        entries.add(ModItems.BLACK_TILE);
+                        entries.add(ModItems.TILE_TROWEL);
                         entries.add(ModBlocks.TILING_TABLE);
                     }).build());
 

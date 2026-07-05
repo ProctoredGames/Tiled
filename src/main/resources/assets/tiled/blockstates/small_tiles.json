@@ -1,0 +1,9 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "tiled:block/small_tiles"
+      }
+    }
+  ]
+}

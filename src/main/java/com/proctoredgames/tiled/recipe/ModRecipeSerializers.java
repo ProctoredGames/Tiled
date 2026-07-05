@@ -4,6 +4,7 @@ import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.recipe.custom.CraftingSmallTileBlock;
 import com.proctoredgames.tiled.recipe.custom.CraftingTileBlock;
 import com.proctoredgames.tiled.recipe.custom.TilingTableSmallTileBlockRecipe;
+import com.proctoredgames.tiled.recipe.custom.TilingTableSmallTileItemRecipe;
 import com.proctoredgames.tiled.recipe.custom.TilingTableTileBlockRecipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -71,6 +72,29 @@ public class ModRecipeSerializers {
                 }
             };
 
+    public static final RecipeSerializer<TilingTableSmallTileItemRecipe> TILING_TABLE_SMALL_TILE_ITEM_RECIPE =
+            new RecipeSerializer<>() {
+                @Override
+                public TilingTableSmallTileItemRecipe read(Identifier id, com.google.gson.JsonObject json) {
+                    Ingredient ingredient = Ingredient.fromJson(json.get("ingredient"));
+                    ItemStack result = itemStackFromJson(json.getAsJsonObject("result"));
+                    return new TilingTableSmallTileItemRecipe(id, ingredient, result);
+                }
+
+                @Override
+                public TilingTableSmallTileItemRecipe read(Identifier id, PacketByteBuf buf) {
+                    Ingredient ingredient = Ingredient.fromPacket(buf);
+                    ItemStack result = buf.readItemStack();
+                    return new TilingTableSmallTileItemRecipe(id, ingredient, result);
+                }
+
+                @Override
+                public void write(PacketByteBuf buf, TilingTableSmallTileItemRecipe recipe) {
+                    recipe.inputItem().write(buf);
+                    buf.writeItemStack(recipe.output());
+                }
+            };
+
     private static ItemStack itemStackFromJson(com.google.gson.JsonObject json) {
         String itemId = JsonHelper.getString(json, "item");
         net.minecraft.item.Item item = Registries.ITEM.get(new Identifier(itemId));
@@ -83,6 +107,7 @@ public class ModRecipeSerializers {
         Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(Tiled.MOD_ID, "crafting_tile_block"), CRAFTING_TILE_BLOCK);
         Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(Tiled.MOD_ID, "tiling_table_small_tile_block_recipe"), TILING_TABLE_SMALL_TILE_BLOCK_RECIPE);
         Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(Tiled.MOD_ID, "tiling_table_tile_block_recipe"), TILING_TABLE_TILE_BLOCK_RECIPE);
+        Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(Tiled.MOD_ID, "tiling_table_small_tile_item_recipe"), TILING_TABLE_SMALL_TILE_ITEM_RECIPE);
         Tiled.LOGGER.info("Registering recipe serializers for " + Tiled.MOD_ID);
     }
 }

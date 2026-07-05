@@ -131,13 +131,14 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             Supplier<Random> random,
             RenderContext context
     ) {
-        Tiles tiles = Tiles.DEFAULT;
-
+        QuadEmitter emitter = context.getEmitter();
         if (world.getBlockEntity(pos) instanceof TileBlockBE be) {
-            tiles = be.getTiles();
+            for (Direction dir : Direction.values()) {
+                emitFaceQuads(emitter, dir, be.getFace(dir));
+            }
+        } else {
+            emitTileQuads(emitter, Tiles.DEFAULT);
         }
-
-        emitTileQuads(context.getEmitter(), tiles);
     }
 
     @Override
@@ -146,27 +147,37 @@ public class TileBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
             Supplier<Random> random,
             RenderContext context
     ) {
-        Tiles tiles = Tiles.DEFAULT;
+        QuadEmitter emitter = context.getEmitter();
         NbtCompound blockEntityTag = stack.getSubNbt("BlockEntityTag");
+        if (blockEntityTag != null && blockEntityTag.contains(TileBlockBE.FACE_TILES_NBT_KEY)) {
+            NbtCompound faces = blockEntityTag.getCompound(TileBlockBE.FACE_TILES_NBT_KEY);
+            for (Direction dir : Direction.values()) {
+                Tiles tiles = faces.contains(dir.getName())
+                        ? Tiles.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, faces.get(dir.getName())).result().orElse(Tiles.DEFAULT)
+                        : Tiles.DEFAULT;
+                emitFaceQuads(emitter, dir, tiles);
+            }
+            return;
+        }
+
+        Tiles tiles = Tiles.DEFAULT;
         if (blockEntityTag != null) {
             tiles = Tiles.fromNbt(blockEntityTag);
         }
-
-        emitTileQuads(context.getEmitter(), tiles);
+        emitTileQuads(emitter, tiles);
     }
 
     private void emitTileQuads(QuadEmitter emitter, Tiles tiles) {
-        Sprite tl = spriteFor(tiles.top_left());
-        Sprite tr = spriteFor(tiles.top_right());
-        Sprite bl = spriteFor(tiles.bottom_left());
-        Sprite br = spriteFor(tiles.bottom_right());
-
         for (Direction dir : Direction.values()) {
-            emit(emitter, dir, 0f,   0.5f, 0.5f, 1.0f, tl);
-            emit(emitter, dir, 0.5f, 0.5f, 1.0f, 1.0f, tr);
-            emit(emitter, dir, 0.0f, 0.0f, 0.5f, 0.5f, bl);
-            emit(emitter, dir, 0.5f, 0.0f, 1.0f, 0.5f, br);
+            emitFaceQuads(emitter, dir, tiles);
         }
+    }
+
+    private void emitFaceQuads(QuadEmitter emitter, Direction dir, Tiles tiles) {
+        emit(emitter, dir, 0f,   0.5f, 0.5f, 1.0f, spriteFor(tiles.top_left()));
+        emit(emitter, dir, 0.5f, 0.5f, 1.0f, 1.0f, spriteFor(tiles.top_right()));
+        emit(emitter, dir, 0.0f, 0.0f, 0.5f, 0.5f, spriteFor(tiles.bottom_left()));
+        emit(emitter, dir, 0.5f, 0.0f, 1.0f, 0.5f, spriteFor(tiles.bottom_right()));
     }
 
     private static void emit(

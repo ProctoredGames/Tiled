@@ -2,12 +2,14 @@ package com.proctoredgames.tiled.screen.custom;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.proctoredgames.tiled.Tiled;
+import com.proctoredgames.tiled.block.entity.custom.TilingTableBE;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.recipebook.RecipeBookProvider;
 import net.minecraft.client.gui.screen.recipebook.RecipeBookWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.player.PlayerInventory;
@@ -21,9 +23,27 @@ public class TilingTableScreen extends HandledScreen<TilingTableScreenHandler> {
     public static final Identifier GUI_TEXTURE =
             new Identifier(Tiled.MOD_ID, "textures/gui/tiling_table/tiling_table.png");
 
+    private ButtonWidget modeButton;
+
     public TilingTableScreen(TilingTableScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
         this.titleY = this.titleY-18;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        this.modeButton = addDrawableChild(ButtonWidget.builder(getModeLabel(), button -> {
+            if (this.client != null && this.client.interactionManager != null) {
+                this.client.interactionManager.clickButton(this.handler.syncId, TilingTableBE.LAYER_MODE_PROPERTY);
+            }
+        }).dimensions(this.x + 115, this.y + 50, 48, 16).build());
+    }
+
+    private Text getModeLabel() {
+        return Text.translatable(this.handler.isLayerMode()
+                ? "gui.tiled.tiling_table.mode.layers"
+                : "gui.tiled.tiling_table.mode.blocks");
     }
 
     @Override
@@ -40,6 +60,7 @@ public class TilingTableScreen extends HandledScreen<TilingTableScreenHandler> {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        this.modeButton.setMessage(getModeLabel());
         super.render(context, mouseX, mouseY, delta);
         drawMouseoverTooltip(context, mouseX, mouseY);
     }

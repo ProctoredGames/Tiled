@@ -65,8 +65,14 @@ public class SmallTileBlock extends BlockWithEntity implements BlockEntityProvid
     public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
         super.appendTooltip(stack, world, tooltip, options);
 
-        SmallTiles tiles = SmallTiles.DEFAULT;
         NbtCompound blockEntityTag = stack.getSubNbt("BlockEntityTag");
+        if (blockEntityTag != null && blockEntityTag.contains(SmallTileBlockBE.FACE_TILES_NBT_KEY)) {
+            tooltip.add(ScreenTexts.EMPTY);
+            tooltip.add(Text.translatable("tooltip.tiled.mixed_faces").formatted(Formatting.GRAY));
+            return;
+        }
+
+        SmallTiles tiles = SmallTiles.DEFAULT;
         if (blockEntityTag != null) {
             tiles = SmallTiles.fromNbt(blockEntityTag);
         }

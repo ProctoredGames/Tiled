@@ -131,13 +131,14 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
             Supplier<Random> random,
             RenderContext context
     ) {
-        SmallTiles tiles = SmallTiles.DEFAULT;
-
+        QuadEmitter emitter = context.getEmitter();
         if (world.getBlockEntity(pos) instanceof SmallTileBlockBE be) {
-            tiles = be.getTiles();
+            for (Direction dir : Direction.values()) {
+                emitFaceQuads(emitter, dir, be.getFace(dir));
+            }
+        } else {
+            emitTileQuads(emitter, SmallTiles.DEFAULT);
         }
-
-        emitTileQuads(context.getEmitter(), tiles);
     }
 
     @Override
@@ -146,51 +147,49 @@ public class SmallTileBlockModel implements UnbakedModel, BakedModel, FabricBake
             Supplier<Random> random,
             RenderContext context
     ) {
-        SmallTiles tiles = SmallTiles.DEFAULT;
+        QuadEmitter emitter = context.getEmitter();
         NbtCompound blockEntityTag = stack.getSubNbt("BlockEntityTag");
+        if (blockEntityTag != null && blockEntityTag.contains(SmallTileBlockBE.FACE_TILES_NBT_KEY)) {
+            NbtCompound faces = blockEntityTag.getCompound(SmallTileBlockBE.FACE_TILES_NBT_KEY);
+            for (Direction dir : Direction.values()) {
+                SmallTiles tiles = faces.contains(dir.getName())
+                        ? SmallTiles.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, faces.get(dir.getName())).result().orElse(SmallTiles.DEFAULT)
+                        : SmallTiles.DEFAULT;
+                emitFaceQuads(emitter, dir, tiles);
+            }
+            return;
+        }
+
+        SmallTiles tiles = SmallTiles.DEFAULT;
         if (blockEntityTag != null) {
             tiles = SmallTiles.fromNbt(blockEntityTag);
         }
-
-        emitTileQuads(context.getEmitter(), tiles);
+        emitTileQuads(emitter, tiles);
     }
 
     private void emitTileQuads(QuadEmitter emitter, SmallTiles tiles) {
-        Sprite s0  = spriteFor(tiles.slot0());
-        Sprite s1  = spriteFor(tiles.slot1());
-        Sprite s2  = spriteFor(tiles.slot2());
-        Sprite s3  = spriteFor(tiles.slot3());
-        Sprite s4  = spriteFor(tiles.slot4());
-        Sprite s5  = spriteFor(tiles.slot5());
-        Sprite s6  = spriteFor(tiles.slot6());
-        Sprite s7  = spriteFor(tiles.slot7());
-        Sprite s8  = spriteFor(tiles.slot8());
-        Sprite s9  = spriteFor(tiles.slot9());
-        Sprite s10 = spriteFor(tiles.slot10());
-        Sprite s11 = spriteFor(tiles.slot11());
-        Sprite s12 = spriteFor(tiles.slot12());
-        Sprite s13 = spriteFor(tiles.slot13());
-        Sprite s14 = spriteFor(tiles.slot14());
-        Sprite s15 = spriteFor(tiles.slot15());
-
         for (Direction dir : Direction.values()) {
-            emit(emitter, dir, 0f,    0.75f, 0.25f, 1.0f,  s0);
-            emit(emitter, dir, 0.25f, 0.75f, 0.5f,  1.0f,  s1);
-            emit(emitter, dir, 0.5f,  0.75f, 0.75f, 1.0f,  s2);
-            emit(emitter, dir, 0.75f, 0.75f, 1.0f,  1.0f,  s3);
-            emit(emitter, dir, 0f,    0.5f,  0.25f, 0.75f, s4);
-            emit(emitter, dir, 0.25f, 0.5f,  0.5f,  0.75f, s5);
-            emit(emitter, dir, 0.5f,  0.5f,  0.75f, 0.75f, s6);
-            emit(emitter, dir, 0.75f, 0.5f,  1.0f,  0.75f, s7);
-            emit(emitter, dir, 0f,    0.25f, 0.25f, 0.5f,  s8);
-            emit(emitter, dir, 0.25f, 0.25f, 0.5f,  0.5f,  s9);
-            emit(emitter, dir, 0.5f,  0.25f, 0.75f, 0.5f,  s10);
-            emit(emitter, dir, 0.75f, 0.25f, 1.0f,  0.5f,  s11);
-            emit(emitter, dir, 0f,    0.0f,  0.25f, 0.25f, s12);
-            emit(emitter, dir, 0.25f, 0.0f,  0.5f,  0.25f, s13);
-            emit(emitter, dir, 0.5f,  0.0f,  0.75f, 0.25f, s14);
-            emit(emitter, dir, 0.75f, 0.0f,  1.0f,  0.25f, s15);
+            emitFaceQuads(emitter, dir, tiles);
         }
+    }
+
+    private void emitFaceQuads(QuadEmitter emitter, Direction dir, SmallTiles tiles) {
+        emit(emitter, dir, 0f,    0.75f, 0.25f, 1.0f,  spriteFor(tiles.slot0()));
+        emit(emitter, dir, 0.25f, 0.75f, 0.5f,  1.0f,  spriteFor(tiles.slot1()));
+        emit(emitter, dir, 0.5f,  0.75f, 0.75f, 1.0f,  spriteFor(tiles.slot2()));
+        emit(emitter, dir, 0.75f, 0.75f, 1.0f,  1.0f,  spriteFor(tiles.slot3()));
+        emit(emitter, dir, 0f,    0.5f,  0.25f, 0.75f, spriteFor(tiles.slot4()));
+        emit(emitter, dir, 0.25f, 0.5f,  0.5f,  0.75f, spriteFor(tiles.slot5()));
+        emit(emitter, dir, 0.5f,  0.5f,  0.75f, 0.75f, spriteFor(tiles.slot6()));
+        emit(emitter, dir, 0.75f, 0.5f,  1.0f,  0.75f, spriteFor(tiles.slot7()));
+        emit(emitter, dir, 0f,    0.25f, 0.25f, 0.5f,  spriteFor(tiles.slot8()));
+        emit(emitter, dir, 0.25f, 0.25f, 0.5f,  0.5f,  spriteFor(tiles.slot9()));
+        emit(emitter, dir, 0.5f,  0.25f, 0.75f, 0.5f,  spriteFor(tiles.slot10()));
+        emit(emitter, dir, 0.75f, 0.25f, 1.0f,  0.5f,  spriteFor(tiles.slot11()));
+        emit(emitter, dir, 0f,    0.0f,  0.25f, 0.25f, spriteFor(tiles.slot12()));
+        emit(emitter, dir, 0.25f, 0.0f,  0.5f,  0.25f, spriteFor(tiles.slot13()));
+        emit(emitter, dir, 0.5f,  0.0f,  0.75f, 0.25f, spriteFor(tiles.slot14()));
+        emit(emitter, dir, 0.75f, 0.0f,  1.0f,  0.25f, spriteFor(tiles.slot15()));
     }
 
     private static void emit(

@@ -70,6 +70,22 @@ public class TilingTableScreenHandler extends ScreenHandler {
         addProperties(arrayPropertyDelegate);
     }
 
+    public boolean isLayerMode() {
+        return this.propertyDelegate.get(TilingTableBE.LAYER_MODE_PROPERTY) != 0;
+    }
+
+    @Override
+    public boolean onButtonClick(PlayerEntity player, int id) {
+        if (id == TilingTableBE.LAYER_MODE_PROPERTY) {
+            World world = player.getWorld();
+            if (!world.isClient()) {
+                this.blockEntity.toggleLayerMode(world);
+            }
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public ItemStack quickMove(PlayerEntity player, int invSlot) {
         ItemStack newStack = ItemStack.EMPTY;

@@ -1,0 +1,10 @@
+{
+  "type": "tiled:tiling_table_small_tile_item_recipe",
+  "ingredient": {
+    "tag": "tiled:concrete"
+  },
+  "result": {
+    "count": 1,
+    "item": "minecraft:egg"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "minecraft:orange_concrete"
+    }
+  ],
+  "result": {
+    "item": "tiled:orange_tile",
+    "count": 24
+  }
+}

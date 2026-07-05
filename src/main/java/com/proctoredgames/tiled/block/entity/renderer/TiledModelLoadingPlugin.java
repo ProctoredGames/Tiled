@@ -20,6 +20,10 @@ public class TiledModelLoadingPlugin {
                 return new SmallTileBlockModel();
             } else if (namespace.equals(Tiled.MOD_ID) && path.equals("tile_block")) {
                 return new TileBlockModel();
+            } else if (namespace.equals(Tiled.MOD_ID) && path.equals("small_tiles")) {
+                return new SmallTilesBlockModel();
+            } else if (namespace.equals(Tiled.MOD_ID) && path.equals("tiles")) {
+                return new TilesBlockModel();
             }
             return null;
         });
