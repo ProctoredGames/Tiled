@@ -3,9 +3,9 @@ package com.proctoredgames.tiled.block.entity;
 import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.block.ModBlocks;
 import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
-import com.proctoredgames.tiled.block.entity.custom.SmallTilesBE;
+import com.proctoredgames.tiled.block.entity.custom.SmallTileLayerBE;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
-import com.proctoredgames.tiled.block.entity.custom.TilesBE;
+import com.proctoredgames.tiled.block.entity.custom.TileLayerBE;
 
 import com.proctoredgames.tiled.block.entity.custom.TilingTableBE;
 import net.minecraft.block.entity.BlockEntityType;
@@ -23,13 +23,13 @@ public class ModBlockEntities {
             Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(Tiled.MOD_ID,"tile_block_be"),
                     BlockEntityType.Builder.create(TileBlockBE::new, ModBlocks.TILE_BLOCK).build(null));
 
-    public static final BlockEntityType<SmallTilesBE> SMALL_TILES_BE =
-            Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(Tiled.MOD_ID,"small_tiles_be"),
-                    BlockEntityType.Builder.create(SmallTilesBE::new, ModBlocks.SMALL_TILES).build(null));
+    public static final BlockEntityType<SmallTileLayerBE> SMALL_TILE_LAYER_BE =
+            Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(Tiled.MOD_ID,"small_tile_layer_be"),
+                    BlockEntityType.Builder.create(SmallTileLayerBE::new, ModBlocks.SMALL_TILE_LAYER).build(null));
 
-    public static final BlockEntityType<TilesBE> TILES_BE =
-            Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(Tiled.MOD_ID,"tiles_be"),
-                    BlockEntityType.Builder.create(TilesBE::new, ModBlocks.TILES).build(null));
+    public static final BlockEntityType<TileLayerBE> TILE_LAYER_BE =
+            Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(Tiled.MOD_ID,"tile_layer_be"),
+                    BlockEntityType.Builder.create(TileLayerBE::new, ModBlocks.TILE_LAYER).build(null));
 
     public static final BlockEntityType<TilingTableBE> TILING_TABLE_BE =
             Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(Tiled.MOD_ID,"tiling_table_be"),

@@ -1,7 +1,7 @@
 package com.proctoredgames.tiled.block.entity.renderer;
 
 import com.proctoredgames.tiled.Tiled;
-import com.proctoredgames.tiled.block.entity.custom.SmallTilesBE;
+import com.proctoredgames.tiled.block.entity.custom.SmallTileLayerBE;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -40,7 +40,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Environment(EnvType.CLIENT)
-public class SmallTilesBlockModel implements UnbakedModel, BakedModel, FabricBakedModel {
+public class SmallTileLayerBlockModel implements UnbakedModel, BakedModel, FabricBakedModel {
 
     // Distance of the visible layer surface from the supporting face (0.2/16)
     private static final float LAYER_DEPTH = 1f - 0.0125f;
@@ -136,7 +136,7 @@ public class SmallTilesBlockModel implements UnbakedModel, BakedModel, FabricBak
             Supplier<Random> random,
             RenderContext context
     ) {
-        if (!(world.getBlockEntity(pos) instanceof SmallTilesBE be)) return;
+        if (!(world.getBlockEntity(pos) instanceof SmallTileLayerBE be)) return;
 
         QuadEmitter emitter = context.getEmitter();
         for (Direction attachment : Direction.values()) {

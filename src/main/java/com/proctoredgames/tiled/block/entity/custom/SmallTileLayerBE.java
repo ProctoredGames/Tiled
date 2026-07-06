@@ -18,14 +18,14 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
-public class SmallTilesBE extends BlockEntity {
+public class SmallTileLayerBE extends BlockEntity {
 
     public static final String FACE_TILES_NBT_KEY = "face_tiles";
 
     private final Map<Direction, SmallTiles> faceTiles = new EnumMap<>(Direction.class);
 
-    public SmallTilesBE(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.SMALL_TILES_BE, pos, state);
+    public SmallTileLayerBE(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.SMALL_TILE_LAYER_BE, pos, state);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class SmallTilesBE extends BlockEntity {
     }
 
     public static ItemStack getStackWith(SmallTiles tiles) {
-        ItemStack stack = ModBlocks.SMALL_TILES.asItem().getDefaultStack();
+        ItemStack stack = ModBlocks.SMALL_TILE_LAYER.asItem().getDefaultStack();
         if (!tiles.equals(SmallTiles.DEFAULT)) {
             NbtCompound tag = new NbtCompound();
             tiles.toNbt(tag);

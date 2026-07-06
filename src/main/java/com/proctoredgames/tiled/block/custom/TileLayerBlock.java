@@ -1,16 +1,19 @@
 package com.proctoredgames.tiled.block.custom;
 
 import com.proctoredgames.tiled.Tiled;
-import com.proctoredgames.tiled.block.entity.custom.TilesBE;
+import com.proctoredgames.tiled.block.entity.custom.TileLayerBE;
 import com.proctoredgames.tiled.block.entity.records.Tiles;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LichenGrower;
 import net.minecraft.block.MultifaceGrowthBlock;
+import net.minecraft.block.Waterloggable;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -19,6 +22,9 @@ import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -32,14 +38,22 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class TilesBlock extends MultifaceGrowthBlock implements BlockEntityProvider {
+public class TileLayerBlock extends MultifaceGrowthBlock implements BlockEntityProvider, Waterloggable {
 
-    public static final Identifier TILES_DYNAMIC_DROP_ID = new Identifier(Tiled.MOD_ID, "tiles");
+    public static final Identifier TILE_LAYER_DYNAMIC_DROP_ID = new Identifier(Tiled.MOD_ID, "tile_layer");
+    public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
 
     private final LichenGrower grower = new LichenGrower(this);
 
-    public TilesBlock(Settings settings) {
+    public TileLayerBlock(Settings settings) {
         super(settings);
+        this.setDefaultState(this.getDefaultState().with(WATERLOGGED, false));
+    }
+
+    @Override
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        super.appendProperties(builder);
+        builder.add(WATERLOGGED);
     }
 
     @Override
@@ -50,13 +64,13 @@ public class TilesBlock extends MultifaceGrowthBlock implements BlockEntityProvi
     @Nullable
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new TilesBE(pos, state);
+        return new TileLayerBE(pos, state);
     }
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         super.onPlaced(world, pos, state, placer, itemStack);
-        if (world.getBlockEntity(pos) instanceof TilesBE blockEntity) {
+        if (world.getBlockEntity(pos) instanceof TileLayerBE blockEntity) {
             Tiles tiles = Tiles.fromNbt(itemStack.getSubNbt("BlockEntityTag"));
             for (Direction direction : DIRECTIONS) {
                 if (hasDirection(state, direction) && !blockEntity.hasFace(direction)) {
@@ -71,8 +85,11 @@ public class TilesBlock extends MultifaceGrowthBlock implements BlockEntityProvi
 
     @Override
     public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+        if (state.get(WATERLOGGED)) {
+            world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+        }
         BlockState newState = super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
-        if (newState != state && world.getBlockEntity(pos) instanceof TilesBE blockEntity) {
+        if (newState != state && world.getBlockEntity(pos) instanceof TileLayerBE blockEntity) {
             boolean removed = !newState.isOf(this);
             for (Direction face : DIRECTIONS) {
                 if (hasDirection(state, face) && (removed || !hasDirection(newState, face))) {
@@ -88,13 +105,23 @@ public class TilesBlock extends MultifaceGrowthBlock implements BlockEntityProvi
     }
 
     @Override
+    public FluidState getFluidState(BlockState state) {
+        return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
+    }
+
+    @Override
+    public boolean isTransparent(BlockState state, BlockView world, BlockPos pos) {
+        return state.getFluidState().isEmpty();
+    }
+
+    @Override
     public List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
         BlockEntity blockEntity = builder.getOptional(LootContextParameters.BLOCK_ENTITY);
-        if (blockEntity instanceof TilesBE tilesBE) {
-            builder.addDynamicDrop(TILES_DYNAMIC_DROP_ID, lootConsumer -> {
+        if (blockEntity instanceof TileLayerBE tileLayerBE) {
+            builder.addDynamicDrop(TILE_LAYER_DYNAMIC_DROP_ID, lootConsumer -> {
                 for (Direction direction : DIRECTIONS) {
-                    if (tilesBE.hasFace(direction)) {
-                        lootConsumer.accept(tilesBE.asStackForFace(direction));
+                    if (tileLayerBE.hasFace(direction)) {
+                        lootConsumer.accept(tileLayerBE.asStackForFace(direction));
                     }
                 }
             });
@@ -104,7 +131,7 @@ public class TilesBlock extends MultifaceGrowthBlock implements BlockEntityProvi
 
     @Override
     public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
-        if (world.getBlockEntity(pos) instanceof TilesBE blockEntity) {
+        if (world.getBlockEntity(pos) instanceof TileLayerBE blockEntity) {
             for (Direction direction : DIRECTIONS) {
                 if (blockEntity.hasFace(direction)) {
                     return blockEntity.asStackForFace(direction);
