@@ -20,14 +20,14 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
-public class TilesBE extends BlockEntity {
+public class TileLayerBE extends BlockEntity {
 
     public static final String FACE_TILES_NBT_KEY = "face_tiles";
 
     private final Map<Direction, Tiles> faceTiles = new EnumMap<>(Direction.class);
 
-    public TilesBE(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.TILES_BE, pos, state);
+    public TileLayerBE(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.TILE_LAYER_BE, pos, state);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class TilesBE extends BlockEntity {
     }
 
     public static ItemStack getStackWith(Tiles tiles) {
-        ItemStack itemStack = ModBlocks.TILES.asItem().getDefaultStack();
+        ItemStack itemStack = ModBlocks.TILE_LAYER.asItem().getDefaultStack();
         itemStack.set(ModDataComponentTypes.TILE_BLOCK_TILES, tiles);
         return itemStack;
     }

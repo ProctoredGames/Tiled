@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:dynamic",
-          "name": "tiled:tiles"
+          "name": "tiled:tile_layer"
         }
       ]
     }

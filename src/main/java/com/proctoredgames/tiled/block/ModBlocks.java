@@ -2,11 +2,12 @@ package com.proctoredgames.tiled.block;
 
 import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.block.custom.SmallTileBlock;
-import com.proctoredgames.tiled.block.custom.SmallTilesBlock;
+import com.proctoredgames.tiled.block.custom.SmallTileLayerBlock;
 import com.proctoredgames.tiled.block.custom.TileBlock;
-import com.proctoredgames.tiled.block.custom.TilesBlock;
+import com.proctoredgames.tiled.block.custom.TileLayerBlock;
 import com.proctoredgames.tiled.block.custom.TilingTableBlock;
 import net.minecraft.block.*;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
@@ -21,16 +22,16 @@ public class ModBlocks {
     public static final Block TILE_BLOCK = registerBlock("tile_block",
             new TileBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE)));
 
-    public static final Block SMALL_TILES = registerBlock("small_tiles",
-            new SmallTilesBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE).noCollision().nonOpaque()),
+    public static final Block SMALL_TILE_LAYER = registerBlock("small_tile_layer",
+            new SmallTileLayerBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE).replaceable().noCollision().pistonBehavior(PistonBehavior.DESTROY)),
             new Item.Settings().maxCount(96));
 
-    public static final Block TILES = registerBlock("tiles",
-            new TilesBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE).noCollision().nonOpaque()),
+    public static final Block TILE_LAYER = registerBlock("tile_layer",
+            new TileLayerBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE).replaceable().noCollision().pistonBehavior(PistonBehavior.DESTROY)),
             new Item.Settings().maxCount(96));
 
     public static final Block TILING_TABLE = registerBlock("tiling_table",
-            new TilingTableBlock(AbstractBlock.Settings.copy(Blocks.POLISHED_ANDESITE)));
+            new TilingTableBlock(AbstractBlock.Settings.copy(Blocks.BRICKS)));
 
     private static Block registerBlock(String name, Block block) {
         return registerBlock(name, block, new Item.Settings());
