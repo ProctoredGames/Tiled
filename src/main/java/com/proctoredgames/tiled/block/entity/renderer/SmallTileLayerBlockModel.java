@@ -9,7 +9,6 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
-import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.model.*;
@@ -40,8 +39,8 @@ public class SmallTileLayerBlockModel implements UnbakedModel, BakedModel, Fabri
 
     // Distance of the visible layer surface from the supporting face (0.2/16)
     private static final float LAYER_DEPTH = 1f - 0.0125f;
-    // Thickness of the plate shown for the item form (1/16)
-    private static final float ITEM_PLATE_DEPTH = 1f - 0.0625f;
+    // Depth of the flat item quads: a 1px slab centered like vanilla flat items
+    private static final float FLAT_ITEM_DEPTH = 7.5f / 16f;
 
     private static final SpriteIdentifier[] SPRITE_IDS = new SpriteIdentifier[]{
             new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_black_tiles")),
@@ -147,11 +146,9 @@ public class SmallTileLayerBlockModel implements UnbakedModel, BakedModel, Fabri
         SmallTiles tiles = stack.getOrDefault(ModDataComponentTypes.SMALL_TILE_BLOCK_TILES, SmallTiles.DEFAULT);
         QuadEmitter emitter = context.getEmitter();
 
-        emitFaceQuads(emitter, Direction.UP, tiles, ITEM_PLATE_DEPTH);
-        emit(emitter, Direction.DOWN, 0f, 0f, 1f, 1f, whiteConcreteSprite, 0.001f);
-        for (Direction dir : Direction.Type.HORIZONTAL) {
-            emit(emitter, dir, 0f, 0f, 1f, 0.0625f, whiteConcreteSprite, 0.001f);
-        }
+        // Flat 2d sprite like glow lichen: just the pattern, front and back
+        emitFaceQuads(emitter, Direction.SOUTH, tiles, FLAT_ITEM_DEPTH);
+        emitFaceQuads(emitter, Direction.NORTH, tiles, FLAT_ITEM_DEPTH);
     }
 
     private void emitFaceQuads(QuadEmitter emitter, Direction dir, SmallTiles tiles, float depth) {
@@ -201,8 +198,8 @@ public class SmallTileLayerBlockModel implements UnbakedModel, BakedModel, Fabri
     @Override public boolean useAmbientOcclusion() { return true; }
     @Override public boolean isBuiltin() { return false; }
     @Override public boolean hasDepth() { return false; }
-    @Override public boolean isSideLit() { return true; }
+    @Override public boolean isSideLit() { return false; }
     @Override public boolean isVanillaAdapter() { return false; }
-    @Override public ModelTransformation getTransformation() { return ModelHelper.MODEL_TRANSFORM_BLOCK; }
+    @Override public ModelTransformation getTransformation() { return FlatItemTransforms.FLAT_ITEM; }
     @Override public ModelOverrideList getOverrides() { return ModelOverrideList.EMPTY; }
 }
