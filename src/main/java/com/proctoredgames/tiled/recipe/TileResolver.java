@@ -6,7 +6,7 @@ import com.proctoredgames.tiled.block.entity.records.Tiles;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -15,17 +15,8 @@ public class TileResolver {
     public static ItemStack resolve(ItemStack stack) {
         if (stack.isEmpty()) return stack;
 
-        if (stack.isOf(ModBlocks.SMALL_TILE_BLOCK.asItem())) {
-            NbtCompound tag = stack.getSubNbt("BlockEntityTag");
-            SmallTiles tiles = SmallTiles.fromNbt(tag);
-            Item concrete = getMonochromeItem(tiles.stream());
-            if (concrete != null) {
-                return new ItemStack(concrete);
-            }
-        } else if (stack.isOf(ModBlocks.TILE_BLOCK.asItem())) {
-            NbtCompound tag = stack.getSubNbt("BlockEntityTag");
-            Tiles tiles = Tiles.fromNbt(tag);
-            Item concrete = getMonochromeItem(tiles.stream());
+        if (stack.isOf(ModBlocks.SMALL_TILE_BLOCK.asItem()) || stack.isOf(ModBlocks.TILE_BLOCK.asItem())) {
+            Item concrete = solidConcrete(stack);
             if (concrete != null) {
                 return new ItemStack(concrete);
             }
@@ -33,6 +24,25 @@ public class TileResolver {
 
         return stack;
 
+    }
+
+    // Returns the concrete color of a solid color tile block or layer
+    // (regular or small), or null for anything else
+    @Nullable
+    public static Item solidConcrete(ItemStack stack) {
+        if (stack.isOf(ModBlocks.SMALL_TILE_BLOCK.asItem()) || stack.isOf(ModBlocks.SMALL_TILE_LAYER.asItem())) {
+            SmallTiles tiles = SmallTiles.fromNbt(stack.getSubNbt("BlockEntityTag"));
+            return getMonochromeItem(tiles.stream());
+        }
+        if (stack.isOf(ModBlocks.TILE_BLOCK.asItem()) || stack.isOf(ModBlocks.TILE_LAYER.asItem())) {
+            Tiles tiles = Tiles.fromNbt(stack.getSubNbt("BlockEntityTag"));
+            return getMonochromeItem(tiles.stream());
+        }
+        return null;
+    }
+
+    public static boolean isLayerItem(ItemStack stack) {
+        return stack.isOf(ModBlocks.TILE_LAYER.asItem()) || stack.isOf(ModBlocks.SMALL_TILE_LAYER.asItem());
     }
 
     private static Item getMonochromeItem(List<Item> items) {

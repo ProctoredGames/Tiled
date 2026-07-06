@@ -3,6 +3,7 @@ package com.proctoredgames.tiled.recipe;
 import com.proctoredgames.tiled.Tiled;
 import com.proctoredgames.tiled.recipe.custom.CraftingSmallTileBlock;
 import com.proctoredgames.tiled.recipe.custom.CraftingTileBlock;
+import com.proctoredgames.tiled.recipe.custom.CraftingTileItems;
 import com.proctoredgames.tiled.recipe.custom.TilingTableSmallTileBlockRecipe;
 import com.proctoredgames.tiled.recipe.custom.TilingTableSmallTileItemRecipe;
 import com.proctoredgames.tiled.recipe.custom.TilingTableTileBlockRecipe;
@@ -25,6 +26,9 @@ public class ModRecipeSerializers {
 
     public static final RecipeSerializer<CraftingTileBlock> CRAFTING_TILE_BLOCK =
             new SpecialRecipeSerializer<>(CraftingTileBlock::new);
+
+    public static final RecipeSerializer<CraftingTileItems> CRAFTING_TILE_ITEMS =
+            new SpecialRecipeSerializer<>(CraftingTileItems::new);
 
     public static final RecipeSerializer<TilingTableSmallTileBlockRecipe> TILING_TABLE_SMALL_TILE_BLOCK_RECIPE =
             new RecipeSerializer<>() {
@@ -105,6 +109,7 @@ public class ModRecipeSerializers {
     public static void register() {
         Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(Tiled.MOD_ID, "crafting_small_tile_block"), CRAFTING_SMALL_TILE_BLOCK);
         Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(Tiled.MOD_ID, "crafting_tile_block"), CRAFTING_TILE_BLOCK);
+        Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(Tiled.MOD_ID, "crafting_tile_items"), CRAFTING_TILE_ITEMS);
         Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(Tiled.MOD_ID, "tiling_table_small_tile_block_recipe"), TILING_TABLE_SMALL_TILE_BLOCK_RECIPE);
         Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(Tiled.MOD_ID, "tiling_table_tile_block_recipe"), TILING_TABLE_TILE_BLOCK_RECIPE);
         Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(Tiled.MOD_ID, "tiling_table_small_tile_item_recipe"), TILING_TABLE_SMALL_TILE_ITEM_RECIPE);

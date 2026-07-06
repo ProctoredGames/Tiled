@@ -2,6 +2,7 @@ package com.proctoredgames.tiled.recipe.custom;
 
 import com.proctoredgames.tiled.recipe.ModRecipeSerializers;
 import com.proctoredgames.tiled.recipe.ModRecipes;
+import com.proctoredgames.tiled.recipe.TileResolver;
 import com.proctoredgames.tiled.recipe.TilingTableRecipeInput;
 import com.proctoredgames.tiled.util.ModTags;
 import com.proctoredgames.tiled.util.TileColors;
@@ -15,10 +16,12 @@ import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 public record TilingTableSmallTileItemRecipe(Identifier id, Ingredient inputItem, ItemStack output) implements Recipe<TilingTableRecipeInput> {
 
     public static final int OUTPUT_COUNT = 96;
+    public static final int LAYER_OUTPUT_COUNT = 16;
 
     @Override
     public Identifier getId() {
@@ -34,40 +37,50 @@ public record TilingTableSmallTileItemRecipe(Identifier id, Ingredient inputItem
 
     @Override
     public boolean matches(TilingTableRecipeInput input, World world) {
-        return findConcreteSlot(input) != -1;
+        return findInputSlot(input) != -1;
     }
 
     @Override
     public ItemStack craft(TilingTableRecipeInput input, DynamicRegistryManager registryManager) {
-        int slot = findConcreteSlot(input);
+        int slot = findInputSlot(input);
         if (slot == -1) return ItemStack.EMPTY;
 
-        Item smallTile = TileColors.smallTileForConcrete(input.getStack(slot).getItem());
+        ItemStack stack = input.getStack(slot);
+        Item smallTile = TileColors.smallTileForConcrete(concreteFor(stack));
         if (smallTile == null) return ItemStack.EMPTY;
 
-        return new ItemStack(smallTile, OUTPUT_COUNT);
+        return new ItemStack(smallTile, TileResolver.isLayerItem(stack) ? LAYER_OUTPUT_COUNT : OUTPUT_COUNT);
     }
 
     public int[] computeConsumption(TilingTableRecipeInput input) {
         int[] amounts = new int[input.size()];
-        int slot = findConcreteSlot(input);
+        int slot = findInputSlot(input);
         if (slot != -1) {
             amounts[slot] = 1;
         }
         return amounts;
     }
 
-    // Matches exactly one concrete stack alone in the grid, so this recipe
-    // never competes with the 4x4 small tile block recipe
-    private int findConcreteSlot(TilingTableRecipeInput input) {
+    // Matches exactly one stack alone in the grid that is either concrete or
+    // a solid color tile block/layer, so this recipe never competes with the
+    // 4x4 small tile block recipe
+    private int findInputSlot(TilingTableRecipeInput input) {
         int found = -1;
         for (int i = 0; i < input.size(); i++) {
             ItemStack stack = input.getStack(i);
             if (stack.isEmpty()) continue;
-            if (found != -1 || !stack.isIn(ModTags.Items.CONCRETE)) return -1;
+            if (found != -1 || concreteFor(stack) == null) return -1;
             found = i;
         }
         return found;
+    }
+
+    // The concrete color an input stack provides: the item itself for
+    // concrete, the tile color for solid color tile blocks and layers
+    @Nullable
+    private static Item concreteFor(ItemStack stack) {
+        if (stack.isIn(ModTags.Items.CONCRETE)) return stack.getItem();
+        return TileResolver.solidConcrete(stack);
     }
 
     @Override
