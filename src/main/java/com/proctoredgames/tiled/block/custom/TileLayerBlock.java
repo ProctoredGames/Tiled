@@ -17,6 +17,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.tooltip.TooltipType;
@@ -68,6 +69,11 @@ public class TileLayerBlock extends MultifaceGrowthBlock implements BlockEntityP
     @Override
     public LichenGrower getGrower() {
         return grower;
+    }
+
+    @Override
+    protected boolean canReplace(BlockState state, ItemPlacementContext context) {
+        return context.getStack().isOf(this.asItem()) && super.canReplace(state, context);
     }
 
     @Nullable

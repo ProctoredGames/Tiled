@@ -23,11 +23,11 @@ public class ModBlocks {
             new TileBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE)));
 
     public static final Block SMALL_TILE_LAYER = registerBlock("small_tile_layer",
-            new SmallTileLayerBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE).replaceable().noCollision().pistonBehavior(PistonBehavior.DESTROY)),
+            new SmallTileLayerBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE).noCollision().pistonBehavior(PistonBehavior.DESTROY)),
             new Item.Settings().maxCount(96));
 
     public static final Block TILE_LAYER = registerBlock("tile_layer",
-            new TileLayerBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE).replaceable().noCollision().pistonBehavior(PistonBehavior.DESTROY)),
+            new TileLayerBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CONCRETE).noCollision().pistonBehavior(PistonBehavior.DESTROY)),
             new Item.Settings().maxCount(96));
 
     public static final Block TILING_TABLE = registerBlock("tiling_table",
