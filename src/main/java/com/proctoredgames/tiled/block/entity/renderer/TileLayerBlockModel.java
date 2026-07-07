@@ -45,6 +45,8 @@ public class TileLayerBlockModel implements UnbakedModel, BakedModel, FabricBake
     private static final float LAYER_DEPTH = 1f - 0.0125f;
     // Depth of the flat item quads: a 1px slab centered like vanilla flat items
     private static final float FLAT_ITEM_DEPTH = 7.5f / 16f;
+    // Center of the sprite's edge pixel row/column, sampled by the item side strips
+    private static final float EDGE_PIXEL = 0.5f / 16f;
 
     private static final SpriteIdentifier[] SPRITE_IDS = new SpriteIdentifier[]{
             new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("black_tiles")),
@@ -141,7 +143,7 @@ public class TileLayerBlockModel implements UnbakedModel, BakedModel, FabricBake
         for (Direction attachment : Direction.values()) {
             Tiles tiles = be.getFace(attachment);
             if (tiles != null) {
-                emitFaceQuads(emitter, attachment.getOpposite(), tiles, LAYER_DEPTH);
+                emitFaceQuads(emitter, attachment.getOpposite(), tiles, LAYER_DEPTH, false);
             }
         }
     }
@@ -159,16 +161,25 @@ public class TileLayerBlockModel implements UnbakedModel, BakedModel, FabricBake
         }
 
         QuadEmitter emitter = context.getEmitter();
-        // Flat 2d sprite like glow lichen: just the pattern, front and back
-        emitFaceQuads(emitter, Direction.SOUTH, tiles, FLAT_ITEM_DEPTH);
-        emitFaceQuads(emitter, Direction.NORTH, tiles, FLAT_ITEM_DEPTH);
+        // 1px prism like vanilla flat items: pattern front and back, edge strips around;
+        // the back is h-flipped so its edges line up with the front and side strips
+        emitFaceQuads(emitter, Direction.SOUTH, tiles, FLAT_ITEM_DEPTH, false);
+        emitFaceQuads(emitter, Direction.NORTH, tiles, FLAT_ITEM_DEPTH, true);
+        emitEdge(emitter, Direction.UP, 0f, 0.5f, spriteFor(tiles.top_left()));
+        emitEdge(emitter, Direction.UP, 0.5f, 1f, spriteFor(tiles.top_right()));
+        emitEdge(emitter, Direction.DOWN, 0f, 0.5f, spriteFor(tiles.bottom_left()));
+        emitEdge(emitter, Direction.DOWN, 0.5f, 1f, spriteFor(tiles.bottom_right()));
+        emitEdge(emitter, Direction.WEST, 0f, 0.5f, spriteFor(tiles.bottom_left()));
+        emitEdge(emitter, Direction.WEST, 0.5f, 1f, spriteFor(tiles.top_left()));
+        emitEdge(emitter, Direction.EAST, 0f, 0.5f, spriteFor(tiles.bottom_right()));
+        emitEdge(emitter, Direction.EAST, 0.5f, 1f, spriteFor(tiles.top_right()));
     }
 
-    private void emitFaceQuads(QuadEmitter emitter, Direction dir, Tiles tiles, float depth) {
-        emit(emitter, dir, 0f, 0.5f, 0.5f, 1.0f, spriteFor(tiles.top_left()), depth);
-        emit(emitter, dir, 0.5f, 0.5f, 1.0f, 1.0f, spriteFor(tiles.top_right()), depth);
-        emit(emitter, dir, 0.0f, 0.0f, 0.5f, 0.5f, spriteFor(tiles.bottom_left()), depth);
-        emit(emitter, dir, 0.5f, 0.0f, 1.0f, 0.5f, spriteFor(tiles.bottom_right()), depth);
+    private void emitFaceQuads(QuadEmitter emitter, Direction dir, Tiles tiles, float depth, boolean flipU) {
+        emit(emitter, dir, 0f, 0.5f, 0.5f, 1.0f, spriteFor(tiles.top_left()), depth, flipU);
+        emit(emitter, dir, 0.5f, 0.5f, 1.0f, 1.0f, spriteFor(tiles.top_right()), depth, flipU);
+        emit(emitter, dir, 0.0f, 0.0f, 0.5f, 0.5f, spriteFor(tiles.bottom_left()), depth, flipU);
+        emit(emitter, dir, 0.5f, 0.0f, 1.0f, 0.5f, spriteFor(tiles.bottom_right()), depth, flipU);
     }
 
     private static void emit(
@@ -176,7 +187,8 @@ public class TileLayerBlockModel implements UnbakedModel, BakedModel, FabricBake
             Direction dir,
             float x1, float y1, float x2, float y2,
             Sprite sprite,
-            float depth
+            float depth,
+            boolean flipU
     ) {
         if (dir == Direction.UP || dir == Direction.DOWN) {
             x1 = 1 - x1;
@@ -185,7 +197,33 @@ public class TileLayerBlockModel implements UnbakedModel, BakedModel, FabricBake
             y2 = 1 - y2;
         }
         emitter.square(dir, x1, y1, x2, y2, depth);
-        emitter.spriteBake(0, sprite, MutableQuadView.BAKE_LOCK_UV);
+        emitter.spriteBake(0, sprite, MutableQuadView.BAKE_LOCK_UV | (flipU ? MutableQuadView.BAKE_FLIP_U : 0));
+        emitter.spriteColor(0, -1, -1, -1, -1);
+        emitter.emit();
+    }
+
+    // One side strip of the 1px item slab, spanning a1..a2 along the edge and
+    // sampling the sprite's edge pixels like vanilla item extrusion
+    private static void emitEdge(QuadEmitter emitter, Direction side, float a1, float a2, Sprite sprite) {
+        float near = FLAT_ITEM_DEPTH;
+        float far = 1f - FLAT_ITEM_DEPTH;
+        if (side.getAxis() == Direction.Axis.Y) {
+            emitter.square(side, a1, near, a2, far, 0f);
+        } else {
+            emitter.square(side, near, a1, far, a2, 0f);
+        }
+        for (int i = 0; i < 4; i++) {
+            float u;
+            float v;
+            switch (side) {
+                case UP -> { u = emitter.x(i); v = EDGE_PIXEL; }
+                case DOWN -> { u = emitter.x(i); v = 1f - EDGE_PIXEL; }
+                case WEST -> { u = EDGE_PIXEL; v = 1f - emitter.y(i); }
+                default -> { u = 1f - EDGE_PIXEL; v = 1f - emitter.y(i); }
+            }
+            emitter.sprite(i, 0, u, v);
+        }
+        emitter.spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED);
         emitter.spriteColor(0, -1, -1, -1, -1);
         emitter.emit();
     }

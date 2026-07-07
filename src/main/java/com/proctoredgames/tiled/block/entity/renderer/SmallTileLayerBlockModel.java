@@ -45,6 +45,8 @@ public class SmallTileLayerBlockModel implements UnbakedModel, BakedModel, Fabri
     private static final float LAYER_DEPTH = 1f - 0.0125f;
     // Depth of the flat item quads: a 1px slab centered like vanilla flat items
     private static final float FLAT_ITEM_DEPTH = 7.5f / 16f;
+    // Center of the sprite's edge pixel row/column, sampled by the item side strips
+    private static final float EDGE_PIXEL = 0.5f / 16f;
 
     private static final SpriteIdentifier[] SPRITE_IDS = new SpriteIdentifier[]{
             new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, id("small_black_tiles")),
@@ -141,7 +143,7 @@ public class SmallTileLayerBlockModel implements UnbakedModel, BakedModel, Fabri
         for (Direction attachment : Direction.values()) {
             SmallTiles tiles = be.getFace(attachment);
             if (tiles != null) {
-                emitFaceQuads(emitter, attachment.getOpposite(), tiles, LAYER_DEPTH);
+                emitFaceQuads(emitter, attachment.getOpposite(), tiles, LAYER_DEPTH, false);
             }
         }
     }
@@ -159,28 +161,45 @@ public class SmallTileLayerBlockModel implements UnbakedModel, BakedModel, Fabri
         }
 
         QuadEmitter emitter = context.getEmitter();
-        // Flat 2d sprite like glow lichen: just the pattern, front and back
-        emitFaceQuads(emitter, Direction.SOUTH, tiles, FLAT_ITEM_DEPTH);
-        emitFaceQuads(emitter, Direction.NORTH, tiles, FLAT_ITEM_DEPTH);
+        // 1px prism like vanilla flat items: pattern front and back, edge strips around;
+        // the back is h-flipped so its edges line up with the front and side strips
+        emitFaceQuads(emitter, Direction.SOUTH, tiles, FLAT_ITEM_DEPTH, false);
+        emitFaceQuads(emitter, Direction.NORTH, tiles, FLAT_ITEM_DEPTH, true);
+        emitEdge(emitter, Direction.UP, 0f, 0.25f, spriteFor(tiles.slot0()));
+        emitEdge(emitter, Direction.UP, 0.25f, 0.5f, spriteFor(tiles.slot1()));
+        emitEdge(emitter, Direction.UP, 0.5f, 0.75f, spriteFor(tiles.slot2()));
+        emitEdge(emitter, Direction.UP, 0.75f, 1f, spriteFor(tiles.slot3()));
+        emitEdge(emitter, Direction.DOWN, 0f, 0.25f, spriteFor(tiles.slot12()));
+        emitEdge(emitter, Direction.DOWN, 0.25f, 0.5f, spriteFor(tiles.slot13()));
+        emitEdge(emitter, Direction.DOWN, 0.5f, 0.75f, spriteFor(tiles.slot14()));
+        emitEdge(emitter, Direction.DOWN, 0.75f, 1f, spriteFor(tiles.slot15()));
+        emitEdge(emitter, Direction.WEST, 0f, 0.25f, spriteFor(tiles.slot12()));
+        emitEdge(emitter, Direction.WEST, 0.25f, 0.5f, spriteFor(tiles.slot8()));
+        emitEdge(emitter, Direction.WEST, 0.5f, 0.75f, spriteFor(tiles.slot4()));
+        emitEdge(emitter, Direction.WEST, 0.75f, 1f, spriteFor(tiles.slot0()));
+        emitEdge(emitter, Direction.EAST, 0f, 0.25f, spriteFor(tiles.slot15()));
+        emitEdge(emitter, Direction.EAST, 0.25f, 0.5f, spriteFor(tiles.slot11()));
+        emitEdge(emitter, Direction.EAST, 0.5f, 0.75f, spriteFor(tiles.slot7()));
+        emitEdge(emitter, Direction.EAST, 0.75f, 1f, spriteFor(tiles.slot3()));
     }
 
-    private void emitFaceQuads(QuadEmitter emitter, Direction dir, SmallTiles tiles, float depth) {
-        emit(emitter, dir, 0f,    0.75f, 0.25f, 1.0f,  spriteFor(tiles.slot0()), depth);
-        emit(emitter, dir, 0.25f, 0.75f, 0.5f,  1.0f,  spriteFor(tiles.slot1()), depth);
-        emit(emitter, dir, 0.5f,  0.75f, 0.75f, 1.0f,  spriteFor(tiles.slot2()), depth);
-        emit(emitter, dir, 0.75f, 0.75f, 1.0f,  1.0f,  spriteFor(tiles.slot3()), depth);
-        emit(emitter, dir, 0f,    0.5f,  0.25f, 0.75f, spriteFor(tiles.slot4()), depth);
-        emit(emitter, dir, 0.25f, 0.5f,  0.5f,  0.75f, spriteFor(tiles.slot5()), depth);
-        emit(emitter, dir, 0.5f,  0.5f,  0.75f, 0.75f, spriteFor(tiles.slot6()), depth);
-        emit(emitter, dir, 0.75f, 0.5f,  1.0f,  0.75f, spriteFor(tiles.slot7()), depth);
-        emit(emitter, dir, 0f,    0.25f, 0.25f, 0.5f,  spriteFor(tiles.slot8()), depth);
-        emit(emitter, dir, 0.25f, 0.25f, 0.5f,  0.5f,  spriteFor(tiles.slot9()), depth);
-        emit(emitter, dir, 0.5f,  0.25f, 0.75f, 0.5f,  spriteFor(tiles.slot10()), depth);
-        emit(emitter, dir, 0.75f, 0.25f, 1.0f,  0.5f,  spriteFor(tiles.slot11()), depth);
-        emit(emitter, dir, 0f,    0.0f,  0.25f, 0.25f, spriteFor(tiles.slot12()), depth);
-        emit(emitter, dir, 0.25f, 0.0f,  0.5f,  0.25f, spriteFor(tiles.slot13()), depth);
-        emit(emitter, dir, 0.5f,  0.0f,  0.75f, 0.25f, spriteFor(tiles.slot14()), depth);
-        emit(emitter, dir, 0.75f, 0.0f,  1.0f,  0.25f, spriteFor(tiles.slot15()), depth);
+    private void emitFaceQuads(QuadEmitter emitter, Direction dir, SmallTiles tiles, float depth, boolean flipU) {
+        emit(emitter, dir, 0f,    0.75f, 0.25f, 1.0f,  spriteFor(tiles.slot0()), depth, flipU);
+        emit(emitter, dir, 0.25f, 0.75f, 0.5f,  1.0f,  spriteFor(tiles.slot1()), depth, flipU);
+        emit(emitter, dir, 0.5f,  0.75f, 0.75f, 1.0f,  spriteFor(tiles.slot2()), depth, flipU);
+        emit(emitter, dir, 0.75f, 0.75f, 1.0f,  1.0f,  spriteFor(tiles.slot3()), depth, flipU);
+        emit(emitter, dir, 0f,    0.5f,  0.25f, 0.75f, spriteFor(tiles.slot4()), depth, flipU);
+        emit(emitter, dir, 0.25f, 0.5f,  0.5f,  0.75f, spriteFor(tiles.slot5()), depth, flipU);
+        emit(emitter, dir, 0.5f,  0.5f,  0.75f, 0.75f, spriteFor(tiles.slot6()), depth, flipU);
+        emit(emitter, dir, 0.75f, 0.5f,  1.0f,  0.75f, spriteFor(tiles.slot7()), depth, flipU);
+        emit(emitter, dir, 0f,    0.25f, 0.25f, 0.5f,  spriteFor(tiles.slot8()), depth, flipU);
+        emit(emitter, dir, 0.25f, 0.25f, 0.5f,  0.5f,  spriteFor(tiles.slot9()), depth, flipU);
+        emit(emitter, dir, 0.5f,  0.25f, 0.75f, 0.5f,  spriteFor(tiles.slot10()), depth, flipU);
+        emit(emitter, dir, 0.75f, 0.25f, 1.0f,  0.5f,  spriteFor(tiles.slot11()), depth, flipU);
+        emit(emitter, dir, 0f,    0.0f,  0.25f, 0.25f, spriteFor(tiles.slot12()), depth, flipU);
+        emit(emitter, dir, 0.25f, 0.0f,  0.5f,  0.25f, spriteFor(tiles.slot13()), depth, flipU);
+        emit(emitter, dir, 0.5f,  0.0f,  0.75f, 0.25f, spriteFor(tiles.slot14()), depth, flipU);
+        emit(emitter, dir, 0.75f, 0.0f,  1.0f,  0.25f, spriteFor(tiles.slot15()), depth, flipU);
     }
 
     private static void emit(
@@ -188,7 +207,8 @@ public class SmallTileLayerBlockModel implements UnbakedModel, BakedModel, Fabri
             Direction dir,
             float x1, float y1, float x2, float y2,
             Sprite sprite,
-            float depth
+            float depth,
+            boolean flipU
     ) {
         if (dir == Direction.UP || dir == Direction.DOWN) {
             x1 = 1 - x1;
@@ -197,7 +217,33 @@ public class SmallTileLayerBlockModel implements UnbakedModel, BakedModel, Fabri
             y2 = 1 - y2;
         }
         emitter.square(dir, x1, y1, x2, y2, depth);
-        emitter.spriteBake(0, sprite, MutableQuadView.BAKE_LOCK_UV);
+        emitter.spriteBake(0, sprite, MutableQuadView.BAKE_LOCK_UV | (flipU ? MutableQuadView.BAKE_FLIP_U : 0));
+        emitter.spriteColor(0, -1, -1, -1, -1);
+        emitter.emit();
+    }
+
+    // One side strip of the 1px item slab, spanning a1..a2 along the edge and
+    // sampling the sprite's edge pixels like vanilla item extrusion
+    private static void emitEdge(QuadEmitter emitter, Direction side, float a1, float a2, Sprite sprite) {
+        float near = FLAT_ITEM_DEPTH;
+        float far = 1f - FLAT_ITEM_DEPTH;
+        if (side.getAxis() == Direction.Axis.Y) {
+            emitter.square(side, a1, near, a2, far, 0f);
+        } else {
+            emitter.square(side, near, a1, far, a2, 0f);
+        }
+        for (int i = 0; i < 4; i++) {
+            float u;
+            float v;
+            switch (side) {
+                case UP -> { u = emitter.x(i); v = EDGE_PIXEL; }
+                case DOWN -> { u = emitter.x(i); v = 1f - EDGE_PIXEL; }
+                case WEST -> { u = EDGE_PIXEL; v = 1f - emitter.y(i); }
+                default -> { u = 1f - EDGE_PIXEL; v = 1f - emitter.y(i); }
+            }
+            emitter.sprite(i, 0, u, v);
+        }
+        emitter.spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED);
         emitter.spriteColor(0, -1, -1, -1, -1);
         emitter.emit();
     }
