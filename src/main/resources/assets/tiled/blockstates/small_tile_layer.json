@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "model": "tiled:block/tiles"
+        "model": "tiled:block/small_tile_layer"
       }
     }
   ]

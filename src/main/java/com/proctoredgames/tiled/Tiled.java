@@ -3,9 +3,9 @@ package com.proctoredgames.tiled;
 import com.proctoredgames.tiled.block.ModBlocks;
 import com.proctoredgames.tiled.block.entity.ModBlockEntities;
 import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
-import com.proctoredgames.tiled.block.entity.custom.SmallTilesBE;
+import com.proctoredgames.tiled.block.entity.custom.SmallTileLayerBE;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
-import com.proctoredgames.tiled.block.entity.custom.TilesBE;
+import com.proctoredgames.tiled.block.entity.custom.TileLayerBE;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
 import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.component.ModDataComponentTypes;
@@ -85,7 +85,7 @@ public class Tiled implements ModInitializer {
 								tile, tile, tile, tile,
 								tile, tile, tile, tile
 						);
-						ItemStack stack = SmallTilesBE.getStackWith(tiles);
+						ItemStack stack = SmallTileLayerBE.getStackWith(tiles);
 
 						entries.add(stack);
 					}
@@ -96,7 +96,7 @@ public class Tiled implements ModInitializer {
 						Item tile = entry.value();
 
 						Tiles tiles = new Tiles(tile, tile, tile, tile);
-						ItemStack stack = TilesBE.getStackWith(tiles);
+						ItemStack stack = TileLayerBE.getStackWith(tiles);
 
 						entries.add(stack);
 					}

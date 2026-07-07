@@ -160,13 +160,13 @@ public class TilingTableBE extends BlockEntity implements ImplementedInventory, 
     // In layer mode, block outputs become their glow-lichen-style layer variants with the same pattern and count
     private static ItemStack toLayerStack(ItemStack result) {
         if (result.isOf(ModBlocks.SMALL_TILE_BLOCK.asItem())) {
-            ItemStack converted = new ItemStack(ModBlocks.SMALL_TILES, result.getCount());
+            ItemStack converted = new ItemStack(ModBlocks.SMALL_TILE_LAYER, result.getCount());
             converted.set(ModDataComponentTypes.SMALL_TILE_BLOCK_TILES,
                     result.getOrDefault(ModDataComponentTypes.SMALL_TILE_BLOCK_TILES, SmallTiles.DEFAULT));
             return converted;
         }
         if (result.isOf(ModBlocks.TILE_BLOCK.asItem())) {
-            ItemStack converted = new ItemStack(ModBlocks.TILES, result.getCount());
+            ItemStack converted = new ItemStack(ModBlocks.TILE_LAYER, result.getCount());
             converted.set(ModDataComponentTypes.TILE_BLOCK_TILES,
                     result.getOrDefault(ModDataComponentTypes.TILE_BLOCK_TILES, Tiles.DEFAULT));
             return converted;

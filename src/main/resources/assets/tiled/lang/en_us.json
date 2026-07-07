@@ -1,8 +1,8 @@
 {
   "block.tiled.small_tile_block": "Small Tile Block",
   "block.tiled.tile_block": "Tile Block",
-  "block.tiled.small_tiles": "Small Tiles",
-  "block.tiled.tiles": "Tiles",
+  "block.tiled.small_tile_layer": "Small Tile Layer",
+  "block.tiled.tile_layer": "Tile Layer",
   "block.tiled.tiling_table": "Tiling Table",
 
   "item.tiled.small_white_concrete_tile": "Small White Concrete Tile",

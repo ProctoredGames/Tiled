@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "tiled:tile_layer",
+    "tiled:small_tile_layer"
+  ]
+}

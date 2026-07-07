@@ -1,9 +1,9 @@
 package com.proctoredgames.tiled.item.custom;
 
 import com.proctoredgames.tiled.block.entity.custom.SmallTileBlockBE;
-import com.proctoredgames.tiled.block.entity.custom.SmallTilesBE;
+import com.proctoredgames.tiled.block.entity.custom.SmallTileLayerBE;
 import com.proctoredgames.tiled.block.entity.custom.TileBlockBE;
-import com.proctoredgames.tiled.block.entity.custom.TilesBE;
+import com.proctoredgames.tiled.block.entity.custom.TileLayerBE;
 import com.proctoredgames.tiled.block.entity.records.SmallTiles;
 import com.proctoredgames.tiled.block.entity.records.Tiles;
 import com.proctoredgames.tiled.util.TileColors;
@@ -69,10 +69,10 @@ public class TileTrowelItem extends Item {
             return ActionResult.SUCCESS;
         }
 
-        if (blockEntity instanceof TilesBE tilesLayer && TileColors.isTileItem(offhandItem)) {
-            Direction face = targetFace(tilesLayer.getFaces(), context.getSide());
+        if (blockEntity instanceof TileLayerBE tileLayer && TileColors.isTileItem(offhandItem)) {
+            Direction face = targetFace(tileLayer.getFaces(), context.getSide());
             if (face == null) return ActionResult.PASS;
-            Tiles pattern = tilesLayer.getFace(face);
+            Tiles pattern = tileLayer.getFace(face);
             if (pattern == null) return ActionResult.PASS;
             List<Item> tiles = new ArrayList<>(pattern.stream());
             int slot = cellIndex(context, face.getOpposite(), 2);
@@ -80,15 +80,15 @@ public class TileTrowelItem extends Item {
             if (tiles.get(slot) == newTile) return ActionResult.PASS;
             if (world.isClient()) return ActionResult.SUCCESS;
             Item replaced = tiles.set(slot, newTile);
-            tilesLayer.setFace(face, new Tiles(tiles.get(0), tiles.get(1), tiles.get(2), tiles.get(3)));
+            tileLayer.setFace(face, new Tiles(tiles.get(0), tiles.get(1), tiles.get(2), tiles.get(3)));
             finishSwap(context, player, offhand, TileColors.tileForConcrete(replaced));
             return ActionResult.SUCCESS;
         }
 
-        if (blockEntity instanceof SmallTilesBE smallTilesLayer && TileColors.isSmallTileItem(offhandItem)) {
-            Direction face = targetFace(smallTilesLayer.getFaces(), context.getSide());
+        if (blockEntity instanceof SmallTileLayerBE smallTileLayer && TileColors.isSmallTileItem(offhandItem)) {
+            Direction face = targetFace(smallTileLayer.getFaces(), context.getSide());
             if (face == null) return ActionResult.PASS;
-            SmallTiles pattern = smallTilesLayer.getFace(face);
+            SmallTiles pattern = smallTileLayer.getFace(face);
             if (pattern == null) return ActionResult.PASS;
             List<Item> tiles = new ArrayList<>(pattern.stream());
             int slot = cellIndex(context, face.getOpposite(), 4);
@@ -96,7 +96,7 @@ public class TileTrowelItem extends Item {
             if (tiles.get(slot) == newTile) return ActionResult.PASS;
             if (world.isClient()) return ActionResult.SUCCESS;
             Item replaced = tiles.set(slot, newTile);
-            smallTilesLayer.setFace(face, smallTilesOf(tiles));
+            smallTileLayer.setFace(face, smallTilesOf(tiles));
             finishSwap(context, player, offhand, TileColors.smallTileForConcrete(replaced));
             return ActionResult.SUCCESS;
         }

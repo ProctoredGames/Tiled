@@ -2,8 +2,8 @@
   "values": [
     "tiled:small_tile_block",
     "tiled:tile_block",
-    "tiled:small_tiles",
-    "tiled:tiles",
+    "tiled:small_tile_layer",
+    "tiled:tile_layer",
     "tiled:tiling_table"
   ]
 }
