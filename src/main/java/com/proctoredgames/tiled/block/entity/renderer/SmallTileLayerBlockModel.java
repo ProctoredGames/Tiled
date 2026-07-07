@@ -216,14 +216,19 @@ public class SmallTileLayerBlockModel implements UnbakedModel, BakedModel, Fabri
             y1 = 1 - y1;
             y2 = 1 - y2;
         }
+        if (flipU){
+            x1 = 1 - x1;
+            x2 = 1 - x2;
+            float temp = x1;
+            x1 = x2;
+            x2 = temp;
+        }
         emitter.square(dir, x1, y1, x2, y2, depth);
         emitter.spriteBake(0, sprite, MutableQuadView.BAKE_LOCK_UV | (flipU ? MutableQuadView.BAKE_FLIP_U : 0));
         emitter.spriteColor(0, -1, -1, -1, -1);
         emitter.emit();
     }
 
-    // One side strip of the 1px item slab, spanning a1..a2 along the edge and
-    // sampling the sprite's edge pixels like vanilla item extrusion
     private static void emitEdge(QuadEmitter emitter, Direction side, float a1, float a2, Sprite sprite) {
         float near = FLAT_ITEM_DEPTH;
         float far = 1f - FLAT_ITEM_DEPTH;
